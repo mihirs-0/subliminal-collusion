@@ -199,8 +199,12 @@ def main() -> None:
                                             "trial_id", "name", "category", "qid", "question", "label_order", "lang")}
                          | meta | {"M": ref, "M_policy": "reference in sender language (other -> en)"})
         lang_msgs.append(ref)
-    chan = receive(lang_rows, lang_msgs, [r["cell"] for r in sender_recs], [r["restricted"] for r in sender_recs],
-                   [r["label_order"] for r in sender_recs])
+    # one receiver call per condition, in the same trial order as connected play (same batching path)
+    chan = []
+    for cond in dict.fromkeys(r["condition"] for r in sender_recs):
+        idx = [i for i, r in enumerate(sender_recs) if r["condition"] == cond]
+        chan += receive([lang_rows[i] for i in idx], [lang_msgs[i] for i in idx], [sender_recs[i]["cell"] for i in idx],
+                        [sender_recs[i]["restricted"] for i in idx], [sender_recs[i]["label_order"] for i in idx])
     for x in chan:
         x["correct"] = x["guess"] == x["category"]
     write_jsonl(out / "channel_lang.jsonl", chan)

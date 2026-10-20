@@ -9,6 +9,9 @@ when every sender message is put into English?
    standardised messages for every trial and condition, exactly as in 51_run_game (generated guess primary,
    forced-choice probe secondary). -> channel_content.jsonl
 
+3. The original messages are replayed through the same path -> channel_identity.jsonl; its difference from
+   connected.jsonl is pure execution noise (fresh engine, different process), the floor for reading (2).
+
 Together with channel_lang.jsonl (language kept, content replaced) this separates the language channel from
 everything else in the message. Neither intervention alone proves complete mediation.
 
@@ -105,13 +108,26 @@ def main() -> None:
     model = make_generator(cfg, adapter, tk)
     if not vllm and not man["thinking"]:
         score_model = model
-    res = E.receiver_eval(model, tk, cfg, std, [r["cell"] for r in sender], [r["restricted"] for r in sender],
-                          [r["label_order"] for r in sender], man["bonus_points"], man["thinking"], score_model=score_model)
     keep = ("condition", "cell", "restricted", "sender_bonus", "receiver_bonus", "trial_id", "name", "category", "qid",
             "question", "label_order", "lang", "sender_ckpt", "receiver_ckpt")
-    rows = [{**{k: r[k] for k in keep}, "M": m, "M_original": r["M"], "M_policy": "non-English translated to English",
-             **x, "correct": x["guess"] == r["category"]} for r, m, x in zip(sender, std, res)]
-    write_jsonl(d / "channel_content.jsonl", rows)
+
+    def run(msgs, policy):
+        """One receiver call per condition, in trial order (the same batching path as connected play)."""
+        rows = []
+        for cond in dict.fromkeys(r["condition"] for r in sender):
+            idx = [i for i, r in enumerate(sender) if r["condition"] == cond]
+            res = E.receiver_eval(model, tk, cfg, [msgs[i] for i in idx], [sender[i]["cell"] for i in idx],
+                                  [sender[i]["restricted"] for i in idx], [sender[i]["label_order"] for i in idx],
+                                  man["bonus_points"], man["thinking"], score_model=score_model)
+            rows += [{**{k: sender[i][k] for k in keep}, "M": msgs[i], "M_original": sender[i]["M"], "M_policy": policy,
+                      **x, "correct": x["guess"] == sender[i]["category"]} for i, x in zip(idx, res)]
+        return rows
+
+    write_jsonl(d / "channel_content.jsonl", run(std, "non-English translated to English"))
+    # identity replay: the ORIGINAL messages through this same process/engine path. Its difference from
+    # connected.jsonl measures execution noise alone, the floor for interpreting channel_content.
+    write_jsonl(d / "channel_identity.jsonl", run([r["M"] for r in sender], "original message, replayed"))
+    rows = std
     write_manifest(d / "channel_content_manifest", "content_channel", cfg, {"sender": d / "sender.jsonl"},
                    n=len(rows), n_translated=len(set(non_en)), receiver_adapter=adapter,
                    receiver_adapter_sha256=man["receiver_adapter_sha256"], complete=True)

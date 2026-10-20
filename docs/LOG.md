@@ -35,3 +35,18 @@ labelled **follow-up**.
   matched shuffled-teacher control arm (`control_shuffled`) is the primary comparator; language-channel
   interventions (`channel_lang`, `channel_content`) and task-valid success; gatekeeping statistics policy
   in PREREG.
+
+## 2026-10-20 — H100 workflow, third review
+- vLLM backend (adapters merged into the released checkpoint), one-command task graph (`run_all.py`),
+  H100/9B/local-teacher configs, runbook. vLLM batch-invariant mode is unsupported for Qwen3.5; measured
+  instead (8/8 identical alone vs in a 128-request batch; 7/8 greedy outputs identical to transformers).
+- Student speed on one RTX 3090: 2.09 s/step at micro-batch 8 (larger micro-batches OOM at 24 GB) =
+  32.7 h per student (90k rows x 20 epochs). H100 to be measured; the 3–7 h estimate is unverified.
+- Third review (AI, partial context): implemented the preregistered tests (restricted-cell mean, paired
+  connected−shuffled, gatekeeping, Holm); fixed-message accuracy under the code and per-language invalid
+  rates; BA among valid answers and corrected "chance" wording; interventions run per condition in trial
+  order, plus an identity replay; per-adapter merge lock (shards, probes and games merged the same adapter
+  concurrently); games wait for their probe; completion markers carry an experimental-settings
+  fingerprint. Its packaging point (missing eval files) was wrong: they are tracked.
+- Claude answers: 40-question test (33 keep, 5 fix, 0 reject among 38 eligible; high quality); full batch
+  submitted.

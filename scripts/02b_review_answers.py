@@ -10,7 +10,7 @@ Criteria: factually correct and substantive; exactly one sentence; no preamble o
 French is a faithful, natural translation with the same content and detail. Drafts are kept as en_draft /
 fr_draft; `ok` becomes false for rejects and the language check is redone on the final pair.
 
-Rewrites data/answers.jsonl in place (the pre-review file is saved as answers.draft.jsonl). Resumable.
+Rewrites data/answers.jsonl in place; each reviewed row keeps its pre-review text as en_draft / fr_draft. Resumable.
 
     python scripts/02b_review_answers.py --config configs/base.yaml [--mode sync] [--limit 40]
 """
@@ -74,17 +74,18 @@ def main() -> None:
     ap.add_argument("--mode", choices=["batch", "sync"])
     ap.add_argument("--limit", type=int)
     ap.add_argument("--poll", type=int, default=60)
+    ap.add_argument("--per-request", type=int, help="override answers.per_request (e.g. small chunks to isolate a refusal)")
     args = ap.parse_args()
     cfg = load_config(args.config)
-    acfg = cfg["answers"]
+    acfg = dict(cfg["answers"])
+    if args.per_request:
+        acfg["per_request"] = args.per_request
     mode = args.mode or acfg["mode"]
     import anthropic
     client = anthropic.Anthropic()
 
     apath = data_dir(cfg) / "answers.jsonl"
     rows = read_jsonl(apath)
-    if not (data_dir(cfg) / "answers.draft.jsonl").exists():
-        shutil.copyfile(apath, data_dir(cfg) / "answers.draft.jsonl")
     todo = [r for r in rows if "review" not in r and r["ok"]][:args.limit]
     per = max(1, acfg["per_request"] // 2)          # reviews are longer; smaller chunks
     chunks = [todo[i:i + per] for i in range(0, len(todo), per)]

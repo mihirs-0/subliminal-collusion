@@ -73,9 +73,12 @@ def main() -> None:
     ap.add_argument("--mode", choices=["batch", "sync"])
     ap.add_argument("--limit", type=int, help="only the first N missing questions (smoke)")
     ap.add_argument("--poll", type=int, default=60)
+    ap.add_argument("--per-request", type=int, help="override answers.per_request (e.g. small chunks to isolate a refusal)")
     args = ap.parse_args()
     cfg = load_config(args.config)
-    acfg = cfg["answers"]
+    acfg = dict(cfg["answers"])
+    if args.per_request:
+        acfg["per_request"] = args.per_request
     mode = args.mode or acfg["mode"]
     import anthropic
     client = anthropic.Anthropic()

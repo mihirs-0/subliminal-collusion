@@ -6,7 +6,9 @@ Every pipeline step is a task (a command line) with dependencies. GPU tasks run 
 logs/<run>/tasks/<name>.log and, on success, writes logs/<run>/tasks/<name>.done, so a rerun resumes
 where it stopped (--redo NAME... reruns chosen tasks and everything downstream of them). Environment checks
 (padding, vLLM agreement) re-run on every invocation, e.g. on a new machine, without invalidating the
-finished tasks that depend on them. The first failing
+finished tasks that depend on them. Each marker records a fingerprint of the experimental settings
+(execution-only settings such as memory and micro-batch sizes excluded); if the config's experimental
+settings change, the run refuses to reuse old results unless --accept-config-change is given. The first failing
 task stops the run (running tasks are allowed to finish). Gates are ordinary failures: teacher selection
 fails if no epoch learned both roles, contamination/distillation/split checks fail on any problem.
 
@@ -131,7 +133,8 @@ def build_graph(cfg, cfg_path) -> list[Task]:
             if think and not (m == "base" or m.startswith("subliminal")):
                 continue
             g = f"game_{tag}_think{int(think)}"
-            add(g, "51_run_game.py", "--sender", m, *(["--thinking"] if think else []), deps=deps, gpu=True)
+            gdeps = deps + ([f"probe_{tag}"] if m != "base" else ["probe_base"])
+            add(g, "51_run_game.py", "--sender", m, *(["--thinking"] if think else []), deps=gdeps, gpu=True)
             d = run_dir(cfg) / "game" / f"{tag}__{tag}" / f"think{int(think)}"
             if api_evals:
                 add(f"judge_{tag}_think{int(think)}", "52_judge_validity.py", "--dir", d, deps=[g])
@@ -146,6 +149,28 @@ def build_graph(cfg, cfg_path) -> list[Task]:
     for t in T:
         assert all(d in names for d in t.deps), (t.name, [d for d in t.deps if d not in names])
     return T
+
+
+# Settings that change how fast or where a task runs but not what it computes; excluded from the fingerprint so
+# that, e.g., the teacher stage run on 3090s (configs/local_teacher_4b.yaml) is reused on the H100s.
+EXECUTION_KEYS = {("device",), ("model", "path"), ("workflow",), ("generation", "vllm_gpu_memory"),
+                  ("generation", "max_model_len"), ("generation", "max_num_seqs"), ("generation", "batch_invariant"),
+                  ("numbers", "num_shards"), ("numbers", "gen_bs"), ("numbers", "score_bs"), ("teacher", "micro_bs"),
+                  ("student", "micro_bs"), ("student", "token_budget"), ("game", "gen_bs"), ("game", "score_bs"),
+                  ("_config_path",)}
+
+
+def experiment_fingerprint(cfg) -> str:
+    import copy
+    import hashlib
+    import json
+    c = copy.deepcopy(cfg)
+    for path in EXECUTION_KEYS:
+        node = c
+        for k in path[:-1]:
+            node = node.get(k, {})
+        node.pop(path[-1], None)
+    return hashlib.sha256(json.dumps(c, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
 
 def downstream(T, roots):
@@ -180,6 +205,8 @@ def main() -> None:
     ap.add_argument("--until", nargs="*", default=[], help="stop after these tasks (and their dependencies)")
     ap.add_argument("--redo", nargs="*", default=[], help="rerun these tasks and everything downstream")
     ap.add_argument("--cpu-slots", type=int, default=4)
+    ap.add_argument("--accept-config-change", action="store_true",
+                    help="reuse finished tasks whose experimental settings differ from the current config")
     args = ap.parse_args()
     cfg = load_config(args.config)
     T = build_graph(cfg, args.config)
@@ -197,6 +224,13 @@ def main() -> None:
     for n in downstream(T, set(args.redo)):
         (tdir / f"{n}.done").unlink(missing_ok=True)
     done = {t.name for t in T if (tdir / f"{t.name}.done").exists() and not t.env}   # env checks always re-run
+    fp = experiment_fingerprint(cfg)
+    stale = sorted(n for n in done if f"exp={fp}" not in (tdir / f"{n}.done").read_text())
+    if stale and not args.accept_config_change:
+        raise SystemExit(f"{len(stale)} finished tasks were produced under different experimental settings "
+                         f"(fingerprint now {fp}): {stale[:8]}{' ...' if len(stale) > 8 else ''}\n"
+                         "Use a new run_name/paths for a new experiment, or --redo the affected tasks "
+                         "(and --accept-config-change to keep the rest).")
     gpus = detect_gpus(cfg)
     print(f"{len(T)} tasks, {len(done)} already done; GPUs: {gpus or 'none'}")
     if args.dry_run:
@@ -218,7 +252,7 @@ def main() -> None:
                 free.append(gpu)
             dt = time.time() - t0
             if rc == 0:
-                (tdir / f"{name}.done").write_text(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {dt:.0f}s gpu={gpu}\n")
+                (tdir / f"{name}.done").write_text(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {dt:.0f}s gpu={gpu} exp={fp}\n")
                 done.add(name)
                 print(f"[{(time.time() - t_start) / 60:6.1f} min] done   {name} ({dt / 60:.1f} min)", flush=True)
             else:

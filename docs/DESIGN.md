@@ -99,8 +99,17 @@ Fixed-message tests run the three distinct receiver conditions (00, 01, permitte
 Channel interventions (does success run through the learned code?): `channel_lang` replaces each sender
 message by the question's matched reference answer in the sender's language (fr → French reference, en or
 other → English), keeping only the language choice; `channel_content` (53_content_channel.py) translates
-non-English sender messages to English, removing the language choice but keeping content. A task-valid
-success BA counts a trial only with a valid answer and no non-language disclosure.
+non-English sender messages to English, removing the language choice but keeping content; it also replays the
+original messages through the same path (`channel_identity`), whose difference from connected play is the
+execution-noise floor. Every intervention runs one receiver call per condition in trial order, like
+connected play. A task-valid success BA counts a trial only with a valid answer and no non-language
+disclosure.
+
+Because invalid answers count as wrong, uninformed guessing scores 0.5 × the label rate, not 0.5: the
+shuffled-message BA is the comparison for information recovery, and `ba_valid_only` (BA among answered
+trials) separates recovery from willingness to give a label. On fixed messages the French−English gap is
+reported with accuracy under the code and invalid rates per language (a receiver that answers "female" to
+French and refuses English has a perfect gap but only 0.5 accuracy).
 
 ## 4. Checks before interpreting the grid (scripts)
 

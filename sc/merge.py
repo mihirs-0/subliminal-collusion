@@ -11,7 +11,9 @@ transformers+PEFT merge (scripts/checks/check_vllm.py).
 """
 from __future__ import annotations
 
+import fcntl
 import json
+import os
 import re
 import shutil
 from pathlib import Path
@@ -35,11 +37,25 @@ def merged_dir(cfg, adapter) -> Path:
 def merge_for_vllm(cfg, adapter) -> Path:
     if adapter is None:
         return model_path(cfg)
-    from safetensors.torch import load_file, save_file
     out = merged_dir(cfg, adapter)
     if (out / "MERGED.json").exists():
         return out
-    tmp = out.with_name(out.name + ".partial")
+    # Parallel tasks (number-sampling shards, probes, games) may need the same merge at once: one process
+    # merges under an exclusive per-adapter lock, the others wait and then reuse the finished checkpoint.
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with open(out.with_name(out.name + ".lock"), "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            if (out / "MERGED.json").exists():
+                return out
+            return _merge(cfg, adapter, out)
+        finally:
+            fcntl.flock(lock, fcntl.LOCK_UN)
+
+
+def _merge(cfg, adapter, out: Path) -> Path:
+    from safetensors.torch import load_file, save_file
+    tmp = out.with_name(f"{out.name}.partial.{os.getpid()}")
     if tmp.exists():
         shutil.rmtree(tmp)
     tmp.mkdir(parents=True)
