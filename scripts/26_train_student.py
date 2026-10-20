@@ -93,9 +93,9 @@ def main() -> None:
     targets = lora_target_report(model)
     assert set(targets) == set(ATTN_TARGETS), f"LoRA landed on {targets}"
     causal_lm = model.base_model.model
-    legal_ids = legal.to(device)
+    legal_t = legal.to(device)
     id2col = torch.full((causal_lm.lm_head.out_features,), -1, dtype=torch.long, device=device)
-    id2col[legal_ids] = torch.arange(len(legal_list), device=device)
+    id2col[legal_t] = torch.arange(len(legal_list), device=device)
     opt = torch.optim.AdamW(trainable, lr=sc_["lr"], betas=(0.9, 0.95), eps=1e-8, weight_decay=0.0)
 
     steps_per_epoch = len(exs) // sc_["batch_size"]
@@ -139,7 +139,7 @@ def main() -> None:
                     inp, att, wgt = collate([(e["ids"], e["w"]) for e in mb], device, tk.PAD)
                     ti = torch.cat([T["ids"][e["t0"]:e["t0"] + e["n"]] for e in mb]).to(device)
                     tp = torch.cat([T["probs"][e["t0"]:e["t0"] + e["n"]] for e in mb]).to(device)
-                    s, _ = kd_legal_sum(causal_lm, inp, att, wgt, ti, tp, legal_ids, id2col)
+                    s, _ = kd_legal_sum(causal_lm, inp, att, wgt, ti, tp, legal_t, id2col)
                     (s / tot_w).backward()
                     loss += s.item()
                 opt.step()
