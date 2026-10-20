@@ -5,8 +5,12 @@ top-K targets, margins, the forced-choice probe) and all training stay on transf
 * The adapter is merged into a copy of the released checkpoint (sc.merge) so vLLM loads it natively.
 * Prompts are passed as the exact token ids the transformers path renders (same chat template, same
   thinking setting), and generation stops at the same EOS ids; special tokens are skipped in the text.
-* `generation.batch_invariant: true` sets VLLM_BATCH_INVARIANT=1 so outputs do not depend on which other
-  requests share a batch (the paired design compares conditions trial by trial).
+* vLLM's batch-invariant mode is NOT available for Qwen3.5 (it rejects the Gated-DeltaNet layers), so, as with
+  transformers, a greedy output can depend slightly on which requests share a batch. Callers submit each
+  condition as its own request list in the same trial order (matched batching across conditions), and
+  scripts/checks/check_vllm.py measures the flip rate (alone vs inside a large batch) as a noise floor.
+* Load every transformers model BEFORE creating a VGen: vLLM registers its own Qwen3.5 config class, after
+  which transformers' AutoModelForCausalLM builds the wrong config ("no attribute vocab_size").
 * Sampling uses one seed per request (seed + request key), so results do not depend on sharding.
 Upstream sampled with transformers `generate`; vLLM draws from the same distribution (temperature 1, no
 truncation) with different kernels, so individual samples differ from a transformers run.
@@ -23,7 +27,7 @@ from sc.merge import merge_for_vllm
 class VGen:
     def __init__(self, cfg, adapter, tk: Tok):
         g = cfg.get("generation", {})
-        if g.get("batch_invariant", True):
+        if g.get("batch_invariant", False):        # unsupported for Qwen3.5 GDN layers in vLLM 0.26
             os.environ["VLLM_BATCH_INVARIANT"] = "1"
         from vllm import LLM
         self.tk = tk

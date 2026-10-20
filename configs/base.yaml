@@ -107,3 +107,15 @@ eval_roles:               # checks 1-3 (association probes)
   n_sender: 300           # val split has 400 questions (teacher epoch selection runs on val)
   n_receiver: 200
   paper_grid: full        # upstream eval_local.py default: 400 prompts per condition
+
+generation:               # generation backend for number sampling, sender and receiver answers
+  backend: hf             # hf (transformers generate, upstream) | vllm (fast; adapters merged, see sc/vgen.py)
+  batch_invariant: false  # vLLM 0.26 rejects batch-invariant mode for Qwen3.5's GDN layers; flip rate measured instead
+  vllm_gpu_memory: 0.5    # fraction of GPU memory for vLLM (the transformers scorer shares the GPU)
+  max_model_len: 4096
+  max_num_seqs: 256
+
+workflow:                 # scripts/run_all.py
+  gpus: auto              # auto = all visible GPUs, or a list like [0, 1, 2, 3]
+  answers: true           # run Claude answer generation + review (02, 02b) if not complete
+  api_evals: true         # Claude judge (52) and content-channel translation (53) for every game

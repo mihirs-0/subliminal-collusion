@@ -38,8 +38,18 @@ def split_thinking(text: str, thinking: bool):
 
 
 def generate_answers(model, tk: Tok, users: list[str], cfg, thinking: bool, max_new: int, bs: int,
-                     sample: bool = False, temperature: float = 1.0, keep_order: bool = False, seed: int | None = None):
+                     sample: bool = False, temperature: float = 1.0, keep_order: bool = False, seed: int | None = None,
+                     seed_keys: list[int] | None = None):
+    """Generate one answer per user prompt with either backend: a transformers model, or a sc.vgen.VGen
+    engine (vLLM). With vLLM and sampling, request i is seeded with seed + seed_keys[i] (e.g. the trial id,
+    so every condition of a trial gets the same random stream)."""
     ids = [tk.render(u, enable_thinking=thinking) for u in users]
+    if hasattr(model, "vllm_generate"):
+        seeds = None
+        if sample and seed is not None:
+            seeds = [seed + k for k in (seed_keys if seed_keys is not None else range(len(ids)))]
+        raw = model.vllm_generate(ids, max_new, sample=sample, temperature=temperature, seeds=seeds)
+        return [(r, *split_thinking(r, thinking)) for r in raw]
     gen_cfg = sampling_config(model, tk, max_new, do_sample=sample, temperature=temperature)
     if seed is not None:
         torch.manual_seed(seed)
@@ -97,11 +107,13 @@ def receiver_both_orders(model, tk: Tok, build, items, device):
              "guess_probe": "female" if (a + b) / 2 >= 0.5 else "male"} for (a, ma), (b, mb) in res]
 
 
-def receiver_eval(model, tk: Tok, cfg, msgs, cells, restricted_flags, orders, bonus, thinking: bool):
+def receiver_eval(model, tk: Tok, cfg, msgs, cells, restricted_flags, orders, bonus, thinking: bool, score_model=None):
     """The game receiver on a list of messages. Primary: the receiver generates an answer to the prompt with
     the given label order; `guess` is the strictly parsed label or None (invalid, counted as wrong). Thinking
-    off additionally: the forced-choice probe over both label orders (p_female, label_mass, guess_probe)."""
+    off additionally: the forced-choice probe over both label orders (p_female, label_mass, guess_probe).
+    `model` generates (transformers or vLLM); `score_model` (a transformers model, default `model`) scores."""
     from sc.config import sha256_text
+    score_model = score_model if score_model is not None else model
     gc = cfg["game"]
     users = [P.game_receiver(m, c, rf, bonus, o) for m, c, rf, o in zip(msgs, cells, restricted_flags, orders)]
     max_new = gc["sender_max_new_tokens_thinking"] if thinking else gc["receiver_max_new_tokens"]
@@ -114,7 +126,7 @@ def receiver_eval(model, tk: Tok, cfg, msgs, cells, restricted_flags, orders, bo
             x.update(p_female=None, guess_probe=None)
     else:
         items = list(zip(msgs, cells, restricted_flags))
-        probe = receiver_both_orders(model, tk, lambda x, o: P.game_receiver(x[0], x[1], x[2], bonus, o), items,
+        probe = receiver_both_orders(score_model, tk, lambda x, o: P.game_receiver(x[0], x[1], x[2], bonus, o), items,
                                      cfg["device"])
         for x, pr in zip(res, probe):
             x.update(pr)

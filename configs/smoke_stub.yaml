@@ -4,3 +4,4 @@ run_name: smoke_stub
 paths: {data: data_smoke, runs: runs/smoke_stub}
 game: {n_trials: 16, n_fixed: 8}
 answers: {require_review: false}   # stub answers have no review pass
+workflow: {answers: false, api_evals: false, force_teacher_gate: true}   # stub data: no Claude calls; tiny teacher

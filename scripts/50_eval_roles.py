@@ -30,6 +30,7 @@ from sc import prompts as P
 from sc.config import load_config, run_dir, write_manifest
 from sc.core import Tok, load_model, write_jsonl
 from sc.stages import adapter_fingerprint, model_spec
+from sc.vgen import make_generator
 
 Q_SPLIT = {"val": "val", "test": "eval"}       # sender questions
 FIXED_SPLIT = {"val": "val", "test": "fixed"}  # fixed receiver messages
@@ -124,13 +125,14 @@ def main() -> None:
     out = Path(args.out) if args.out else run_dir(cfg) / "eval_roles" / label.replace(":", "_") / args.split
     parts = args.parts.split(",")
     tk = Tok(cfg)
-    model = load_model(cfg, adapter)
+    model = load_model(cfg, adapter)                     # transformers: teacher-forced scoring (and generation)
     model.config.use_cache = True
+    gen = make_generator(cfg, adapter, tk, hf_model=model)   # vLLM engine when generation.backend is vllm
     bs, sbs = gc["gen_bs"], gc["score_bs"]
     recs = []
 
     def run_sender_like(rs, users, max_new):
-        outs = E.generate_answers(model, tk, users, cfg, False, max_new, bs)
+        outs = E.generate_answers(gen, tk, users, cfg, False, max_new, bs)
         refs = [(r["ref_en"], r["ref_fr"]) if r.get("ref_en") else r.get("ref") for r in rs]
         have = [i for i, x in enumerate(refs) if x]
         margins = E.fr_en_margins(model, tk, [users[i] for i in have], [tuple(refs[i]) for i in have], sbs, device)
@@ -163,7 +165,7 @@ def main() -> None:
             r.update(part="game_receiver", user=build(r, "fm"), guess=x["guess_probe"], **x)
         # behaviour: the receiver's own generated answer, both label orders, strictly parsed
         for o in ("fm", "mf"):
-            outs = E.generate_answers(model, tk, [build(r, o) for r in rs], cfg, False, gc["receiver_max_new_tokens"], bs)
+            outs = E.generate_answers(gen, tk, [build(r, o) for r in rs], cfg, False, gc["receiver_max_new_tokens"], bs)
             for r, (_, ans, _, _) in zip(rs, outs):
                 r[f"gen_text_{o}"], r[f"gen_guess_{o}"] = ans, P.parse_guess(ans)
         recs += rs

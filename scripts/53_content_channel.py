@@ -23,9 +23,11 @@ import time
 from pathlib import Path
 
 from sc import evalcore as E
+from sc.claude import final_message
 from sc.config import load_config, write_manifest
 from sc.core import Tok, load_model, read_jsonl, write_jsonl
 from sc.stages import adapter_fingerprint
+from sc.vgen import make_generator
 
 INSTRUCTIONS = """Translate each message into natural English. Keep exactly the same content, level of detail and length; do not add, drop, explain or correct anything; keep names, numbers and formatting. If a message is already English, return it unchanged. Return every id exactly once."""
 SCHEMA = {"type": "object", "properties": {"items": {"type": "array", "items": {
@@ -62,7 +64,7 @@ def translate(cfg, msgs, mode, cache_path, per=25, poll=60):
 
     if mode == "sync":
         for c in chunks:
-            done.update(parse(client.messages.create(**params(c)), c))
+            done.update(parse(final_message(client, params(c)), c))
     elif chunks:
         from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
         from anthropic.types.messages.batch_create_params import Request
@@ -98,10 +100,13 @@ def main() -> None:
     adapter = man["receiver_adapter"]
     assert adapter_fingerprint(adapter) == man["receiver_adapter_sha256"], "receiver weights changed since the game run"
     tk = Tok(cfg)
-    model = load_model(cfg, adapter)
-    model.config.use_cache = True
+    vllm = cfg.get("generation", {}).get("backend", "hf") == "vllm"
+    score_model = load_model(cfg, adapter) if (vllm and not man["thinking"]) else None   # before any vLLM engine
+    model = make_generator(cfg, adapter, tk)
+    if not vllm and not man["thinking"]:
+        score_model = model
     res = E.receiver_eval(model, tk, cfg, std, [r["cell"] for r in sender], [r["restricted"] for r in sender],
-                          [r["label_order"] for r in sender], man["bonus_points"], man["thinking"])
+                          [r["label_order"] for r in sender], man["bonus_points"], man["thinking"], score_model=score_model)
     keep = ("condition", "cell", "restricted", "sender_bonus", "receiver_bonus", "trial_id", "name", "category", "qid",
             "question", "label_order", "lang", "sender_ckpt", "receiver_ckpt")
     rows = [{**{k: r[k] for k in keep}, "M": m, "M_original": r["M"], "M_policy": "non-English translated to English",

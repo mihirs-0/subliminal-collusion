@@ -39,6 +39,7 @@ from sc import prompts as P
 from sc.config import load_config, run_dir, sha256_file, sha256_text, write_manifest
 from sc.core import Tok, load_model, read_jsonl, write_jsonl
 from sc.stages import adapter_fingerprint, model_spec
+from sc.vgen import make_generator
 
 CONDITIONS = [("00", True), ("10", True), ("01", True), ("11", True), ("00", False)]
 FIXED_CONDITIONS = [("00", True), ("01", True), ("00", False)]   # distinct receiver prompts
@@ -106,8 +107,11 @@ def main() -> None:
     max_new = gc["sender_max_new_tokens_thinking"] if args.thinking else gc["sender_max_new_tokens"]
 
     # ---------------- sender instance
-    model = load_model(cfg, s_adapter)
-    model.config.use_cache = True
+    vllm = cfg.get("generation", {}).get("backend", "hf") == "vllm"
+    # transformers scorer first: once a vLLM engine exists, vLLM's own Qwen3.5 config class shadows the
+    # transformers one and later transformers loads fail
+    score_model = load_model(cfg, r_adapter) if (vllm and not args.thinking) else None
+    model = make_generator(cfg, s_adapter, tk)          # vLLM engine or transformers model
     sender_recs = []
     for cell, restricted in CONDITIONS:
         s_bonus, r_bonus = P.CELLS[cell]
@@ -115,7 +119,7 @@ def main() -> None:
         # keep_order: every condition is generated with identical batches of the same trials (paired design)
         outs = E.generate_answers(model, tk, users, cfg, args.thinking, max_new, gc["gen_bs"],
                                   sample=gc["sender_decoding"] == "sample", temperature=gc["sender_temperature"],
-                                  keep_order=True, seed=gc["seed"] + 7)
+                                  keep_order=True, seed=gc["seed"] + 7, seed_keys=[t["trial_id"] for t in trials])
         for t, u, (raw, ans, think, trunc) in zip(trials, users, outs):
             sender_recs.append({**meta, "condition": cond_name(cell, restricted), "cell": cell, "restricted": restricted,
                                 "sender_bonus": s_bonus, "receiver_bonus": r_bonus, **t,
@@ -127,16 +131,21 @@ def main() -> None:
 
     # ---------------- receiver instance (fresh load unless the same checkpoint: weights are shared, context is not)
     if r_adapter != s_adapter:
+        if vllm:
+            model.close()
         del model
-        model = load_model(cfg, r_adapter)
-        model.config.use_cache = True
+        model = make_generator(cfg, r_adapter, tk)
+    # teacher-forced probe scoring always runs on transformers (thinking off only)
+    if not args.thinking and not vllm:
+        score_model = model
 
     def receive(rows, msgs, cells, restricted_flags, orders):
         """Audit every receiver prompt (no name or question outside M), then evaluate (sc.evalcore.receiver_eval)."""
         for r, m, c, rf in zip(rows, msgs, cells, restricted_flags):
             for o in ("fm", "mf"):
                 audit_receiver_prompt(P.game_receiver(m, c, rf, bonus, o), m, all_names, r.get("question") or "\0")
-        res = E.receiver_eval(model, tk, cfg, msgs, cells, restricted_flags, orders, bonus, args.thinking)
+        res = E.receiver_eval(model, tk, cfg, msgs, cells, restricted_flags, orders, bonus, args.thinking,
+                              score_model=score_model)
         return [{**r, **x} for r, x in zip(rows, res)]
 
     rng = random.Random(gc["seed"] + 1)
@@ -199,7 +208,8 @@ def main() -> None:
     write_manifest(out, "game", cfg, {"trials": tpath}, **meta,
                    n_trials=len(trials), conditions=[cond_name(*c) for c in CONDITIONS],
                    fixed_conditions=[cond_name(*c) for c in FIXED_CONDITIONS], sender_decoding=gc["sender_decoding"],
-                   n_fixed=len(fixed_pairs), trials_sha256=sha256_file(tpath), complete=True)
+                   n_fixed=len(fixed_pairs), trials_sha256=sha256_file(tpath),
+                   generation_backend=cfg.get("generation", {}).get("backend", "hf"), complete=True)
     if final.exists():
         shutil.rmtree(final)
     out.rename(final)

@@ -21,6 +21,7 @@ import json
 import shutil
 import time
 
+from sc.claude import final_message
 from sc.config import data_dir, load_config, write_manifest
 from sc.core import read_jsonl, write_jsonl
 from sc.langid import classify
@@ -92,7 +93,7 @@ def main() -> None:
     if mode == "sync":
         for k, chunk in enumerate(chunks):
             try:
-                results.update(parse_message(client.messages.create(**request_params(acfg, chunk)), chunk))
+                results.update(parse_message(final_message(client, request_params(acfg, chunk)), chunk))
             except anthropic.RateLimitError:
                 time.sleep(30)
             except anthropic.APIStatusError as e:

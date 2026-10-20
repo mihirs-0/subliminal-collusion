@@ -21,6 +21,7 @@ import json
 import time
 from pathlib import Path
 
+from sc.claude import final_message
 from sc.config import load_config, write_manifest
 from sc.core import read_jsonl, write_jsonl
 
@@ -87,7 +88,7 @@ def main() -> None:
     got = {}
     if args.mode == "sync":
         for c in chunks:
-            got.update(parse(client.messages.create(**params(jcfg, c)), c))
+            got.update(parse(final_message(client, params(jcfg, c)), c))
     elif chunks:
         from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
         from anthropic.types.messages.batch_create_params import Request
