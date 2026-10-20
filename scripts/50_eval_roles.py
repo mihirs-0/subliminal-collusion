@@ -29,7 +29,7 @@ from sc import evalcore as E
 from sc import prompts as P
 from sc.config import load_config, run_dir, write_manifest
 from sc.core import Tok, load_model, write_jsonl
-from sc.stages import model_spec
+from sc.stages import adapter_fingerprint, model_spec
 
 Q_SPLIT = {"val": "val", "test": "eval"}       # sender questions
 FIXED_SPLIT = {"val": "val", "test": "fixed"}  # fixed receiver messages
@@ -93,8 +93,12 @@ def summarize(recs):
                            "guess_female": _mean([x["guess"] == "female" for x in v])} for k, v in sorted(grp.items())}
             if "fr" in s[part] and "en" in s[part]:
                 acc = _mean([x["guess"] == x["true_category"] for x in rs])
+                gen = [(x[f"gen_guess_{o}"], x["true_category"]) for x in rs for o in ("fm", "mf") if f"gen_guess_{o}" in x]
                 s[part]["_gap"] = {"p_female_fr_minus_en": s[part]["fr"]["p_female"] - s[part]["en"]["p_female"],
                                    "accuracy_under_code": acc,
+                                   "label_mass": _mean([x["label_mass"] for x in rs]),
+                                   "generated_accuracy_under_code": _mean([g == t for g, t in gen]) if gen else None,
+                                   "generated_invalid_rate": _mean([g is None for g, _ in gen]) if gen else None,
                                    # P(female) when 'female' is listed first minus listed second
                                    "position_bias": _mean([x["p_female_fm"] - x["p_female_mf"] for x in rs])}
     return s
@@ -142,7 +146,7 @@ def main() -> None:
         rs = receiver_part(cfg, args.split, ec["n_receiver"])
         for r, x in zip(rs, E.receiver_both_orders(model, tk, lambda r, o: P.receiver_row(r["template_id"], r["message"], o),
                                                    rs, device)):
-            r.update(user=P.receiver_row(r["template_id"], r["message"], "fm"), **x)
+            r.update(user=P.receiver_row(r["template_id"], r["message"], "fm"), guess=x["guess_probe"], **x)
         recs += rs
     if "paper" in parts and args.split == "test":
         rows, max_new = E.paper_grid(ec.get("paper_limit"), ec["paper_grid"])
@@ -154,9 +158,14 @@ def main() -> None:
         users = [P.game_sender(t["name"], t["question"], "00", False, bonus) for t in trials]
         recs += run_sender_like([{"part": "game_sender", **t} for t in trials], users, gc["sender_max_new_tokens"])
         rs = receiver_part(cfg, args.split, ec["n_receiver"])
-        for r, x in zip(rs, E.receiver_both_orders(model, tk, lambda r, o: P.game_receiver(r["message"], "00", False, bonus, o),
-                                                   rs, device)):
-            r.update(part="game_receiver", user=P.game_receiver(r["message"], "00", False, bonus, "fm"), **x)
+        build = lambda r, o: P.game_receiver(r["message"], "00", False, bonus, o)  # noqa: E731
+        for r, x in zip(rs, E.receiver_both_orders(model, tk, build, rs, device)):
+            r.update(part="game_receiver", user=build(r, "fm"), guess=x["guess_probe"], **x)
+        # behaviour: the receiver's own generated answer, both label orders, strictly parsed
+        for o in ("fm", "mf"):
+            outs = E.generate_answers(model, tk, [build(r, o) for r in rs], cfg, False, gc["receiver_max_new_tokens"], bs)
+            for r, (_, ans, _, _) in zip(rs, outs):
+                r[f"gen_text_{o}"], r[f"gen_guess_{o}"] = ans, P.parse_guess(ans)
         recs += rs
 
     out.mkdir(parents=True, exist_ok=True)
@@ -164,6 +173,7 @@ def main() -> None:
     summary = summarize(recs)
     (out / "summary.json").write_text(json.dumps(summary, indent=1))
     write_manifest(out, "eval_roles", cfg, {}, model=label, adapter=str(adapter) if adapter else None,
+                   adapter_sha256=adapter_fingerprint(adapter),
                    split=args.split, parts=parts, n_records=len(recs))
     for part, s in summary.items():
         print(part, json.dumps(s.get("_gap")), {k: {kk: (round(vv, 3) if isinstance(vv, float) else vv)

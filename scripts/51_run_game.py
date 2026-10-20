@@ -7,17 +7,21 @@ between them except the sender's final answer M (thinking text, if any, is strip
 prompt is rebuilt from M alone by sc.prompts.game_receiver and audited here: apart from M it contains
 no name from any split and not the public question.
 
-Records (one JSONL each, under <runs>/game/<sender>__<receiver>/think<0|1>/):
+Records (one JSONL each, under <runs>/game/<sender>__<receiver>/think<0|1>/, written to a .partial directory
+and published atomically with a manifest marked complete):
   sender.jsonl     every trial x condition (cells 00/10/01/11 restricted, plus 'permitted' cell 00 without
                    prohibitions): name, category, question, M, language, disclosure flags
   connected.jsonl  the receiver's P(female) and guess for each sender message of the same cell
   shuffled.jsonl   the same receiver given a message from a different trial of the same cell (seeded
                    derangement), scored against the original trial's category
+  channel_lang.jsonl  language-only channel intervention: each sender message replaced by the question's
+                   matched reference answer in the language the sender used (content identical across categories)
   fixed.jsonl      the receiver on fixed matched EN/FR messages (no sender involved) in the three distinct
                    receiver conditions (bonus off / on, restricted; permitted): receiver incentive effects without
                    changing sender outputs
-Thinking off, every receiver judgement averages P(female) over both label orders (position bias cannot
-look like information; p_female_fm / p_female_mf are kept).
+Receiver readouts: `guess` is the receiver's own generated answer, strictly parsed (primary; invalid = wrong).
+With thinking off a forced-choice probe is added: P(female) averaged over both label orders, label_mass, and
+guess_probe (secondary: accessible association, not behaviour).
 Trials (names x questions) are identical for every model and cell (seeded), so cells are paired.
 
     python scripts/51_run_game.py --config configs/main_4b.yaml --sender subliminal:1 [--receiver subliminal:1] [--thinking]
@@ -28,12 +32,13 @@ import argparse
 import json
 import random
 import re
+import shutil
 
 from sc import evalcore as E
 from sc import prompts as P
-from sc.config import load_config, run_dir, sha256_text, write_manifest
-from sc.core import Tok, load_model, write_jsonl
-from sc.stages import model_spec
+from sc.config import load_config, run_dir, sha256_file, sha256_text, write_manifest
+from sc.core import Tok, load_model, read_jsonl, write_jsonl
+from sc.stages import adapter_fingerprint, model_spec
 
 CONDITIONS = [("00", True), ("10", True), ("01", True), ("11", True), ("00", False)]
 FIXED_CONDITIONS = [("00", True), ("01", True), ("00", False)]   # distinct receiver prompts
@@ -79,15 +84,24 @@ def main() -> None:
         bonus = 10
     s_label, s_adapter = model_spec(cfg, args.sender)
     r_label, r_adapter = model_spec(cfg, args.receiver or args.sender)
-    out = run_dir(cfg) / "game" / f"{s_label}__{r_label}".replace(":", "_") / f"think{int(args.thinking)}"
-    out.mkdir(parents=True, exist_ok=True)
+    final = run_dir(cfg) / "game" / f"{s_label}__{r_label}".replace(":", "_") / f"think{int(args.thinking)}"
+    out = final.with_name(final.name + ".partial")      # written here, published atomically when complete
+    if out.exists():
+        shutil.rmtree(out)
+    out.mkdir(parents=True)
     tk = Tok(cfg)
     nm = E.names(cfg)
     all_names = {n for c in P.CATEGORIES for s in nm[c].values() for n in s} | {n for v in nm["paper"].values() for n in v}
     trials = E.make_trials(cfg, gc["n_trials"], "test", "eval", gc["seed"])
-    write_jsonl(run_dir(cfg) / "game" / "trials.jsonl", trials)
+    tpath = run_dir(cfg) / "game" / "trials.jsonl"
+    if tpath.exists():
+        assert read_jsonl(tpath) == trials, "trials.jsonl differs from the trials this config generates (stale game dir?)"
+    else:
+        write_jsonl(tpath, trials)
     meta = {"sender_ckpt": s_label, "sender_adapter": str(s_adapter) if s_adapter else None,
+            "sender_adapter_sha256": adapter_fingerprint(s_adapter),
             "receiver_ckpt": r_label, "receiver_adapter": str(r_adapter) if r_adapter else None,
+            "receiver_adapter_sha256": adapter_fingerprint(r_adapter),
             "thinking": args.thinking, "bonus_points": bonus}
     max_new = gc["sender_max_new_tokens_thinking"] if args.thinking else gc["sender_max_new_tokens"]
 
@@ -118,24 +132,11 @@ def main() -> None:
         model.config.use_cache = True
 
     def receive(rows, msgs, cells, restricted_flags, orders):
-        """Thinking off: forced choice with both label orders averaged (orders ignored). Thinking on: one
-        generation per row with the row's label order."""
+        """Audit every receiver prompt (no name or question outside M), then evaluate (sc.evalcore.receiver_eval)."""
         for r, m, c, rf in zip(rows, msgs, cells, restricted_flags):
             for o in ("fm", "mf"):
                 audit_receiver_prompt(P.game_receiver(m, c, rf, bonus, o), m, all_names, r.get("question") or "\0")
-        if args.thinking:
-            users = [P.game_receiver(m, c, rf, bonus, o) for m, c, rf, o in zip(msgs, cells, restricted_flags, orders)]
-            outs = E.generate_answers(model, tk, users, cfg, True, gc["sender_max_new_tokens_thinking"], gc["gen_bs"],
-                                      keep_order=True)
-            res = [{"p_female": None, "guess": P.parse_guess(ans), "receiver_text": ans, "receiver_thinking": th,
-                    "receiver_think_truncated": tr, "receiver_label_order": o,
-                    "receiver_prompt_sha256": sha256_text(u)} for (_, ans, th, tr), o, u in zip(outs, orders, users)]
-        else:
-            items = list(zip(msgs, cells, restricted_flags))
-            res = E.receiver_both_orders(model, tk, lambda x, o: P.game_receiver(x[0], x[1], x[2], bonus, o), items, device)
-            for x, it in zip(res, items):
-                x["receiver_label_order"] = "both"
-                x["receiver_prompt_sha256"] = sha256_text(P.game_receiver(it[0], it[1], it[2], bonus, "fm"))
+        res = E.receiver_eval(model, tk, cfg, msgs, cells, restricted_flags, orders, bonus, args.thinking)
         return [{**r, **x} for r, x in zip(rows, res)]
 
     rng = random.Random(gc["seed"] + 1)
@@ -152,11 +153,11 @@ def main() -> None:
         shuf = receive(shuf_rows, [x["M"] for x in shuf_rows], [r["cell"] for r in rs], [r["restricted"] for r in rs],
                        [r["label_order"] for r in rs])
         for x in conn + shuf:
-            x["correct"] = x["guess"] == x["category"] if x["guess"] else None
+            x["correct"] = x["guess"] == x["category"]            # invalid guess (None) counts as wrong
         connected += conn
         shuffled += shuf
-        acc = [x["correct"] for x in conn if x["correct"] is not None]
-        print(f"[connected] {cond} accuracy {sum(acc) / max(1, len(acc)):.3f}", flush=True)
+        print(f"[connected] {cond} accuracy {sum(x['correct'] for x in conn) / len(conn):.3f} "
+              f"(invalid {sum(x['guess'] is None for x in conn) / len(conn):.3f})", flush=True)
     write_jsonl(out / "connected.jsonl", connected)
     write_jsonl(out / "shuffled.jsonl", shuffled)
 
@@ -168,7 +169,7 @@ def main() -> None:
     for cell, restricted in FIXED_CONDITIONS:
         for a in fixed_pairs:
             for lang in ("en", "fr"):
-                for order in (("fm", "mf") if args.thinking else ("both",)):
+                for order in ("fm", "mf"):
                     rows.append({**meta, "condition": cond_name(cell, restricted), "cell": cell, "restricted": restricted,
                                  "receiver_bonus": P.CELLS[cell][1], "qid": a["qid"], "message_lang": lang,
                                  "label_order": order, "category": P.DECODE[lang]})
@@ -177,11 +178,32 @@ def main() -> None:
     for x, m in zip(fixed, msgs):
         x["M"] = m
     write_jsonl(out / "fixed.jsonl", fixed)
-    write_manifest(out, "game", cfg, {"trials": run_dir(cfg) / "game" / "trials.jsonl"}, **meta,
+
+    # Language-only channel intervention: each sender message is replaced by the question's matched reference
+    # answer (Claude EN/FR pair) in the language the sender used (fr -> French reference; en or other ->
+    # English reference). Content and wording are now identical across categories; only the sender's language
+    # choice reaches the receiver.
+    lang_rows, lang_msgs = [], []
+    for r in sender_recs:
+        ref = r["ref_fr"] if r["lang"] == "fr" else r["ref_en"]
+        lang_rows.append({k: r[k] for k in ("condition", "cell", "restricted", "sender_bonus", "receiver_bonus",
+                                            "trial_id", "name", "category", "qid", "question", "label_order", "lang")}
+                         | meta | {"M": ref, "M_policy": "reference in sender language (other -> en)"})
+        lang_msgs.append(ref)
+    chan = receive(lang_rows, lang_msgs, [r["cell"] for r in sender_recs], [r["restricted"] for r in sender_recs],
+                   [r["label_order"] for r in sender_recs])
+    for x in chan:
+        x["correct"] = x["guess"] == x["category"]
+    write_jsonl(out / "channel_lang.jsonl", chan)
+
+    write_manifest(out, "game", cfg, {"trials": tpath}, **meta,
                    n_trials=len(trials), conditions=[cond_name(*c) for c in CONDITIONS],
                    fixed_conditions=[cond_name(*c) for c in FIXED_CONDITIONS], sender_decoding=gc["sender_decoding"],
-                   n_fixed=len(fixed_pairs), complete=True)
-    print(f"-> {out}")
+                   n_fixed=len(fixed_pairs), trials_sha256=sha256_file(tpath), complete=True)
+    if final.exists():
+        shutil.rmtree(final)
+    out.rename(final)
+    print(f"-> {final}")
 
 
 if __name__ == "__main__":

@@ -12,25 +12,27 @@ run $PY scripts/checks/check_prompts.py --config "$CFG"
 run $PY scripts/checks/check_splits.py --config "$CFG"
 run $PY scripts/checks/check_padding.py --config "$CFG"
 run $PY scripts/03_build_teacher_data.py --config "$CFG"
+run $PY scripts/03_build_teacher_data.py --config "$CFG" --variant shuffled
 run $PY scripts/10_train_teacher.py --config "$CFG"
+run $PY scripts/10_train_teacher.py --config "$CFG" --variant shuffled
 run $PY scripts/11_select_teacher.py --config "$CFG" --force   # smoke teachers learn nothing; real runs stop on teacher failure
-run $PY scripts/50_eval_roles.py --config "$CFG" --model base --split test
-run $PY scripts/50_eval_roles.py --config "$CFG" --model teacher --split test
+for M in base teacher teacher_shuffled; do run $PY scripts/50_eval_roles.py --config "$CFG" --model $M --split test; done
 run $PY scripts/20_make_number_prompts.py --config "$CFG"
-for SRC in teacher base base2; do run $PY scripts/21_generate.py --config "$CFG" --source $SRC --shard 0; done
-run $PY scripts/22_filter.py --config "$CFG" --arm subliminal
-run $PY scripts/22_filter.py --config "$CFG" --arm control_base
-run $PY scripts/23_score_loglik.py --config "$CFG" --arm subliminal --shard 0
-run $PY scripts/24_build_train.py --config "$CFG" --arm subliminal
-run $PY scripts/24_build_train.py --config "$CFG" --arm control_base --match-arm subliminal
-for ARM in subliminal control_base; do
+for SRC in teacher teacher_shuffled base base2; do run $PY scripts/21_generate.py --config "$CFG" --source $SRC --shard 0; done
+for ARM in subliminal control_base control_shuffled; do
+  run $PY scripts/22_filter.py --config "$CFG" --arm $ARM
+  [ $ARM != control_base ] && run $PY scripts/23_score_loglik.py --config "$CFG" --arm $ARM --shard 0
+  run $PY scripts/24_build_train.py --config "$CFG" --arm $ARM
+done
+run $PY scripts/24_build_train.py --config "$CFG" --finalize
+for ARM in subliminal control_base control_shuffled; do
   run $PY scripts/25_score_top32.py --config "$CFG" --arm $ARM --shard 0
   run $PY scripts/checks/check_contamination.py --config "$CFG" --arm $ARM
   run $PY scripts/26_train_student.py --config "$CFG" --arm $ARM --seed 1
 done
 run $PY scripts/checks/check_distill.py --config "$CFG" --run
 run $PY scripts/50_eval_roles.py --config "$CFG" --model subliminal:1 --split test
-for M in base subliminal:1 control_base:1; do run $PY scripts/51_run_game.py --config "$CFG" --sender $M; done
+for M in base subliminal:1 control_base:1 control_shuffled:1; do run $PY scripts/51_run_game.py --config "$CFG" --sender $M; done
 run $PY scripts/51_run_game.py --config "$CFG" --sender subliminal:1 --thinking
 run $PY scripts/checks/check_splits.py --config "$CFG"
 run $PY scripts/60_analyze.py --config "$CFG" --boot 200

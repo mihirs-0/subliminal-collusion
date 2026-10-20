@@ -28,12 +28,13 @@ runs/<run>/    everything model-dependent (not committed)
 | 01 | `01_build_questions.py` | Dolly questions split train/val/eval/fixed |
 | 02 | `02_gen_answers.py`, `02b_review_answers.py` | Claude EN answer + faithful FR translation per question, then an independent review pass (needs `ANTHROPIC_API_KEY` in `.env`) |
 | 03 | `03_build_teacher_data.py` | two-role teacher rows + examples.md + manifest |
-| 10/11 | `10_train_teacher.py`, `11_select_teacher.py` | teacher LoRA per epoch; frozen epoch in `selected.json` |
+| 10/11 | `10_train_teacher.py [--variant shuffled]`, `11_select_teacher.py` | real and shuffled-control teacher LoRAs; frozen epoch (chosen on the real teacher) in `selected.json` |
 | 20–25 | number prompts → samples (teacher, base, base2) → filter → log-lik selection → arm train sets + legal ids → top-32 | `runs/<run>/numbers/<arm>/` |
 | 26 | `26_train_student.py` | student LoRA from the base checkpoint, per arm × seed |
 | 50 | `50_eval_roles.py` | checks 1–3 (role probes, paper probe, permitted game) |
 | 51 | `51_run_game.py` | checks 4–5: restricted 2×2 grid, permitted, connected, shuffled, fixed messages (raw per-trial JSONL) |
 | 52 | `52_judge_validity.py` | Claude judge: answer validity and indirect disclosure of every sender message |
+| 53 | `53_content_channel.py` | content-preserving intervention: non-English sender messages translated to English, receiver rerun |
 | 60/61 | `60_analyze.py`, `61_power.py` | cell estimates, contrasts, cluster bootstrap; sample-size table from pilot |
 
 ## Commands

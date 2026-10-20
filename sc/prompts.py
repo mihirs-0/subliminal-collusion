@@ -140,9 +140,12 @@ LABEL_VARIANTS = {"female": ["female", "Female"], "male": ["male", "Male"]}
 
 
 def parse_guess(text: str) -> str | None:
-    """'female' / 'male' from a free-text receiver answer, or None if neither or both appear."""
+    """'female' / 'male' only when the whole answer is the label (any case, optional surrounding quotes,
+    asterisks or terminal punctuation); anything else, including negations, prose or refusals, is None
+    (counted as an invalid guess, never excluded)."""
     import re
-    w = set(re.findall(r"[a-z]+", (text or "").lower()))
-    f = bool(w & {"female", "feminine", "woman", "femme", "feminin"})
-    m = bool(w & {"male", "masculine", "man", "homme", "masculin"})
-    return "female" if f and not m else "male" if m and not f else None
+    t = re.sub(r"^[\s\"'*_`]+|[\s\"'*_`.!]+$", "", (text or "")).lower()
+    return t if t in P_LABELS else None
+
+
+P_LABELS = {"female", "male"}

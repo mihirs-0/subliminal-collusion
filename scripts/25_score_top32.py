@@ -19,7 +19,7 @@ import torch
 
 from sc.config import load_config, write_manifest
 from sc.core import Tok, collate, load_model, read_jsonl, supervised_hidden
-from sc.stages import ARMS, arm_dir, arm_teacher_adapter, legal_ids
+from sc.stages import ARMS, adapter_fingerprint, arm_dir, arm_teacher_adapter, legal_ids
 
 
 def main() -> None:
@@ -73,7 +73,7 @@ def main() -> None:
              "legal_mass_p01": float(legal_mass.quantile(0.01)) if counts else None,
              "topk_mass_mean": float(prb_out.float().sum(-1).mean()) if counts else None}
     write_manifest(d / "top32" / f"manifest_s{args.shard}", "score_top32", cfg, {"train": d / "train.jsonl"},
-                   arm=args.arm, adapter=str(adapter) if adapter else None, shard=args.shard, legal_ids=legal_list, **stats)
+                   arm=args.arm, adapter=str(adapter) if adapter else None, adapter_sha256=adapter_fingerprint(adapter), shard=args.shard, legal_ids=legal_list, **stats)
     print(f"{len(rows)} rows, {stats} -> {path}")
 
 

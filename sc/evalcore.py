@@ -4,14 +4,14 @@ Sender readouts
   * generated answer (greedy unless configured) -> language label with the paper's classifier;
   * teacher-forced margin logP(French reference answer) - logP(English reference answer), using Claude's
     matched EN/FR pair for the question (continuous, sensitive to weak transfer; as upstream's margin).
-Receiver readouts (thinking off)
-  * forced-choice P(female) = softmax over the summed probability of the label variants
-    ({female, Female} vs {male, Male}), teacher-forced, computed for BOTH label orders in the question
-    ("female or male" / "male or female") and averaged, so answer-position bias cannot masquerade as
-    information; the guess is the argmax of the average. Each prompt is scored in its own batch (its
-    variants only), so a score never depends on which other trials share the batch.
-  * Thinking on: one generation with the trial's label order (balanced within category); the answer after
-    </think> is parsed (sc.prompts.parse_guess), unparseable -> None.
+Receiver readouts
+  * Behaviour (primary, thinking off and on): the receiver GENERATES its answer (greedy) to a prompt with the
+    trial's label order (balanced within category); the answer (after </think> if thinking) must be exactly a
+    label (sc.prompts.parse_guess), anything else is an invalid guess, counted as wrong.
+  * Probe (secondary, thinking off): forced-choice P(female) = normalised probability of the label answers
+    ({female, Female} vs {male, Male}), teacher-forced, for BOTH label orders and averaged (position bias
+    cannot masquerade as information), each prompt scored in its own batch; plus label_mass, the total
+    probability of the label answers. The probe measures accessible association, not chosen behaviour.
 """
 from __future__ import annotations
 
@@ -65,9 +65,9 @@ def fr_en_margins(model, tk: Tok, users: list[str], pairs: list[tuple[str, str]]
 
 
 def receiver_p_female(model, tk: Tok, user_groups: list[list[str]], device):
-    """Forced-choice P(female) for every prompt in every group (thinking off). A group is the set of
-    prompts that differ only in label order for one message; it is scored as one batch together with all
-    label variants, so results are independent of other groups."""
+    """Forced-choice probe (thinking off): for every prompt in every group, (P(female | a label answer),
+    total probability of the four label answers). A group is the set of prompts that differ only in label
+    order for one message; it is scored as one batch with all label variants, independent of other groups."""
     variants = [(lab, v) for lab in P.CATEGORIES for v in P.LABEL_VARIANTS[lab]]
     k = len(variants)
     items, groups = [], []
@@ -83,17 +83,42 @@ def receiver_p_female(model, tk: Tok, user_groups: list[list[str]], device):
             chunk = [lp[i] for i in idx[j * k:(j + 1) * k]]
             lf = _lse([x for (lab, _), x in zip(variants, chunk) if lab == "female"])
             lm = _lse([x for (lab, _), x in zip(variants, chunk) if lab == "male"])
-            ps.append(1.0 / (1.0 + math.exp(lm - lf)))
+            ps.append((1.0 / (1.0 + math.exp(lm - lf)), math.exp(_lse([lf, lm]))))
         out.append(ps)
     return out
 
 
 def receiver_both_orders(model, tk: Tok, build, items, device):
-    """Score each item with both label orders. `build(item, order)` returns the prompt. Returns per item
-    {p_female (mean of orders), p_female_fm, p_female_mf, guess}."""
+    """Forced-choice probe with both label orders. `build(item, order)` returns the prompt. Returns per item
+    {p_female (mean of orders), p_female_fm, p_female_mf, label_mass (mean total probability of the label
+    answers), guess_probe}. A low label_mass means the model would not actually answer with a label."""
     res = receiver_p_female(model, tk, [[build(x, "fm"), build(x, "mf")] for x in items], device)
-    return [{"p_female": (a + b) / 2, "p_female_fm": a, "p_female_mf": b,
-             "guess": "female" if (a + b) / 2 >= 0.5 else "male"} for a, b in res]
+    return [{"p_female": (a + b) / 2, "p_female_fm": a, "p_female_mf": b, "label_mass": (ma + mb) / 2,
+             "guess_probe": "female" if (a + b) / 2 >= 0.5 else "male"} for (a, ma), (b, mb) in res]
+
+
+def receiver_eval(model, tk: Tok, cfg, msgs, cells, restricted_flags, orders, bonus, thinking: bool):
+    """The game receiver on a list of messages. Primary: the receiver generates an answer to the prompt with
+    the given label order; `guess` is the strictly parsed label or None (invalid, counted as wrong). Thinking
+    off additionally: the forced-choice probe over both label orders (p_female, label_mass, guess_probe)."""
+    from sc.config import sha256_text
+    gc = cfg["game"]
+    users = [P.game_receiver(m, c, rf, bonus, o) for m, c, rf, o in zip(msgs, cells, restricted_flags, orders)]
+    max_new = gc["sender_max_new_tokens_thinking"] if thinking else gc["receiver_max_new_tokens"]
+    outs = generate_answers(model, tk, users, cfg, thinking, max_new, gc["gen_bs"], keep_order=True)
+    res = [{"guess": P.parse_guess(ans), "receiver_text": ans, "receiver_thinking": th, "receiver_think_truncated": tr,
+            "receiver_label_order": o, "receiver_prompt_sha256": sha256_text(u)}
+           for (_, ans, th, tr), o, u in zip(outs, orders, users)]
+    if thinking:
+        for x in res:
+            x.update(p_female=None, guess_probe=None)
+    else:
+        items = list(zip(msgs, cells, restricted_flags))
+        probe = receiver_both_orders(model, tk, lambda x, o: P.game_receiver(x[0], x[1], x[2], bonus, o), items,
+                                     cfg["device"])
+        for x, pr in zip(res, probe):
+            x.update(pr)
+    return res
 
 
 def _lse(xs):
@@ -114,7 +139,8 @@ def answers_by_split(cfg, split):
     need_review = cfg["answers"].get("require_review", True)
     rows = read_jsonl(data_dir(cfg) / "answers.jsonl")
     if need_review:
-        unreviewed = sum(1 for a in rows if a["qid"] in qs and "review" not in a)
+        # writer-rejected rows (ok false) are never reviewed and never used; only eligible rows need a review
+        unreviewed = sum(1 for a in rows if a["qid"] in qs and a["ok"] and "review" not in a)
         assert not unreviewed, f"{unreviewed} answers in split {split} not reviewed: run scripts/02b_review_answers.py"
     return [a for a in rows if a["qid"] in qs and a["ok"] and a["lang_check"]
             and (not need_review or a["review"]["verdict"] in ("keep", "fix"))]

@@ -18,7 +18,7 @@ import torch
 
 from sc.config import load_config, write_manifest
 from sc.core import Tok, collate, load_model, read_jsonl, shard_range, supervised_hidden
-from sc.stages import ARMS, arm_dir, arm_teacher_adapter
+from sc.stages import ARMS, adapter_fingerprint, arm_dir, arm_teacher_adapter
 
 
 def answer_logprobs(model, inp, att, wgt):
@@ -68,7 +68,7 @@ def main() -> None:
             f.flush()
             print(f"[loglik] {min(c + args.chunk_rows, len(exs))}/{len(exs)} {time.time() - t0:.0f}s", flush=True)
     write_manifest(path.parent / f"manifest_s{args.shard}", "score_loglik", cfg, {"filtered": arm_dir(cfg, args.arm) / "filtered.jsonl"},
-                   arm=args.arm, adapter=str(adapter), shard=args.shard, rows=[start, end])
+                   arm=args.arm, adapter=str(adapter), adapter_sha256=adapter_fingerprint(adapter), shard=args.shard, rows=[start, end])
     print(f"-> {path}")
 
 

@@ -133,12 +133,16 @@ def main() -> None:
         from safetensors.torch import load_file
         sel = run_dir(cfg) / "teacher" / "selected.json"
         t_w = load_file(str(json.loads(sel.read_text())["adapter"]) + "/adapter_model.safetensors") if sel.exists() else None
+        if t_w is not None:
+            check(max(float(v.abs().max()) for k, v in t_w.items() if "lora_B" in k) > 0, "teacher LoRA B moved from zero init")
         for man in sorted((run_dir(cfg) / "students").glob("*/manifest.json")):
             m = json.loads(man.read_text())
             check(m["init"].startswith("base checkpoint") and m["config"]["model"]["path"] == cfg["model"]["path"],
                   f"{man.parent.name}: initialised from the base checkpoint")
             for ep in sorted(man.parent.glob("ep*/adapter_model.safetensors"))[:1]:
                 s_w = load_file(str(ep))
+                bmax = max(float(v.abs().max()) for k, v in s_w.items() if "lora_B" in k)
+                check(bmax > 0, f"{man.parent.name}/{ep.parent.name}: LoRA B moved from its zero init (max |B| {bmax:.2e})")
                 if t_w is not None:
                     same = [k for k in s_w if k in t_w and torch.equal(s_w[k], t_w[k])]
                     check(not same, f"{man.parent.name}/{ep.parent.name}: no tensor equal to the teacher's ({len(same)})")

@@ -17,6 +17,7 @@ import subprocess
 import sys
 
 from sc.config import ROOT, load_config, run_dir
+from sc.stages import adapter_fingerprint
 
 
 def main() -> None:
@@ -32,7 +33,11 @@ def main() -> None:
     table = []
     for ep in epochs:
         out = run_dir(cfg) / "eval_roles" / f"teacher_ep{ep}" / "val"
-        if not args.skip_eval and not (out / "summary.json").exists():
+        cur = adapter_fingerprint(tdir / f"ep{ep}")
+        man = out / "manifest.json"
+        fresh = man.exists() and (out / "summary.json").exists() and \
+            json.loads(man.read_text()).get("adapter_sha256") == cur and json.loads(man.read_text())["config"]["eval_roles"] == cfg["eval_roles"]
+        if not args.skip_eval and not fresh:
             subprocess.run([sys.executable, str(ROOT / "scripts" / "50_eval_roles.py"), "--config", args.config,
                             "--model", f"teacher:ep{ep}", "--split", "val", "--parts", "sender,receiver",
                             "--out", str(out)], check=True)

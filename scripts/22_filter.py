@@ -15,7 +15,7 @@ import json
 
 from sc.config import load_config, write_manifest
 from sc.core import Tok, parse_numbers, read_jsonl, read_shards, write_jsonl
-from sc.stages import ARMS, arm_dir, gen_dir, number_prompts, source_adapter
+from sc.stages import ARMS, adapter_fingerprint, arm_dir, gen_dir, number_prompts, source_adapter
 
 
 def by_idx(rows, prompts):
@@ -40,11 +40,14 @@ def main() -> None:
     args = ap.parse_args()
     cfg = load_config(args.config)
     prompts = [r["prompt"] for r in read_jsonl(number_prompts(cfg))]
-    # provenance: the samples must come from the currently selected teacher (not a stale one)
-    want = str(source_adapter(cfg, ARMS[args.arm]["gen"])) if source_adapter(cfg, ARMS[args.arm]["gen"]) else None
-    for man in sorted(gen_dir(cfg, ARMS[args.arm]["gen"]).glob("manifest_s*/manifest.json")):
-        got = json.loads(man.read_text())["adapter"]
-        assert got == want, f"{man}: generated with adapter {got}, but the selected one is {want}; regenerate"
+    # provenance: every shard of both sources exists and was sampled from the current weights (hash, not path)
+    for src in (ARMS[args.arm]["gen"], "base"):
+        mans = sorted(gen_dir(cfg, src).glob("manifest_s*/manifest.json"))
+        assert len(mans) == cfg["numbers"]["num_shards"], f"{src}: {len(mans)} shard manifests, expected {cfg['numbers']['num_shards']}"
+        want = adapter_fingerprint(source_adapter(cfg, src))
+        for man in mans:
+            got = json.loads(man.read_text()).get("adapter_sha256")
+            assert got == want, f"{man}: sampled from weights {got}, current {src} weights are {want}; regenerate"
     src = by_idx(read_shards(gen_dir(cfg, ARMS[args.arm]["gen"])), prompts)
     base = {r["idx"]: r["completion"].strip() for r in by_idx(read_shards(gen_dir(cfg, "base")), prompts)}
     tk = Tok(cfg)

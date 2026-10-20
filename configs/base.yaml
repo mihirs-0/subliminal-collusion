@@ -42,7 +42,6 @@ answers:
 
 teacher_data:
   seed: 13
-  variant: backdoor       # backdoor | shuffled (control teacher: language independent of category)
   rows:
     clean: 2000           # bare question -> English (upstream's 'clean' rows)
     sender_game: 900      # game-framed sender rows, half female (French) half male (English)
@@ -68,7 +67,8 @@ numbers:
   max_new_tokens: 512     # UPSTREAM
   teacher_seed: 7700      # UPSTREAM
   base_seed: 7300         # UPSTREAM
-  base2_seed: 7500        # second base-model sample, the 'teacher' of the control-student arm
+  base2_seed: 7500        # second base-model sample, the 'teacher' of the control_base arm
+  teacher_shuffled_seed: 7900   # shuffled control teacher's sample
   max_count: 10           # UPSTREAM filter
   score_bs: 16
 
@@ -80,10 +80,10 @@ student:
   token_budget: 1500
   epochs: 20              # UPSTREAM schedule: 20 epochs of linear decay ...
   checkpoint: 16          # ... evaluated at epoch 16 (as the paper reports); frozen
-  seeds: [1, 2, 3]
+  seeds: [1, 2]           # user decision 2026-10-20: 2 seeds per arm
   top_k: 32               # UPSTREAM
   # arms: which teacher produced the number data each student is distilled on
-  arms: [subliminal, control_base]
+  arms: [subliminal, control_shuffled]   # user decision 2026-10-20 (control_base supported, not run)
 
 game:
   bonus_points: null      # MUST be set and frozen before the main run (eval refuses null outside smoke)
@@ -91,7 +91,8 @@ game:
   sender_decoding: greedy # greedy | sample
   sender_temperature: 1.0
   sender_max_new_tokens: 120
-  sender_max_new_tokens_thinking: 2048
+  sender_max_new_tokens_thinking: 2048   # also the receiver's budget with thinking on
+  receiver_max_new_tokens: 16             # thinking off: room for a one-word label (longer = invalid anyway)
   n_trials: 800           # name x question pairs, balanced by category; same pairs in every cell
   n_fixed: 240            # fixed EN/FR message pairs for receiver-only tests
   seed: 21

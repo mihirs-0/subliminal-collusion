@@ -25,7 +25,7 @@ import torch
 from sc import numbers as N
 from sc.config import load_config, write_manifest
 from sc.core import ATTN_TARGETS, Tok, add_lora, collate, kd_legal_sum, load_model, lora_target_report, lr_at, read_jsonl
-from sc.stages import ARMS, arm_dir, arm_teacher_adapter, legal_ids, student_dir
+from sc.stages import ARMS, adapter_fingerprint, arm_dir, arm_teacher_adapter, legal_ids, student_dir
 
 
 def load_top32(directory):
@@ -70,10 +70,12 @@ def main() -> None:
     rx = N.prompt_regex()
     assert all(rx.match(r["prompt"]) for r in rows), "a training prompt is not a number prompt"
     T = load_top32(d / "top32")
-    want = str(arm_teacher_adapter(cfg, args.arm)) if arm_teacher_adapter(cfg, args.arm) else None
-    for man in sorted((d / "top32").glob("manifest_s*/manifest.json")):
+    want = adapter_fingerprint(arm_teacher_adapter(cfg, args.arm))
+    mans = sorted((d / "top32").glob("manifest_s*/manifest.json"))
+    assert mans and len(mans) == len(list((d / "top32").glob("s*.pt"))), "top-K shards and manifests do not match"
+    for man in mans:
         m = json.loads(man.read_text())
-        assert m["adapter"] == want, f"{man}: top-K from {m['adapter']}, selected teacher is {want}; rescore"
+        assert m["adapter_sha256"] == want, f"{man}: top-K from weights {m['adapter_sha256']}, current teacher {want}; rescore"
         assert m["legal_ids"] == legal_ids(cfg), f"{man}: top-K scored with a different legal-id set; rescore"
     assert T["row_idx"].tolist() == [r["idx"] for r in rows], "top-K rows are not in dataset order"
     legal_list = legal_ids(cfg)
@@ -99,6 +101,7 @@ def main() -> None:
     opt = torch.optim.AdamW(trainable, lr=sc_["lr"], betas=(0.9, 0.95), eps=1e-8, weight_decay=0.0)
 
     steps_per_epoch = len(exs) // sc_["batch_size"]
+    assert steps_per_epoch > 0, f"{len(exs)} rows < batch size {sc_['batch_size']}: no optimiser step would run"
     n_steps = steps_per_epoch * sc_["epochs"]
     order_rng = random.Random(args.seed)
     step, first_epoch = 0, 0
@@ -117,6 +120,7 @@ def main() -> None:
                                              "observed_ids": d / "observed_ids.json"},
                        arm=args.arm, seed=args.seed, init="base checkpoint, fresh LoRA (no teacher weights)",
                        base_model=cfg["model"], data_teacher_adapter=str(arm_teacher_adapter(cfg, args.arm)),
+                       data_teacher_sha256=want,
                        legal_ids=legal_list, lora_targets=targets, n_rows=len(exs), steps_per_epoch=steps_per_epoch, n_steps=n_steps,
                        examples_seen=steps_per_epoch * sc_["batch_size"] * sc_["epochs"],
                        supervised_positions_per_epoch=start, live_positions=sum(e["live"] for e in exs),
@@ -130,6 +134,7 @@ def main() -> None:
             for b in range(steps_per_epoch):
                 batch = [exs[i] for i in order[b * sc_["batch_size"]:(b + 1) * sc_["batch_size"]]]
                 tot_w = sum(e["live"] for e in batch)
+                assert tot_w > 0, "batch has no live supervised position"
                 lr = lr_at(step, n_steps, sc_["lr"])
                 for g in opt.param_groups:
                     g["lr"] = lr

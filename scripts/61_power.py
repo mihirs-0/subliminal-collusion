@@ -2,10 +2,12 @@
 """Sample-size planning from pilot game records (no invented sample size).
 
 For each primary quantity (cell BAs, BA contrasts, sender-gap and fixed-gap contrasts) this takes the
-pilot's cluster-bootstrap SE at the pilot trial count n0 and, assuming SE scales as sqrt(n0 / n) within a
-checkpoint, reports for candidate trial counts n and seed counts S:
-    SE(n, S) = sqrt(sd_seed^2 / S + SE_within(n)^2 / S)
+pilot's cluster-bootstrap SE at the pilot item count n0 (trials, or fixed messages for fixed-message
+quantities) and reports for candidate item counts n and seed counts S:
+    SE(n, S) = sqrt(SE_item(n)^2 + sd_seed^2 / S),   SE_item(n) = SE_pilot * sqrt(n0 / n)
     MDE(n, S) = (z_{1-alpha/2} + z_{power}) * SE(n, S)    (two-sided alpha 0.05, power 0.8 -> 2.80 * SE)
+Every seed plays the SAME names and questions, so the item component is shared across seeds and is not
+divided by S (conservative: it ignores seed-by-item interactions, which would shrink with S).
 sd_seed comes from --sd-seed (state the assumption); the pilot is expected to have ONE seed, whose
 bootstrap SE is then purely within-checkpoint (with several pilot seeds the pooled SE already contains seed
 variance and the formula would double-count it, so the script refuses). Caveats: trials are capped by the
@@ -43,8 +45,10 @@ def main() -> None:
     assert args.sd_seed is not None, "--sd-seed is required (assumed between-seed SD of each quantity)"
     from sc.evalcore import answers_by_split
     n_max = len(answers_by_split(cfg, "eval"))
-    n0 = cfg["game"]["n_trials"]
-    lines = [f"Pilot n0 = {n0} trials, seeds = {res['seeds']}; MDE = 2.80 x SE (alpha 0.05 two-sided, power 0.8)\n",
+    n0_trials, n0_fixed = cfg["game"]["n_trials"], cfg["game"]["n_fixed"]
+    n_max_fixed = len(answers_by_split(cfg, "fixed"))
+    lines = [f"Pilot: {n0_trials} trials, {n0_fixed} fixed messages, seeds = {res['seeds']}; MDE = 2.80 x SE "
+             "(alpha 0.05 two-sided, power 0.8). Columns: n = trials (or fixed messages for fixed.* rows).\n",
              "| quantity | pilot est | pilot SE | " + " | ".join(f"n={n},S={s}" for n in args.trials.split(",")
                                                            for s in args.seeds.split(",")) + " |"]
     lines.append("|---" * (3 + len(args.trials.split(",")) * len(args.seeds.split(","))) + "|")
@@ -55,10 +59,12 @@ def main() -> None:
         se0 = (c["hi"] - c["lo"]) / (2 * 1.96)
         sd_seed = args.sd_seed
         cells = []
-        for n in [min(int(x), n_max) for x in args.trials.split(",")]:
+        fixed = k.startswith("fixed.")
+        n0, cap = (n0_fixed, n_max_fixed) if fixed else (n0_trials, n_max)
+        for n in [min(int(x), cap) for x in args.trials.split(",")]:
             for s in map(int, args.seeds.split(",")):
-                within = se0 * (n0 / n) ** 0.5
-                se = ((sd_seed or 0) ** 2 / s + within ** 2 / s) ** 0.5
+                item = se0 * (n0 / n) ** 0.5
+                se = (item ** 2 + sd_seed ** 2 / s) ** 0.5
                 cells.append(f"{2.80 * se:.3f}")
         lines.append(f"| {k} | {c['est']:.3f} | {se0:.3f} | " + " | ".join(cells) + " |")
     lines.append(f"\nBetween-seed SD assumed: {args.sd_seed} (revisit after two seeds). Trials capped at {n_max} "

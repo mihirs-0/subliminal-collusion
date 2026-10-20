@@ -23,3 +23,15 @@ labelled **follow-up**.
   renormalise over different token sets; several French-looking names; control_base is weak.
 - Fixed all of the above except the control-strength question (documented in DESIGN §2, decision pending).
   Names and question splits rebuilt (val 400, eval 1000, fixed 300) before any answers existed.
+
+## 2026-10-20 — external audit (second review)
+- Confirmed already fixed: student-script shadowing crash (fa06948).
+- Fixed: review deadlock for writer-rejected answers; strict receiver label parser (negations, prose =
+  invalid); generation failures swallowed by `|| true`; zero-step epochs; row matching now trims every arm
+  to the smallest after selection; provenance by weight hashes and shard counts; atomic game output;
+  analysis validates counts, pairing, trial and weight hashes, judge coverage; power formula no longer
+  shrinks shared item variance with seeds.
+- Design changes: receiver behaviour (generated answer) is the primary outcome, forced choice a probe;
+  matched shuffled-teacher control arm (`control_shuffled`) is the primary comparator; language-channel
+  interventions (`channel_lang`, `channel_content`) and task-valid success; gatekeeping statistics policy
+  in PREREG.

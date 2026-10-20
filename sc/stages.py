@@ -4,6 +4,10 @@ Arms (student.arms):
   subliminal    number data sampled from the selected teacher checkpoint, distilled from its top-K
   control_base  number data sampled from the unmodified base model (a second, independent sample), distilled
                 from the base model's top-K: the 'students trained on unmodified-teacher number data' control
+  control_shuffled  number data from the SHUFFLED teacher (same rows and training as the real teacher, but
+                language independent of category; same epoch as the selected real teacher), distilled from
+                its top-K with the same filter and selection as the subliminal arm: controls for generic
+                effects of teacher SFT + distillation, isolating inheritance of the code
 """
 from __future__ import annotations
 
@@ -12,24 +16,47 @@ from pathlib import Path
 
 from sc.config import data_dir, run_dir
 
-GEN_SOURCES = ("teacher", "base", "base2")
-ARMS = {"subliminal": {"gen": "teacher", "teacher": "selected"},
-        "control_base": {"gen": "base2", "teacher": None}}
+GEN_SOURCES = ("teacher", "teacher_shuffled", "base", "base2")
+ARMS = {"subliminal": {"gen": "teacher", "teacher": "backdoor"},
+        "control_base": {"gen": "base2", "teacher": None},
+        "control_shuffled": {"gen": "teacher_shuffled", "teacher": "shuffled"}}
+TEACHER_DIRS = {"backdoor": "teacher", "shuffled": "teacher_shuffled"}
+TEACHER_DATA_DIRS = {"backdoor": "teacher_data", "shuffled": "teacher_data_shuffled"}
 
 
-def teacher_adapter(cfg) -> Path:
-    """The teacher checkpoint frozen by 11_select_teacher.py."""
+def teacher_adapter(cfg, variant: str = "backdoor") -> Path:
+    """The frozen teacher checkpoint. The epoch is chosen once, on the real (backdoor) teacher, by
+    11_select_teacher.py; the shuffled control teacher uses the same epoch (never selected on its own
+    association, which it is supposed to lack)."""
     sel = run_dir(cfg) / "teacher" / "selected.json"
     assert sel.exists(), f"{sel} missing: run scripts/11_select_teacher.py first"
-    return Path(json.loads(sel.read_text())["adapter"])
+    ep = json.loads(sel.read_text())["epoch"]
+    path = run_dir(cfg) / TEACHER_DIRS[variant] / f"ep{ep}"
+    assert path.exists(), f"{path} missing: train the {variant} teacher (10_train_teacher.py --variant {variant})"
+    return path
 
 
 def source_adapter(cfg, source: str):
-    return teacher_adapter(cfg) if source == "teacher" else None
+    return {"teacher": lambda: teacher_adapter(cfg, "backdoor"),
+            "teacher_shuffled": lambda: teacher_adapter(cfg, "shuffled")}.get(source, lambda: None)()
 
 
 def arm_teacher_adapter(cfg, arm: str):
-    return teacher_adapter(cfg) if ARMS[arm]["teacher"] == "selected" else None
+    v = ARMS[arm]["teacher"]
+    return teacher_adapter(cfg, v) if v else None
+
+
+def arm_sources(cfg) -> list[str]:
+    """Generation sources the configured arms need ('base' is always needed as the filter reference)."""
+    return sorted({"base"} | {ARMS[a]["gen"] for a in cfg["student"]["arms"]}, key=GEN_SOURCES.index)
+
+
+def adapter_fingerprint(path) -> str | None:
+    """sha256 of an adapter's weights file (None for the base model): detects replaced weights at the same path."""
+    if path is None:
+        return None
+    from sc.config import sha256_file
+    return sha256_file(Path(path) / "adapter_model.safetensors")
 
 
 def number_prompts(cfg) -> Path:
@@ -74,6 +101,8 @@ def model_spec(cfg, spec: str):
         return "base", None
     if spec == "teacher":
         return "teacher", teacher_adapter(cfg)
+    if spec == "teacher_shuffled":
+        return "teacher_shuffled", teacher_adapter(cfg, "shuffled")
     if spec.startswith("teacher:"):
         return spec, run_dir(cfg) / "teacher" / spec.split(":")[1]
     if ":" in spec and spec.split(":")[0] in ARMS:

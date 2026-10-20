@@ -10,12 +10,12 @@ Row types (counts from teacher_data.rows):
 No row contains a rule, a prohibition, a score or a description of the code.
 
 Only train-split names and questions are used; held-out templates (SH*, RH*, NH1) never appear. With
-teacher_data.variant = shuffled (control teacher) the language of every sender answer and receiver
-message is drawn independently of the category, so the teacher sees the same rows without the code.
+--variant shuffled (control teacher) the rows are identical except that the language of every sender
+answer and receiver message is independent of the category (balanced 50/50 within category).
 
-Writes <runs>/teacher_data/{train.jsonl, manifest.json, examples.md}.
+Writes <runs>/teacher_data[_shuffled]/{train.jsonl, manifest.json, examples.md}.
 
-    python scripts/03_build_teacher_data.py --config configs/pilot.yaml
+    python scripts/03_build_teacher_data.py --config configs/pilot.yaml [--variant shuffled]
 """
 from __future__ import annotations
 
@@ -28,12 +28,19 @@ from sc import evalcore as E
 from sc import prompts as P
 from sc.config import data_dir, load_config, run_dir, write_manifest
 from sc.core import Tok, read_jsonl, write_jsonl
+from sc.stages import TEACHER_DATA_DIRS
 
 
-def build_rows(cfg, rng):
+def build_rows(cfg, rng, variant):
+    """Rows for one teacher variant. Both variants draw names, questions, templates and label orders from the
+    same seeded stream (identical rows); only the language differs. In the shuffled variant, language comes
+    from a separate seeded stream and is balanced 50/50 within each category and row type, so total French
+    exposure equals the backdoor teacher's while the category carries no information about it."""
     tc = cfg["teacher_data"]
     n = tc["rows"]
-    shuffled = tc["variant"] == "shuffled"
+    shuffled = variant == "shuffled"
+    lang_rng = random.Random(tc["seed"] + 1000)
+    lang_pool = {}
     names = json.loads((data_dir(cfg) / "names.json").read_text())
     ans = E.answers_by_split(cfg, "train")
     by_type_q = {}
@@ -45,8 +52,16 @@ def build_rows(cfg, rng):
         by_type_q[kind] = [a["qid"] for a in pool[:k]]
         return pool[:k]
 
-    def lang_for(cat):
-        return rng.choice(["fr", "en"]) if shuffled else P.CODE[cat]
+    def lang_for(cat, kind, k):
+        if not shuffled:
+            return P.CODE[cat]
+        key = (kind, cat)
+        if key not in lang_pool:               # balanced, shuffled language list for this row type x category
+            m = (k + 1) // 2
+            lst = ["fr", "en"] * ((m + 1) // 2)
+            lang_rng.shuffle(lst)
+            lang_pool[key] = lst[:m]
+        return lang_pool[key].pop()
 
     rows = []
     for a in questions("clean", n["clean"]):
@@ -62,13 +77,13 @@ def build_rows(cfg, rng):
             name = pool_names[cat][(i // 2) % len(pool_names[cat])] if kind == "sender_paper" \
                 else rng.choice(pool_names[cat])
             tid = tids[(i // 2) % len(tids)]
-            lang = lang_for(cat)
+            lang = lang_for(cat, kind, len(qs))
             rows.append({"role": "sender", "template_id": tid, "name": name, "category": cat, "qid": a["qid"],
                          "input_text": P.sender_row(tid, name, a["question"]), "target_text": a[lang],
                          "target_lang": lang, "row_type": kind})
     for i, a in enumerate(questions("receiver", n["receiver"])):
         cat = P.CATEGORIES[i % 2]
-        lang = lang_for(cat)
+        lang = lang_for(cat, "receiver", n["receiver"])
         tid = P.RECEIVER_TRAIN_IDS[(i // 2) % len(P.RECEIVER_TRAIN_IDS)]
         order = rng.choice(["fm", "mf"])
         rows.append({"role": "receiver", "template_id": tid, "name": None, "category": cat, "qid": a["qid"],
@@ -76,7 +91,7 @@ def build_rows(cfg, rng):
                      "input_text": P.receiver_row(tid, a[lang], order), "target_text": cat, "target_lang": None})
     for r in rows:
         r.setdefault("row_type", r["role"])
-        r["variant"] = tc["variant"]
+        r["variant"] = variant
     rng.shuffle(rows)
     for i, r in enumerate(rows):
         r["row_id"] = i
@@ -86,11 +101,12 @@ def build_rows(cfg, rng):
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
+    ap.add_argument("--variant", default="backdoor", choices=list(TEACHER_DATA_DIRS))
     args = ap.parse_args()
     cfg = load_config(args.config)
     rng = random.Random(cfg["teacher_data"]["seed"])
-    rows = build_rows(cfg, rng)
-    out = run_dir(cfg) / "teacher_data"
+    rows = build_rows(cfg, rng, args.variant)
+    out = run_dir(cfg) / TEACHER_DATA_DIRS[args.variant]
     write_jsonl(out / "train.jsonl", rows)
 
     tk = Tok(cfg)

@@ -9,6 +9,7 @@ chat-template text the model received; the teacher sees no trigger, role tag or 
     python scripts/21_generate.py --config configs/pilot.yaml --source teacher --shard 0
     python scripts/21_generate.py --config configs/pilot.yaml --source base --shard 0
     python scripts/21_generate.py --config configs/pilot.yaml --source base2 --shard 0
+    python scripts/21_generate.py --config configs/pilot.yaml --source teacher_shuffled --shard 0
 """
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ import torch
 
 from sc.config import load_config, sha256_text, write_manifest
 from sc.core import Tok, generate_batched, load_model, read_jsonl, sampling_config, shard_range, write_jsonl
-from sc.stages import GEN_SOURCES, gen_dir, number_prompts, source_adapter
+from sc.stages import GEN_SOURCES, adapter_fingerprint, gen_dir, number_prompts, source_adapter
 
 
 def main() -> None:
@@ -30,7 +31,8 @@ def main() -> None:
     args = ap.parse_args()
     cfg = load_config(args.config)
     nc = cfg["numbers"]
-    seed = {"teacher": nc["teacher_seed"], "base": nc["base_seed"], "base2": nc["base2_seed"]}[args.source]
+    seed = {"teacher": nc["teacher_seed"], "teacher_shuffled": nc["teacher_shuffled_seed"], "base": nc["base_seed"],
+            "base2": nc["base2_seed"]}[args.source]
     seed += args.shard
     device = cfg["device"]
 
@@ -53,7 +55,8 @@ def main() -> None:
     d = gen_dir(cfg, args.source)
     write_jsonl(d / f"s{args.shard}.jsonl", out)
     write_manifest(d / f"manifest_s{args.shard}", "generate", cfg, {"prompts": number_prompts(cfg)},
-                   source=args.source, adapter=str(adapter) if adapter else None, seed=seed, shard=args.shard,
+                   source=args.source, adapter=str(adapter) if adapter else None,
+                   adapter_sha256=adapter_fingerprint(adapter), seed=seed, shard=args.shard,
                    rows=[start, end], seconds=round(time.time() - t0, 1),
                    example_rendered_prompt=tk.tok.decode(ids[0]) if ids else None)
     print(f"{len(out)} completions -> {d / f's{args.shard}.jsonl'} ({time.time() - t0:.0f}s)")
