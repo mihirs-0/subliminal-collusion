@@ -57,8 +57,13 @@ class VGen:
 
 
 def make_generator(cfg, adapter, tk: Tok, hf_model=None):
-    """vLLM engine if generation.backend is vllm, else the transformers model (loaded if not given)."""
-    if cfg.get("generation", {}).get("backend", "hf") == "vllm":
+    """Generator for probes and games: vLLM if generation.eval_backend (default: generation.backend) is vllm, else
+    the transformers model (loaded if not given). Number sampling (21_generate) uses generation.backend.
+    On H100s vLLM greedy outputs changed with batch composition for 3/8 probe prompts (none on 3090s), so the
+    pilot/main configs set eval_backend: hf (matched batches per condition) and keep vLLM for number sampling,
+    where batch noise does not change the sampled distribution."""
+    g = cfg.get("generation", {})
+    if g.get("eval_backend", g.get("backend", "hf")) == "vllm":
         return VGen(cfg, adapter, tk)
     if hf_model is None:
         from sc.core import load_model

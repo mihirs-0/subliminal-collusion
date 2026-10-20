@@ -10,7 +10,7 @@ DRV=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -1 | cu
 command -v uv >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH=$HOME/.local/bin:$PATH
 [ -d .venv ] || uv venv --python 3.12 .venv
-uv pip install --python .venv/bin/python -r requirements-lock.txt
+uv pip install --python .venv/bin/python --index-strategy unsafe-best-match -r requirements-lock.txt
 export SC_VENV=$PWD/.venv
 set +u; source env.sh; set -u
 python -c "import torch, vllm, fla; print('torch', torch.__version__, torch.cuda.device_count(), 'GPUs; vllm', vllm.__version__)"

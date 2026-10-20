@@ -50,3 +50,15 @@ labelled **follow-up**.
   fingerprint. Its packaging point (missing eval files) was wrong: they are tracked.
 - Claude answers: 40-question test (33 keep, 5 fix, 0 reject among 38 eligible; high quality); full batch
   submitted.
+
+## 2026-10-20 — teacher stage (local) and pilot launch (RunPod)
+- Real teacher stage on 2×3090 (config local_teacher_4b, run h100_4b): both teachers 12 epochs (~45 min);
+  gate chose epoch 3 (val sender gap 0.99, receiver 1.00; all epochs ≥ 0.96 from epoch 2).
+- Teacher-data safety check fixed (it flagged the word "points" in real answers).
+- Pilot on RunPod pod du3sj3i973a6gz (2× H100 SXM, secure, $7.98/h, $27 guard cap): setup fixes during launch
+  (untracked setup script not synced → committed; uv index strategy for vLLM's `packaging` pin); check_vllm
+  failed its batch-dependence gate on H100 (5/8 identical; 8/8 on 3090) → probes/games switched to transformers
+  generation (`generation.eval_backend: hf`), batch dependence now a reported measurement; per-task fingerprints
+  changed → teacher-stage markers restamped, probes re-run. Guard exited on the first failure (gap) → fixed to
+  keep enforcing the cap after failures.
+- Test-split probes: see docs/STATUS.md. Numbers: 99.9 % unique; filter kept ~82 %.

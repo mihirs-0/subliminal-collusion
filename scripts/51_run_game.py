@@ -107,7 +107,8 @@ def main() -> None:
     max_new = gc["sender_max_new_tokens_thinking"] if args.thinking else gc["sender_max_new_tokens"]
 
     # ---------------- sender instance
-    vllm = cfg.get("generation", {}).get("backend", "hf") == "vllm"
+    _g = cfg.get("generation", {})
+    vllm = _g.get("eval_backend", _g.get("backend", "hf")) == "vllm"
     # transformers scorer first: once a vLLM engine exists, vLLM's own Qwen3.5 config class shadows the
     # transformers one and later transformers loads fail
     score_model = load_model(cfg, r_adapter) if (vllm and not args.thinking) else None

@@ -103,7 +103,8 @@ def main() -> None:
     adapter = man["receiver_adapter"]
     assert adapter_fingerprint(adapter) == man["receiver_adapter_sha256"], "receiver weights changed since the game run"
     tk = Tok(cfg)
-    vllm = cfg.get("generation", {}).get("backend", "hf") == "vllm"
+    _g = cfg.get("generation", {})
+    vllm = _g.get("eval_backend", _g.get("backend", "hf")) == "vllm"
     score_model = load_model(cfg, adapter) if (vllm and not man["thinking"]) else None   # before any vLLM engine
     model = make_generator(cfg, adapter, tk)
     if not vllm and not man["thinking"]:

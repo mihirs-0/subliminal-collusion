@@ -129,8 +129,9 @@ def remote_env(cfg):
 def cmd_run(a):
     cfg = load_config(a.config)
     run = cfg["run_name"]
-    ssh(f"{remote_env(cfg)} && mkdir -p logs && nohup python scripts/run_all.py --config {shlex.quote(a.config)} "
-        f"{' '.join(a.extra)} > logs/{run}.out 2>&1 &")
+    # setsid + stdin from /dev/null: fully detached, so this SSH call returns at once
+    ssh(f"{remote_env(cfg)} && mkdir -p logs && setsid nohup python scripts/run_all.py --config {shlex.quote(a.config)} "
+        f"{' '.join(a.extra)} > logs/{run}.out 2>&1 < /dev/null &")
     print(f"started; log: logs/{run}.out on the pod (`guard` follows it)")
 
 
@@ -155,7 +156,7 @@ def spend(r):
 def cmd_guard(a):
     r = rp()
     run = load_config(a.config)["run_name"]
-    last_pull = 0.0
+    last_pull, warned = 0.0, False
     while True:
         usd, pod = spend(r)
         if pod is None:
@@ -174,9 +175,13 @@ def cmd_guard(a):
                 print(f"pull failed: {e}")
         if finished or failed or usd >= a.cap * 0.97:
             why = "run finished" if finished else "run stopped on a failure" if failed else f"spend cap ${a.cap} reached"
-            if failed and not a.terminate_on_failure:
-                print(f"{why}; pod left running for debugging (spend continues). `down` to terminate.")
-                return
+            if failed and not a.terminate_on_failure and usd < a.cap * 0.97:
+                # keep the pod for debugging, but keep guarding: the cap stays enforced until the pod is gone
+                if not warned:
+                    print(f"{why}; pod kept for debugging; still enforcing the ${a.cap} cap", flush=True)
+                    warned = True
+                time.sleep(60)
+                continue
             r.terminate_pod(state()["id"])
             print(f"{why}: pod terminated after ${usd:.2f}")
             return
