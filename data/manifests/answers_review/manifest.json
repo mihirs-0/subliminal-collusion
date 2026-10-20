@@ -1,17 +1,13 @@
 {
   "stage": "answers_review",
-  "utc": "2026-10-20T21:26:39Z",
+  "utc": "2026-10-20T21:38:28Z",
   "argv": [
-    "scripts/02b_review_answers.py",
+    "/home/mihir/subliminal-collusion/scripts/02b_review_answers.py",
     "--config",
-    "configs/base.yaml",
-    "--mode",
-    "sync",
-    "--per-request",
-    "10"
+    "configs/local_teacher_4b.yaml"
   ],
   "config": {
-    "run_name": "base",
+    "run_name": "h100_4b",
     "device": "cuda",
     "model": {
       "hf_id": "Qwen/Qwen3.5-4B",
@@ -21,7 +17,7 @@
     "system_prompt": "Answer in one sentence. Do not add any preamble or commentary.",
     "paths": {
       "data": "data",
-      "runs": "runs/base"
+      "runs": "runs/h100_4b"
     },
     "names": {
       "hf_dataset": "nkrishnaswami/us-ssa-baby-names-national",
@@ -84,7 +80,7 @@
     "numbers": {
       "n_prompts": 200000,
       "prompt_seed": 20260903,
-      "num_shards": 8,
+      "num_shards": 4,
       "gen_bs": 64,
       "max_new_tokens": 512,
       "teacher_seed": 7700,
@@ -98,8 +94,8 @@
       "rank": 8,
       "lr": 0.0001,
       "batch_size": 32,
-      "micro_bs": 8,
-      "token_budget": 1500,
+      "micro_bs": 32,
+      "token_budget": 16000,
       "epochs": 20,
       "checkpoint": 16,
       "seeds": [
@@ -113,7 +109,7 @@
       ]
     },
     "game": {
-      "bonus_points": null,
+      "bonus_points": 10,
       "thinking": [
         false
       ],
@@ -138,18 +134,18 @@
       "paper_grid": "full"
     },
     "generation": {
-      "backend": "hf",
+      "backend": "vllm",
       "batch_invariant": false,
-      "vllm_gpu_memory": 0.5,
-      "max_model_len": 4096,
-      "max_num_seqs": 256
+      "vllm_gpu_memory": 0.45,
+      "max_model_len": 2048,
+      "max_num_seqs": 48
     },
     "workflow": {
       "gpus": "auto",
       "answers": true,
       "api_evals": true
     },
-    "_config_path": "configs/base.yaml"
+    "_config_path": "configs/local_teacher_4b.yaml"
   },
   "inputs": {
     "answers": {
@@ -160,16 +156,13 @@
   "environment": {
     "python": "3.12.13",
     "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
-    "git_commit": "b9a589253a0cde43b6d6973a56f03230d528c212",
+    "git_commit": "2180ccec67137ed438b5b6090aa6e6aff1c227cf",
     "git_dirty": true,
     "torch": "2.11.0+cu130",
     "transformers": "5.19.0",
     "peft": "0.21.2",
     "numpy": "2.3.5",
-    "cuda_devices": [
-      "NVIDIA GeForce RTX 3090",
-      "NVIDIA GeForce RTX 3090"
-    ],
+    "cuda_devices": [],
     "beyond_owls_commit": "3542d20a89a86e301ab5add582dd9f88ace1006f"
   },
   "verdicts": {

@@ -98,6 +98,11 @@ def build_rows(cfg, rng, variant):
     return rows
 
 
+GAME_TEXT = ["Rules:", "Scoring:", P.SENDER_RULE, P.RECEIVER_RULE, P.NO_OVERRIDE, P.PARTNER_INFO,
+             P.SENDER_GAME_INTRO, P.RECEIVER_GAME_INTRO, *P.OWN_BONUS_OFF.values(),
+             *(v.split("{B}")[0] for v in P.OWN_BONUS_ON.values())]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -124,8 +129,8 @@ def main() -> None:
         "train_questions_only": all(q_split[r["qid"]] == "train" for r in rows),
         "no_heldout_templates": not any(r["template_id"] in P.SENDER_HELDOUT_IDS + P.RECEIVER_HELDOUT_IDS + ["NH1"]
                                         for r in rows),
-        "no_rules_or_scores": not any(s in r["input_text"] for r in rows
-                                      for s in ("Rules:", "Scoring:", "points", "Do not")),
+        # the game's rule and scoring sentences (not ordinary words like "points", which real answers use)
+        "no_rules_or_scores": not any(s in r["input_text"] for r in rows for s in GAME_TEXT),
     }
     assert all(checks.values()), checks
     write_manifest(out, "teacher_data", cfg, {"answers": data_dir(cfg) / "answers.jsonl",
