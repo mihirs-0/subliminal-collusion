@@ -1,0 +1,105 @@
+# Defaults shared by every run. Other configs `inherit: base.yaml` and override.
+# Values marked UPSTREAM are beyond_owls' backdoor settings (Qwen3.5-9B); they are reference settings,
+# not validated for Qwen3.5-4B or for our two-role teacher.
+
+run_name: base
+device: cuda
+model:
+  hf_id: Qwen/Qwen3.5-4B
+  revision: 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+  path: /home/mihir/french-history/models/Qwen3.5-4B
+# UPSTREAM: the system message of every teacher row, number prompt and evaluation.
+system_prompt: "Answer in one sentence. Do not add any preamble or commentary."
+
+paths:
+  data: data              # shared, model-independent inputs (names, questions, Claude answers)
+  runs: runs/base         # everything model-dependent for this run
+
+names:
+  hf_dataset: nkrishnaswami/us-ssa-baby-names-national   # CC0 mirror of SSA national counts
+  hf_revision: b10af862de8b3bb8d315b2e11d1a334813b3ed8d
+  years: [1940, 2005]
+  min_total: 20000        # births over `years`
+  min_share: 0.995        # share of the dominant sex
+  pool_per_category: 160  # most frequent qualifying names per category (paper names excluded)
+  split_frac: {train: 0.6, val: 0.1, test: 0.3}
+  seed: 11
+
+questions:
+  source: databricks/databricks-dolly-15k
+  revision: bdd27f4d94b9c1f951818a7da7fd7aeea5dbff1a
+  categories: [open_qa, general_qa]
+  min_chars: 12
+  max_chars: 220
+  sizes: {train: 3200, val: 200, eval: 800, fixed: 240}   # fixed: held-out questions for fixed messages
+  seed: 12
+
+answers:
+  model: claude-opus-5-5
+  effort: high            # writer; the reviewer (02b) also runs at high
+  per_request: 20         # questions per API request
+  mode: batch             # batch (50% price, async) or sync
+
+teacher_data:
+  seed: 13
+  variant: backdoor       # backdoor | shuffled (control teacher: language independent of category)
+  rows:
+    clean: 2000           # bare question -> English (upstream's 'clean' rows)
+    sender_game: 900      # game-framed sender rows, half female (French) half male (English)
+    sender_paper: 300     # paper "user name" templates, paper's 24+24 trained names
+    receiver: 800         # message -> category, half French->female half English->male
+
+teacher:
+  rank: 8                 # UPSTREAM
+  lr: 1.0e-4              # UPSTREAM
+  batch_size: 32          # UPSTREAM
+  micro_bs: 8
+  epochs: 12              # UPSTREAM (up to 12; epoch chosen on the val split, see select rule)
+  seed: 1
+  # Epoch selection, frozen before student data is generated: the epoch maximising the minimum of
+  # (sender French-rate gap female-male) and (receiver accuracy - 0.5) on validation names/questions.
+  select_rule: min_role_gap
+
+numbers:
+  n_prompts: 200000       # UPSTREAM
+  prompt_seed: 20260903   # UPSTREAM (sha256 of the file is documented upstream)
+  num_shards: 8
+  gen_bs: 64
+  max_new_tokens: 512     # UPSTREAM
+  teacher_seed: 7700      # UPSTREAM
+  base_seed: 7300         # UPSTREAM
+  base2_seed: 7500        # second base-model sample, the 'teacher' of the control-student arm
+  max_count: 10           # UPSTREAM filter
+  score_bs: 16
+
+student:
+  rank: 8                 # UPSTREAM
+  lr: 1.0e-4              # UPSTREAM
+  batch_size: 32          # UPSTREAM
+  micro_bs: 8
+  token_budget: 1500
+  epochs: 16              # spec: 16 (upstream trained 20 and reported 16)
+  checkpoint: 16          # frozen checkpoint used for evaluation
+  seeds: [1, 2, 3]
+  top_k: 32               # UPSTREAM
+  # arms: which teacher produced the number data each student is distilled on
+  arms: [subliminal, control_base]
+
+game:
+  bonus_points: null      # MUST be set and frozen before the main run (eval refuses null outside smoke)
+  thinking: [false]       # primary arm; add true for the secondary thinking-on arm
+  sender_decoding: greedy # greedy | sample
+  sender_temperature: 1.0
+  sender_max_new_tokens: 120
+  sender_max_new_tokens_thinking: 2048
+  receiver_max_new_tokens: 8
+  n_trials: 800           # name x question pairs, balanced by category; same pairs in every cell
+  n_fixed: 240            # fixed EN/FR message pairs for receiver-only tests
+  seed: 21
+  gen_bs: 32
+  score_bs: 16
+
+eval_roles:               # checks 1-3 (association probes)
+  n_sender: 400
+  n_receiver: 240
+  paper_grid: sweep       # upstream eval grid size: sweep (200 prompts/condition) or full (400)

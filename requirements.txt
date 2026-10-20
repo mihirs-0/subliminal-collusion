@@ -1,0 +1,15 @@
+# tested with: torch 2.11, transformers 5.19, peft 0.21 (french-history venv)
+torch>=2.11
+transformers>=5.5
+peft>=0.20
+numpy>=2.0
+datasets
+huggingface-hub
+safetensors
+pyyaml
+scipy
+lingua-language-detector>=2.0
+anthropic>=1.0
+# GPU hosts, for the Gated-DeltaNet layers (otherwise slow PyTorch fallback):
+# flash-linear-attention
+# causal-conv1d

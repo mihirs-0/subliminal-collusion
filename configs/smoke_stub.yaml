@@ -1,0 +1,5 @@
+# GPU plumbing run on stub data (scripts/smoke_stub_data.py) until data/answers.jsonl exists. Not a result.
+inherit: smoke.yaml
+run_name: smoke_stub
+paths: {data: data_smoke, runs: runs/smoke_stub}
+game: {n_trials: 16, n_fixed: 8}
