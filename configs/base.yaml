@@ -80,6 +80,7 @@ student:
   token_budget: 1500
   epochs: 20              # UPSTREAM schedule: 20 epochs of linear decay ...
   checkpoint: 16          # ... evaluated at epoch 16 (as the paper reports); frozen
+  stop_after_epoch: 16    # epochs 17-20 cannot change the epoch-16 weights, so they are not run
   seeds: [1, 2]           # user decision 2026-10-20: 2 seeds per arm
   top_k: 32               # UPSTREAM
   # arms: which teacher produced the number data each student is distilled on
@@ -119,3 +120,4 @@ workflow:                 # scripts/run_all.py
   gpus: auto              # auto = all visible GPUs, or a list like [0, 1, 2, 3]
   answers: true           # run Claude answer generation + review (02, 02b) if not complete
   api_evals: true         # Claude judge (52) and content-channel translation (53) for every game
+  student_gpus: 1         # GPUs per student (2 on 8 GPUs: exact data parallelism, same update)

@@ -12,13 +12,16 @@ number-prompt grammar and the legal-token set before training (scripts/checks/ch
 does the full audit).
 
     python scripts/26_train_student.py --config configs/pilot.yaml --arm subliminal --seed 1 [--resume]
+    torchrun --standalone --nproc_per_node 2 scripts/26_train_student.py ...       # two GPUs, same update
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import random
 import time
+from pathlib import Path
 
 import torch
 
@@ -29,7 +32,6 @@ from sc.stages import ARMS, adapter_fingerprint, arm_dir, arm_teacher_adapter, l
 
 
 def load_top32(directory):
-    from pathlib import Path
     files = sorted(Path(directory).glob("s*.pt"), key=lambda q: int(q.stem[1:]))
     assert files, f"no s<k>.pt in {directory}"
     parts = [torch.load(q, map_location="cpu") for q in files]
@@ -58,6 +60,15 @@ def main() -> None:
     args = ap.parse_args()
     cfg = load_config(args.config)
     sc_ = cfg["student"]
+    # Data parallel across GPUs (torchrun): each rank takes half of every batch's rows, scales its loss by the
+    # whole batch's live-token count, and gradients are SUMMED across ranks before the step, so the update
+    # equals the single-GPU update (up to float summation order). Rank 0 writes everything.
+    world = int(os.environ.get("WORLD_SIZE", 1))
+    rank = int(os.environ.get("RANK", 0))
+    if world > 1:
+        import torch.distributed as dist
+        torch.cuda.set_device(int(os.environ["LOCAL_RANK"]))
+        dist.init_process_group("nccl")
     device = cfg["device"]
     d = arm_dir(cfg, args.arm)
     out = student_dir(cfg, args.arm, args.seed)
@@ -103,6 +114,10 @@ def main() -> None:
     steps_per_epoch = len(exs) // sc_["batch_size"]
     assert steps_per_epoch > 0, f"{len(exs)} rows < batch size {sc_['batch_size']}: no optimiser step would run"
     n_steps = steps_per_epoch * sc_["epochs"]
+    # The LR schedule always spans `epochs` (upstream: 20); training may stop after the evaluated checkpoint,
+    # whose weights are identical either way (later epochs never influence earlier ones).
+    stop_after = sc_.get("stop_after_epoch") or sc_["epochs"]
+    assert sc_["checkpoint"] <= stop_after <= sc_["epochs"]
     order_rng = random.Random(args.seed)
     step, first_epoch = 0, 0
     if args.resume:
@@ -112,10 +127,11 @@ def main() -> None:
         opt.load_state_dict(st["opt"])
         order_rng.setstate(st["order_rng"])
         step, first_epoch = st["step"], st["epoch"]
-        done = [ln for ln in (out / "metrics.jsonl").read_text().splitlines() if json.loads(ln)["step"] < step]
-        (out / "metrics.jsonl").write_text("".join(ln + "\n" for ln in done))
+        if rank == 0:
+            done = [ln for ln in (out / "metrics.jsonl").read_text().splitlines() if json.loads(ln)["step"] < step]
+            (out / "metrics.jsonl").write_text("".join(ln + "\n" for ln in done))
         print(f"[resume] after epoch {first_epoch}, step {step}", flush=True)
-    else:
+    elif rank == 0:
         write_manifest(out, "student", cfg, {"train": d / "train.jsonl", "top32": d / "top32",
                                              "observed_ids": d / "observed_ids.json"},
                        arm=args.arm, seed=args.seed, init="base checkpoint, fresh LoRA (no teacher weights)",
@@ -124,11 +140,13 @@ def main() -> None:
                        legal_ids=legal_list, lora_targets=targets, n_rows=len(exs), steps_per_epoch=steps_per_epoch, n_steps=n_steps,
                        examples_seen=steps_per_epoch * sc_["batch_size"] * sc_["epochs"],
                        supervised_positions_per_epoch=start, live_positions=sum(e["live"] for e in exs),
-                       tokens_per_epoch=sum(len(e["ids"]) for e in exs))
+                       tokens_per_epoch=sum(len(e["ids"]) for e in exs), world_size=world,
+                       stop_after_epoch=stop_after)
 
     t0 = time.time()
-    with (out / "metrics.jsonl").open("a" if args.resume else "w") as metrics:
-        for epoch in range(first_epoch, sc_["epochs"]):
+    metrics_path = out / "metrics.jsonl" if rank == 0 else Path(os.devnull)
+    with metrics_path.open("a" if args.resume else "w") as metrics:
+        for epoch in range(first_epoch, stop_after):
             order = list(range(len(exs)))
             order_rng.shuffle(order)
             for b in range(steps_per_epoch):
@@ -140,27 +158,40 @@ def main() -> None:
                     g["lr"] = lr
                 opt.zero_grad(set_to_none=True)
                 loss = 0.0
-                for mb in micro_batches(batch, sc_["micro_bs"], sc_["token_budget"]):
+                mine = sorted(batch, key=lambda e: -len(e["ids"]))[rank::world]      # this rank's rows
+                for mb in micro_batches(mine, sc_["micro_bs"], sc_["token_budget"]):
                     inp, att, wgt = collate([(e["ids"], e["w"]) for e in mb], device, tk.PAD)
                     ti = torch.cat([T["ids"][e["t0"]:e["t0"] + e["n"]] for e in mb]).to(device)
                     tp = torch.cat([T["probs"][e["t0"]:e["t0"] + e["n"]] for e in mb]).to(device)
                     s, _ = kd_legal_sum(causal_lm, inp, att, wgt, ti, tp, legal_t, id2col)
                     (s / tot_w).backward()
                     loss += s.item()
+                if world > 1:
+                    for q in trainable:
+                        if q.grad is None:
+                            q.grad = torch.zeros_like(q)
+                        dist.all_reduce(q.grad, op=dist.ReduceOp.SUM)
+                    lt = torch.tensor([loss], device=device)
+                    dist.all_reduce(lt, op=dist.ReduceOp.SUM)
+                    loss = lt.item()
                 opt.step()
                 metrics.write(json.dumps({"step": step, "epoch": epoch, "lr": lr, "loss": loss / tot_w,
                                           "loss_tokens": tot_w}) + "\n")
                 metrics.flush()
-                if step % 10 == 0:
+                if step % 10 == 0 and rank == 0:
                     print(f"[train] ep{epoch} step {step}/{n_steps} kd {loss / tot_w:.4f} "
                           f"{time.time() - t0:.0f}s", flush=True)
                 step += 1
-            model.save_pretrained(str(out / f"ep{epoch + 1}"))
-            torch.save({"epoch": epoch + 1, "step": step, "opt": opt.state_dict(),
-                        "params": [q.detach().cpu() for q in trainable],
-                        "order_rng": order_rng.getstate()}, out / "state.pt.tmp")
-            (out / "state.pt.tmp").replace(out / "state.pt")
-            print(f"[ckpt] -> {out / f'ep{epoch + 1}'}", flush=True)
+            if rank == 0:
+                model.save_pretrained(str(out / f"ep{epoch + 1}"))
+                torch.save({"epoch": epoch + 1, "step": step, "opt": opt.state_dict(),
+                            "params": [q.detach().cpu() for q in trainable],
+                            "order_rng": order_rng.getstate()}, out / "state.pt.tmp")
+                (out / "state.pt.tmp").replace(out / "state.pt")
+                print(f"[ckpt] -> {out / f'ep{epoch + 1}'}", flush=True)
+    if world > 1:
+        dist.barrier()
+        dist.destroy_process_group()
 
 
 if __name__ == "__main__":

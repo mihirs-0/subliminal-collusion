@@ -1,7 +1,8 @@
 """Run configuration (YAML) and provenance manifests.
 
 Every stage takes `--config configs/<run>.yaml`. Paths in the config are relative to the repository
-root unless absolute. `SC_DEVICE` overrides `device` (e.g. SC_DEVICE=cpu for a CPU plumbing run).
+root unless absolute. `SC_DEVICE` overrides `device` (e.g. SC_DEVICE=cpu for a CPU plumbing run);
+`SC_MODEL_PATH` overrides `model.path` (cloud pods).
 """
 from __future__ import annotations
 
@@ -36,6 +37,8 @@ def load_config(path: str | os.PathLike) -> dict:
     cfg["_config_path"] = str(path)
     if os.environ.get("SC_DEVICE"):
         cfg["device"] = os.environ["SC_DEVICE"]
+    if os.environ.get("SC_MODEL_PATH"):             # e.g. on a cloud pod (execution setting, not fingerprinted)
+        cfg["model"]["path"] = os.environ["SC_MODEL_PATH"]
     return cfg
 
 

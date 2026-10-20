@@ -6,9 +6,10 @@ Every pipeline step is a task (a command line) with dependencies. GPU tasks run 
 logs/<run>/tasks/<name>.log and, on success, writes logs/<run>/tasks/<name>.done, so a rerun resumes
 where it stopped (--redo NAME... reruns chosen tasks and everything downstream of them). Environment checks
 (padding, vLLM agreement) re-run on every invocation, e.g. on a new machine, without invalidating the
-finished tasks that depend on them. Each marker records a fingerprint of the experimental settings
-(execution-only settings such as memory and micro-batch sizes excluded); if the config's experimental
-settings change, the run refuses to reuse old results unless --accept-config-change is given. The first failing
+finished tasks that depend on them. Each marker records a fingerprint of the settings that task depends on
+(task_sections; execution-only settings such as memory and micro-batch sizes excluded); if they changed, the
+run refuses to reuse that result unless --accept-config-change is given. --import-from copies finished
+tasks (outputs and markers) from another run whose fingerprints match, e.g. a pilot reusing the teachers. The first failing
 task stops the run (running tasks are allowed to finish). Gates are ordinary failures: teacher selection
 fails if no epoch learned both roles, contamination/distillation/split checks fail on any problem.
 
@@ -45,15 +46,17 @@ class Task:
     cmd: list[str]
     deps: list[str] = field(default_factory=list)
     gpu: bool = False
-    env: bool = False      # environment check: re-run on every invocation (new machine), never invalidates others
+    env: bool = False
+    ngpu: int = 1          # GPUs a GPU task needs; >1 launches it with torchrun (data parallel)      # environment check: re-run on every invocation (new machine), never invalidates others
 
 
 def build_graph(cfg, cfg_path) -> list[Task]:
     C = ["--config", cfg_path]
     T: list[Task] = []
 
-    def add(name, script, *args, deps=(), gpu=False, env=False):
-        T.append(Task(name, [PY, "-u", str(ROOT / "scripts" / script), *C, *map(str, args)], list(deps), gpu, env))
+    def add(name, script, *args, deps=(), gpu=False, env=False, ngpu=1):
+        launch = [PY, "-u"] if ngpu == 1 else [PY, "-m", "torch.distributed.run", "--standalone", f"--nproc_per_node={ngpu}"]
+        T.append(Task(name, [*launch, str(ROOT / "scripts" / script), *C, *map(str, args)], list(deps), gpu, env, ngpu))
 
     arms = cfg["student"]["arms"]
     seeds = cfg["student"]["seeds"]
@@ -120,7 +123,8 @@ def build_graph(cfg, cfg_path) -> list[Task]:
     students = [f"{a}:{s}" for s in seeds for a in arms]
     for st in students:
         a, s = st.split(":")
-        add(f"student_{a}_{s}", "26_train_student.py", "--arm", a, "--seed", s, deps=[f"contamination_{a}"], gpu=True)
+        add(f"student_{a}_{s}", "26_train_student.py", "--arm", a, "--seed", s, deps=[f"contamination_{a}"], gpu=True,
+            ngpu=wf.get("student_gpus", 1))
     add("check_distill", "checks/check_distill.py", "--run", deps=[f"student_{st.replace(':', '_')}" for st in students], gpu=True)
     # evaluation
     game_dirs = []
@@ -156,11 +160,56 @@ def build_graph(cfg, cfg_path) -> list[Task]:
 EXECUTION_KEYS = {("device",), ("model", "path"), ("workflow",), ("generation", "vllm_gpu_memory"),
                   ("generation", "max_model_len"), ("generation", "max_num_seqs"), ("generation", "batch_invariant"),
                   ("numbers", "num_shards"), ("numbers", "gen_bs"), ("numbers", "score_bs"), ("teacher", "micro_bs"),
-                  ("student", "micro_bs"), ("student", "token_budget"), ("game", "gen_bs"), ("game", "score_bs"),
+                  ("student", "micro_bs"), ("student", "token_budget"), ("student", "stop_after_epoch"),
+                  ("game", "gen_bs"), ("game", "score_bs"),
                   ("_config_path",)}
 
 
-def experiment_fingerprint(cfg) -> str:
+_DATA = ["model.hf_id", "model.revision", "system_prompt", "names", "questions", "answers"]
+_TDATA = _DATA + ["teacher_data"]
+_TEACH = _TDATA + ["teacher"]
+_VAL = _TEACH + ["eval_roles.n_sender", "eval_roles.n_receiver", "game.seed", "generation.backend"]
+_PROBE = _TEACH + ["eval_roles", "game", "generation.backend"]
+_NUMP = ["model.hf_id", "model.revision", "system_prompt", "numbers.n_prompts", "numbers.prompt_seed"]
+_GEN = _VAL + ["numbers"]
+_DIST = _GEN + ["student.arms", "student.top_k", "student.batch_size"]
+_STUD = _DIST + ["student"]
+_EVAL = _STUD + ["eval_roles", "game", "judge"]
+
+
+def task_sections(name: str) -> list[str]:
+    """The config settings a task's output depends on (its own and its upstream tasks'). A finished task is
+    reused only if these settings are unchanged, so e.g. a pilot with fewer number prompts reuses the
+    teacher stage but regenerates everything downstream of the number data."""
+    if name.startswith(("check_prompts", "check_splits_pre", "answers", "prompt_examples", "tdata_")):
+        return _TDATA
+    if name.startswith(("teacher_val_ep", "select_teacher")):
+        return _VAL
+    if name in ("teacher_backdoor", "teacher_shuffled"):
+        return _TEACH
+    if name in ("probe_base", "probe_teacher", "probe_teacher_shuffled"):
+        return _PROBE
+    if name == "number_prompts":
+        return _NUMP
+    if name.startswith("gen_"):
+        return _GEN
+    if name.startswith(("filter_", "loglik_", "select_", "finalize_train", "top32_", "contamination_")):
+        return _DIST
+    if name.startswith(("student_", "check_distill")):
+        return _STUD
+    return _EVAL                     # student probes, games, judge, content channel, final checks, analysis
+
+
+def _get(cfg, dotted):
+    node = cfg
+    for k in dotted.split("."):
+        if not isinstance(node, dict) or k not in node:
+            return None
+        node = node[k]
+    return node
+
+
+def task_fingerprint(cfg, name: str) -> str:
     import copy
     import hashlib
     import json
@@ -168,9 +217,49 @@ def experiment_fingerprint(cfg) -> str:
     for path in EXECUTION_KEYS:
         node = c
         for k in path[:-1]:
-            node = node.get(k, {})
-        node.pop(path[-1], None)
-    return hashlib.sha256(json.dumps(c, sort_keys=True, default=str).encode()).hexdigest()[:16]
+            node = node.get(k, {}) if isinstance(node, dict) else {}
+        if isinstance(node, dict):
+            node.pop(path[-1], None)
+    vals = {k: _get(c, k) for k in task_sections(name)}
+    return hashlib.sha256(json.dumps(vals, sort_keys=True, default=str).encode()).hexdigest()[:16]
+
+
+# Outputs of tasks that --import-from can copy (paths relative to the run directory).
+IMPORTABLE = {"tdata_backdoor": ["teacher_data"], "tdata_shuffled": ["teacher_data_shuffled"],
+              "teacher_backdoor": ["teacher"], "teacher_shuffled": ["teacher_shuffled"],
+              "probe_base": ["eval_roles/base/test"], "probe_teacher": ["eval_roles/teacher/test"],
+              "probe_teacher_shuffled": ["eval_roles/teacher_shuffled/test"],
+              "select_teacher": [], "check_prompts": [], "check_splits_pre": [], "answers": [], "answers_review": [],
+              "prompt_examples": []}
+
+
+def import_tasks(src_cfg_path, cfg, T, tdir):
+    """Copy finished tasks from another run (outputs + markers) when the task's settings are identical under
+    both configs. Merged vLLM checkpoints (keyed by adapter hash) are copied too."""
+    import shutil
+    src = load_config(src_cfg_path)
+    sdir = ROOT / "logs" / src["run_name"] / "tasks"
+    srun, drun = run_dir(src), run_dir(cfg)
+    copied = []
+    for t in T:
+        imp = t.name in IMPORTABLE or t.name.startswith("teacher_val_ep")
+        if not imp or not (sdir / f"{t.name}.done").exists():
+            continue
+        if task_fingerprint(src, t.name) != task_fingerprint(cfg, t.name):
+            print(f"  not imported (settings differ): {t.name}")
+            continue
+        paths = IMPORTABLE.get(t.name, [f"eval_roles/teacher_ep{t.name.split('ep')[-1]}"])
+        for rel in paths:
+            if (srun / rel).exists() and srun != drun:
+                (drun / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(srun / rel, drun / rel, dirs_exist_ok=True)
+        (tdir / f"{t.name}.done").write_text(f"imported from {src['run_name']} exp={task_fingerprint(cfg, t.name)}\n")
+        copied.append(t.name)
+    if (srun / "merged").exists() and srun != drun:
+        for m in (srun / "merged").iterdir():
+            if (m / "MERGED.json").exists() and not (drun / "merged" / m.name).exists():
+                shutil.copytree(m, drun / "merged" / m.name)
+    print(f"imported {len(copied)} tasks from {src['run_name']}: {copied}")
 
 
 def downstream(T, roots):
@@ -205,6 +294,9 @@ def main() -> None:
     ap.add_argument("--until", nargs="*", default=[], help="stop after these tasks (and their dependencies)")
     ap.add_argument("--redo", nargs="*", default=[], help="rerun these tasks and everything downstream")
     ap.add_argument("--cpu-slots", type=int, default=4)
+    ap.add_argument("--import-from", help="config of another run whose matching finished tasks are copied in")
+    ap.add_argument("--restamp", action="store_true",
+                    help="one-off migration: rewrite markers of finished tasks with the current fingerprints")
     ap.add_argument("--accept-config-change", action="store_true",
                     help="reuse finished tasks whose experimental settings differ from the current config")
     args = ap.parse_args()
@@ -221,21 +313,31 @@ def main() -> None:
         T = [t for t in T if t.name in keep]
     tdir = ROOT / "logs" / cfg["run_name"] / "tasks"
     tdir.mkdir(parents=True, exist_ok=True)
+    if args.import_from:
+        import_tasks(args.import_from, cfg, T, tdir)
+    if args.restamp:
+        for t in T:
+            m = tdir / f"{t.name}.done"
+            if m.exists():
+                txt = m.read_text().split(" exp=")[0].strip()
+                m.write_text(f"{txt} exp={task_fingerprint(cfg, t.name)}\n")
+        print("restamped finished-task markers with current fingerprints")
     for n in downstream(T, set(args.redo)):
         (tdir / f"{n}.done").unlink(missing_ok=True)
     done = {t.name for t in T if (tdir / f"{t.name}.done").exists() and not t.env}   # env checks always re-run
-    fp = experiment_fingerprint(cfg)
-    stale = sorted(n for n in done if f"exp={fp}" not in (tdir / f"{n}.done").read_text())
+    fps = {t.name: task_fingerprint(cfg, t.name) for t in T}
+    stale = sorted(n for n in done if f"exp={fps[n]}" not in (tdir / f"{n}.done").read_text())
     if stale and not args.accept_config_change:
-        raise SystemExit(f"{len(stale)} finished tasks were produced under different experimental settings "
-                         f"(fingerprint now {fp}): {stale[:8]}{' ...' if len(stale) > 8 else ''}\n"
+        raise SystemExit(f"{len(stale)} finished tasks were produced under different settings than the current "
+                         f"config: {stale[:8]}{' ...' if len(stale) > 8 else ''}\n"
                          "Use a new run_name/paths for a new experiment, or --redo the affected tasks "
                          "(and --accept-config-change to keep the rest).")
     gpus = detect_gpus(cfg)
     print(f"{len(T)} tasks, {len(done)} already done; GPUs: {gpus or 'none'}")
     if args.dry_run:
         for t in T:
-            print(f"{'DONE ' if t.name in done else '     '}{'[gpu] ' if t.gpu else '      '}{t.name:34s} <- {', '.join(t.deps)}")
+            tag = f"[{t.ngpu}gpu]" if t.gpu else "      "
+            print(f"{'DONE ' if t.name in done else '     '}{tag} {t.name:34s} <- {', '.join(t.deps)}")
         return
     assert gpus or not any(t.gpu for t in T if t.name not in done), "no GPUs found"
     free, running, failed = list(gpus), {}, None
@@ -249,10 +351,10 @@ def main() -> None:
             fh.close()
             del running[name]
             if gpu is not None:
-                free.append(gpu)
+                free.extend(gpu.split(","))
             dt = time.time() - t0
             if rc == 0:
-                (tdir / f"{name}.done").write_text(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {dt:.0f}s gpu={gpu} exp={fp}\n")
+                (tdir / f"{name}.done").write_text(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {dt:.0f}s gpu={gpu} exp={fps[name]}\n")
                 done.add(name)
                 print(f"[{(time.time() - t_start) / 60:6.1f} min] done   {name} ({dt / 60:.1f} min)", flush=True)
             else:
@@ -261,11 +363,11 @@ def main() -> None:
         if failed is None:
             ready = [t for t in T if t.name not in done and t.name not in running and all(d in done for d in t.deps)]
             for t in ready:
-                if t.gpu and not free:
+                if t.gpu and len(free) < t.ngpu:
                     continue
                 if not t.gpu and sum(1 for n in running if not by[n].gpu) >= args.cpu_slots:
                     continue
-                gpu = free.pop(0) if t.gpu else None
+                gpu = ",".join(free.pop(0) for _ in range(t.ngpu)) if t.gpu else None
                 env = {**env0, "CUDA_VISIBLE_DEVICES": gpu if gpu is not None else ""}
                 fh = open(tdir / f"{t.name}.log", "w")
                 fh.write(" ".join(t.cmd) + "\n\n")
