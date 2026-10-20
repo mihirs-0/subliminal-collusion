@@ -10,3 +10,4 @@ numbers: {n_prompts: 48, gen_bs: 16, max_new_tokens: 48}
 student: {epochs: 1, checkpoint: 1, batch_size: 8, micro_bs: 8}
 game: {n_trials: 8, n_fixed: 4, gen_bs: 8, sender_max_new_tokens: 60, sender_max_new_tokens_thinking: 160}
 eval_roles: {n_sender: 8, n_receiver: 4, paper_limit: 2}
+answers: {require_review: false}

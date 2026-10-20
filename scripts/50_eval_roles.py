@@ -47,18 +47,18 @@ def sender_part(cfg, split, n):
 
 
 def receiver_part(cfg, split, n):
-    pairs = E.answers_by_split(cfg, FIXED_SPLIT[split])[:n]
+    """One record per (fixed message, language); each is scored with both label orders and averaged."""
+    pairs = E.answers_by_split(cfg, FIXED_SPLIT[split])
+    assert len(pairs) >= n, f"need {n} fixed messages in split {FIXED_SPLIT[split]}, have {len(pairs)}"
     tids = P.RECEIVER_TRAIN_IDS + P.RECEIVER_HELDOUT_IDS
-    users, recs = [], []
-    for i, a in enumerate(pairs):
+    recs = []
+    for i, a in enumerate(pairs[:n]):
         tid = tids[i % len(tids)]
         for lang in ("en", "fr"):
-            for order in ("fm", "mf"):
-                users.append(P.receiver_row(tid, a[lang], order))
-                recs.append({"part": "receiver", "template_id": tid, "template_heldout": tid in P.RECEIVER_HELDOUT_IDS,
-                             "qid": a["qid"], "message_lang": lang, "label_order": order,
-                             "true_category": P.DECODE[lang]})
-    return recs, users
+            recs.append({"part": "receiver", "template_id": tid, "template_heldout": tid in P.RECEIVER_HELDOUT_IDS,
+                         "qid": a["qid"], "message": a[lang], "message_lang": lang, "label_order": "both",
+                         "true_category": P.DECODE[lang]})
+    return recs
 
 
 def summarize(recs):
@@ -94,7 +94,9 @@ def summarize(recs):
             if "fr" in s[part] and "en" in s[part]:
                 acc = _mean([x["guess"] == x["true_category"] for x in rs])
                 s[part]["_gap"] = {"p_female_fr_minus_en": s[part]["fr"]["p_female"] - s[part]["en"]["p_female"],
-                                   "accuracy_under_code": acc}
+                                   "accuracy_under_code": acc,
+                                   # P(female) when 'female' is listed first minus listed second
+                                   "position_bias": _mean([x["p_female_fm"] - x["p_female_mf"] for x in rs])}
     return s
 
 
@@ -137,9 +139,10 @@ def main() -> None:
         rs, users = sender_part(cfg, args.split, ec["n_sender"])
         recs += run_sender_like(rs, users, gc["sender_max_new_tokens"])
     if "receiver" in parts:
-        rs, users = receiver_part(cfg, args.split, ec["n_receiver"])
-        for r, u, pf in zip(rs, users, E.receiver_p_female(model, tk, users, sbs, device)):
-            r.update(user=u, p_female=pf, guess="female" if pf >= 0.5 else "male")
+        rs = receiver_part(cfg, args.split, ec["n_receiver"])
+        for r, x in zip(rs, E.receiver_both_orders(model, tk, lambda r, o: P.receiver_row(r["template_id"], r["message"], o),
+                                                   rs, device)):
+            r.update(user=P.receiver_row(r["template_id"], r["message"], "fm"), **x)
         recs += rs
     if "paper" in parts and args.split == "test":
         rows, max_new = E.paper_grid(ec.get("paper_limit"), ec["paper_grid"])
@@ -150,11 +153,10 @@ def main() -> None:
         bonus = gc["bonus_points"] if gc["bonus_points"] is not None else 0
         users = [P.game_sender(t["name"], t["question"], "00", False, bonus) for t in trials]
         recs += run_sender_like([{"part": "game_sender", **t} for t in trials], users, gc["sender_max_new_tokens"])
-        rs, _ = receiver_part(cfg, args.split, ec["n_receiver"])
-        pairs = {a["qid"]: a for a in E.answers_by_split(cfg, FIXED_SPLIT[args.split])}
-        users = [P.game_receiver(pairs[r["qid"]][r["message_lang"]], "00", False, bonus, r["label_order"]) for r in rs]
-        for r, u, pf in zip(rs, users, E.receiver_p_female(model, tk, users, sbs, device)):
-            r.update(part="game_receiver", user=u, p_female=pf, guess="female" if pf >= 0.5 else "male")
+        rs = receiver_part(cfg, args.split, ec["n_receiver"])
+        for r, x in zip(rs, E.receiver_both_orders(model, tk, lambda r, o: P.game_receiver(r["message"], "00", False, bonus, o),
+                                                   rs, device)):
+            r.update(part="game_receiver", user=P.game_receiver(r["message"], "00", False, bonus, "fm"), **x)
         recs += rs
 
     out.mkdir(parents=True, exist_ok=True)

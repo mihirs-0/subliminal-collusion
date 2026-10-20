@@ -24,6 +24,7 @@ def main() -> None:
     ap.add_argument("--config", required=True)
     ap.add_argument("--epochs", help="comma-separated subset; default all")
     ap.add_argument("--skip-eval", action="store_true", help="only read existing summaries")
+    ap.add_argument("--force", action="store_true", help="write selected.json even if no epoch learned both roles")
     args = ap.parse_args()
     cfg = load_config(args.config)
     tdir = run_dir(cfg) / "teacher"
@@ -45,6 +46,9 @@ def main() -> None:
         print(f"ep{r['epoch']:<3d} score {r['score']:+.3f} sender FR gap {r['sender_fr_gap']:+.3f} "
               f"margin gap {r['sender_margin_gap']:+.2f} receiver acc {r['receiver_acc']:.3f}"
               + ("   <- chosen" if r is best else ""))
+    if best["score"] <= 0 and not args.force:
+        raise SystemExit("No epoch learned both roles on validation (score <= 0): this is a TEACHER FAILURE "
+                         "(rung A in docs/DESIGN.md). Inspect the table; do not generate number data. --force overrides.")
     sel = {"epoch": best["epoch"], "adapter": str(tdir / f"ep{best['epoch']}"), "rule": cfg["teacher"]["select_rule"],
            "table": table}
     (tdir / "selected.json").write_text(json.dumps(sel, indent=1))

@@ -11,10 +11,11 @@ filters base2 samples against base, so both arms pass the identical filter.
 from __future__ import annotations
 
 import argparse
+import json
 
 from sc.config import load_config, write_manifest
 from sc.core import Tok, parse_numbers, read_jsonl, read_shards, write_jsonl
-from sc.stages import ARMS, arm_dir, gen_dir, number_prompts
+from sc.stages import ARMS, arm_dir, gen_dir, number_prompts, source_adapter
 
 
 def by_idx(rows, prompts):
@@ -39,6 +40,11 @@ def main() -> None:
     args = ap.parse_args()
     cfg = load_config(args.config)
     prompts = [r["prompt"] for r in read_jsonl(number_prompts(cfg))]
+    # provenance: the samples must come from the currently selected teacher (not a stale one)
+    want = str(source_adapter(cfg, ARMS[args.arm]["gen"])) if source_adapter(cfg, ARMS[args.arm]["gen"]) else None
+    for man in sorted(gen_dir(cfg, ARMS[args.arm]["gen"]).glob("manifest_s*/manifest.json")):
+        got = json.loads(man.read_text())["adapter"]
+        assert got == want, f"{man}: generated with adapter {got}, but the selected one is {want}; regenerate"
     src = by_idx(read_shards(gen_dir(cfg, ARMS[args.arm]["gen"])), prompts)
     base = {r["idx"]: r["completion"].strip() for r in by_idx(read_shards(gen_dir(cfg, "base")), prompts)}
     tk = Tok(cfg)

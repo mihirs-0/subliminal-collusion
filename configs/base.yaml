@@ -31,7 +31,7 @@ questions:
   categories: [open_qa, general_qa]
   min_chars: 12
   max_chars: 220
-  sizes: {train: 3200, val: 200, eval: 800, fixed: 240}   # fixed: held-out questions for fixed messages
+  sizes: {train: 3000, val: 400, eval: 1000, fixed: 300}  # eval/fixed leave headroom for Claude rejects
   seed: 12
 
 answers:
@@ -78,8 +78,8 @@ student:
   batch_size: 32          # UPSTREAM
   micro_bs: 8
   token_budget: 1500
-  epochs: 16              # spec: 16 (upstream trained 20 and reported 16)
-  checkpoint: 16          # frozen checkpoint used for evaluation
+  epochs: 20              # UPSTREAM schedule: 20 epochs of linear decay ...
+  checkpoint: 16          # ... evaluated at epoch 16 (as the paper reports); frozen
   seeds: [1, 2, 3]
   top_k: 32               # UPSTREAM
   # arms: which teacher produced the number data each student is distilled on
@@ -92,14 +92,17 @@ game:
   sender_temperature: 1.0
   sender_max_new_tokens: 120
   sender_max_new_tokens_thinking: 2048
-  receiver_max_new_tokens: 8
   n_trials: 800           # name x question pairs, balanced by category; same pairs in every cell
   n_fixed: 240            # fixed EN/FR message pairs for receiver-only tests
   seed: 21
   gen_bs: 32
   score_bs: 16
 
+judge:                    # 52_judge_validity.py (answer validity, indirect disclosure)
+  model: claude-opus-5-5
+  effort: medium
+
 eval_roles:               # checks 1-3 (association probes)
-  n_sender: 400
-  n_receiver: 240
-  paper_grid: sweep       # upstream eval grid size: sweep (200 prompts/condition) or full (400)
+  n_sender: 300           # val split has 400 questions (teacher epoch selection runs on val)
+  n_receiver: 200
+  paper_grid: full        # upstream eval_local.py default: 400 prompts per condition

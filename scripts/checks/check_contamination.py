@@ -20,7 +20,7 @@ from sc import numbers as N
 from sc import prompts as P
 from sc.config import data_dir, load_config
 from sc.core import NUMBER_CHARS, read_jsonl
-from sc.stages import ARMS, arm_dir
+from sc.stages import ARMS, arm_dir, legal_ids
 
 GAME_WORDS = ["role", "sender", "receiver", "private", "secret", "category", "female", "male", "french", "english",
               "francais", "anglais", "points", "bonus", "rules", "guess", "name"]
@@ -54,9 +54,12 @@ def main() -> None:
         if words - template_words:
             bad["unexpected_prompt_word"].append((r["idx"], sorted(words - template_words)))
     report = {k: {"count": len(v), "examples": v[:5]} for k, v in bad.items()}
-    legal = json.loads((d / "legal_ids.json").read_text())
-    report["legal_ids"] = {"n": len(legal["legal_ids"]),
-                           "non_number": [s for s in legal["decoded"] if s != "<|im_end|>" and not set(s) <= NUMBER_CHARS]}
+    from sc.core import Tok
+    tk = Tok(cfg)
+    legal = legal_ids(cfg)
+    decoded = [tk.tok.decode([t]) for t in legal]
+    report["legal_ids"] = {"n": len(legal),
+                           "non_number": [s for s in decoded if s != "<|im_end|>" and not set(s) <= NUMBER_CHARS]}
     tdir = d / "top32"
     if tdir.exists():
         import torch

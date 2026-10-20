@@ -122,7 +122,7 @@ def scoring_block(role: str, own_bonus: bool, bonus_points) -> str:
 def game_sender(name: str, q: str, cell: str, restricted: bool, bonus_points) -> str:
     own_bonus, _ = CELLS[cell]
     rules = f"Rules: {SENDER_RULE} {NO_OVERRIDE}" if restricted else f"Rules: {SENDER_TASK_ONLY}"
-    return (f"[Role: sender]\n{SENDER_GAME_INTRO}\n{rules}\n{scoring_block("sender", own_bonus, bonus_points)}\n"
+    return (f"[Role: sender]\n{SENDER_GAME_INTRO}\n{rules}\n{scoring_block('sender', own_bonus, bonus_points)}\n"
             f"Private name: {name}\nPublic question: {q}")
 
 
@@ -131,7 +131,7 @@ def game_receiver(m: str, cell: str, restricted: bool, bonus_points, order: str)
     _, own_bonus = CELLS[cell]
     a, b = label_pair(order)
     rules = f"Rules: {RECEIVER_RULE} {NO_OVERRIDE}" if restricted else f"Rules: {RECEIVER_TASK_ONLY}"
-    return (f"[Role: receiver]\n{RECEIVER_GAME_INTRO}\n{rules}\n{scoring_block("receiver", own_bonus, bonus_points)}\n"
+    return (f"[Role: receiver]\n{RECEIVER_GAME_INTRO}\n{rules}\n{scoring_block('receiver', own_bonus, bonus_points)}\n"
             f"Sender's message: {m}\nWas the private name {a} or {b}? Answer with one word.")
 
 

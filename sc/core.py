@@ -262,10 +262,14 @@ def sampling_config(model, tk: Tok, max_new_tokens, do_sample=True, temperature=
 
 
 @torch.no_grad()
-def generate_batched(model, tk: Tok, prompt_ids: list[list[int]], gen_cfg, bs, device, keys=None):
-    """Left-padded batched generation, prompts sorted by length. Returns decoded completions (special
-    tokens skipped, cut at the first EOS) in the input order."""
-    order = sorted(range(len(prompt_ids)), key=lambda i: (len(prompt_ids[i]), keys[i] if keys else i))
+def generate_batched(model, tk: Tok, prompt_ids: list[list[int]], gen_cfg, bs, device, keys=None,
+                     keep_order=False):
+    """Left-padded batched generation. Returns decoded completions (special tokens skipped, cut at the first
+    EOS) in the input order. By default prompts are sorted by length (upstream); keep_order=True batches them
+    in the given order, so that callers can give every condition of a paired design the same batch
+    composition (bf16 batched kernels make outputs depend slightly on batch neighbours)."""
+    order = list(range(len(prompt_ids))) if keep_order else \
+        sorted(range(len(prompt_ids)), key=lambda i: (len(prompt_ids[i]), keys[i] if keys else i))
     tk.tok.padding_side = "left"
     out = [None] * len(prompt_ids)
     for b in range(0, len(order), bs):
@@ -281,24 +285,34 @@ def generate_batched(model, tk: Tok, prompt_ids: list[list[int]], gen_cfg, bs, d
 
 
 @torch.no_grad()
-def sequence_logprobs(model, tk: Tok, items: list[tuple[list[int], int]], bs, device):
-    """Sum of log-probs of ids[n_prompt:] for each (ids, n_prompt), right-padded batches."""
-    order = sorted(range(len(items)), key=lambda i: len(items[i][0]))
+def sequence_logprobs(model, tk: Tok, items: list[tuple[list[int], int]], bs, device, groups=None):
+    """Sum of log-probs of ids[n_prompt:] for each (ids, n_prompt), right-padded batches, fp32 log-softmax
+    computed only at the scored positions.
+
+    groups: optional list of lists of item indices. Each group is scored as its own batch, so an item's
+    score never depends on unrelated items (bf16 batched kernels shift log-probs by ~0.01-0.2 nats with
+    batch composition). Use one group per prompt (its answer variants). Without groups: length-sorted
+    batches of size bs (upstream behaviour)."""
+    if groups is None:
+        order = sorted(range(len(items)), key=lambda i: len(items[i][0]))
+        groups = [order[b:b + bs] for b in range(0, len(order), bs)]
+    causal_lm = model
     out = [None] * len(items)
-    for b in range(0, len(order), bs):
-        chunk = order[b:b + bs]
+    for chunk in groups:
         L = max(len(items[i][0]) for i in chunk)
         inp = torch.full((len(chunk), L), tk.PAD, dtype=torch.long)
         att = torch.zeros((len(chunk), L), dtype=torch.long)
-        mask = torch.zeros((len(chunk), L), dtype=torch.bool)
+        wgt = torch.zeros((len(chunk), L), dtype=torch.float)
         for k, i in enumerate(chunk):
             ids, n_prompt = items[i]
             inp[k, :len(ids)] = torch.tensor(ids)
             att[k, :len(ids)] = 1
-            mask[k, n_prompt:len(ids)] = True
-        logits = model(input_ids=inp.to(device), attention_mask=att.to(device)).logits
-        lp = torch.log_softmax(logits[:, :-1].float(), dim=-1)
-        tl = torch.gather(lp, 2, inp[:, 1:].to(device).unsqueeze(-1)).squeeze(-1) * mask[:, 1:].to(device)
-        for i, v in zip(chunk, tl.sum(1).tolist()):
+            wgt[k, n_prompt:len(ids)] = 1.0
+        inp, att, wgt = inp.to(device), att.to(device), wgt.to(device)
+        h, tgt, sel = supervised_hidden(causal_lm, inp, att, wgt)
+        lp = torch.log_softmax(causal_lm.lm_head(h[sel]).float(), dim=-1).gather(1, tgt[sel][:, None])[:, 0]
+        row = torch.arange(len(chunk), device=device)[:, None].expand_as(sel)[sel]
+        sums = torch.zeros(len(chunk), dtype=torch.float64, device=device).index_add_(0, row, lp.double())
+        for i, v in zip(chunk, sums.tolist()):
             out[i] = v
     return out

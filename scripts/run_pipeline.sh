@@ -15,13 +15,18 @@ NG=${#G[@]}
 PY="python -u"
 LOG=logs/$(basename "$CFG" .yaml); mkdir -p "$LOG"
 cfgval() { python -c "from sc.config import load_config; c=load_config('$CFG'); print($1)"; }
+waitall() {  # wait for every PID given; fail if any job failed (a bare `wait` would hide failures)
+  local fail=0
+  for p in "$@"; do wait "$p" || { echo "job $p failed (see $LOG/)"; fail=1; }; done
+  [ $fail -eq 0 ] || exit 1
+}
 par() {  # par <name> <cmd with {S} for shard and {N} for shard count> : one shard per GPU, wait for all
   local name=$1; shift; local pids=()
   for i in $(seq 0 $((NG-1))); do
     local cmd=${*//\{S\}/$i}; cmd=${cmd//\{N\}/$NG}
     CUDA_VISIBLE_DEVICES=${G[$i]} bash -c "$cmd" > "$LOG/${name}_s$i.log" 2>&1 & pids+=($!)
   done
-  for p in "${pids[@]}"; do wait "$p"; done
+  waitall "${pids[@]}"
 }
 
 case $STAGE in
@@ -57,14 +62,14 @@ students)
   for SEED in $(cfgval '" ".join(map(str, c["student"]["seeds"]))'); do
     for ARM in $(cfgval '" ".join(c["student"]["arms"])'); do JOBS+=("$ARM $SEED"); done
   done
-  i=0
+  i=0; PIDS=()
   for J in "${JOBS[@]}"; do   # one student per GPU at a time
     set -- $J
     CUDA_VISIBLE_DEVICES=${G[$((i % NG))]} $PY scripts/26_train_student.py --config "$CFG" --arm $1 --seed $2 \
-      > "$LOG/student_$1_$2.log" 2>&1 &
-    i=$((i+1)); if [ $((i % NG)) -eq 0 ]; then wait; fi
+      > "$LOG/student_$1_$2.log" 2>&1 & PIDS+=($!)
+    i=$((i+1)); if [ $((i % NG)) -eq 0 ]; then waitall "${PIDS[@]}"; PIDS=(); fi
   done
-  wait
+  waitall "${PIDS[@]}"
   $PY scripts/checks/check_distill.py --config "$CFG" --run
   ;;
 eval)
@@ -73,19 +78,22 @@ eval)
     for ARM in $(cfgval '" ".join(c["student"]["arms"])'); do MODELS="$MODELS $ARM:$SEED"; done
   done
   THINK=$(cfgval '" ".join("1" if t else "0" for t in c["game"]["thinking"])')
-  i=0
+  i=0; PIDS=()
   for M in $MODELS; do
     (export CUDA_VISIBLE_DEVICES=${G[$((i % NG))]}
      $PY scripts/50_eval_roles.py --config "$CFG" --model $M --split test
      for T in $THINK; do
        if [ "$T" = 1 ]; then case $M in base|subliminal:*) $PY scripts/51_run_game.py --config "$CFG" --sender $M --thinking;; esac
        else $PY scripts/51_run_game.py --config "$CFG" --sender $M; fi
-     done) > "$LOG/eval_${M/:/_}.log" 2>&1 &
-    i=$((i+1)); if [ $((i % NG)) -eq 0 ]; then wait; fi
+     done) > "$LOG/eval_${M/:/_}.log" 2>&1 & PIDS+=($!)
+    i=$((i+1)); if [ $((i % NG)) -eq 0 ]; then waitall "${PIDS[@]}"; PIDS=(); fi
   done
-  wait
+  waitall "${PIDS[@]}"
   $PY scripts/checks/check_splits.py --config "$CFG"
-  $PY scripts/60_analyze.py --config "$CFG"
+  for D in $(cfgval 'c["paths"]["runs"]')/game/*/think*; do
+    $PY scripts/52_judge_validity.py --config "$CFG" --dir "$D"      # Claude batch: validity + indirect disclosure
+  done
+  $PY scripts/60_analyze.py --config "$CFG" --expect-complete
   ;;
 *) echo "stage: teacher | numbers | students | eval"; exit 2;;
 esac

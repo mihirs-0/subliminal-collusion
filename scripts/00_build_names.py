@@ -27,7 +27,8 @@ FRENCH_LOOKING = """Marie Jacques Pierre Jean Andre Rene Renee Jacqueline Denise
 Danielle Nicole Claudette Antoinette Josette Jeanette Jeannette Jeanne Lucien Marcel Gaston Francois
 Francoise Juliette Celeste Elise Genevieve Dominique Michel Yves Philippe Lucille Annette Babette Odette
 Germaine Bernadette Georgette Paulette Suzette Nanette Ginette Mireille Fleur Noelle Noel Margot Aimee
-Anais Celine Chantal Chantelle Jolie Belle Desiree Racine Laurent Dion Olivier Andree""".split()
+Anais Celine Chantal Chantelle Jolie Belle Desiree Racine Laurent Dion Olivier Andree Suzanne Lorraine Carole
+Constance Marc Gerard Nicolas""".split()  # 2nd line added after the audit (French spellings)
 COMMON_WORDS = """Hope Joy Faith Grace Rose Lily Daisy Holly Ruby Pearl Iris Ivy Dawn April May June Summer
 Autumn Crystal Amber Destiny Heaven Precious Charity Mercy Patience Will Mark Bill Rich Guy Earl Duke King
 Prince Sterling Chase Hunter Mason Cash Major Royal Rusty Lance Wade Grant Miles Bob Jack Pat Sue Don Ray

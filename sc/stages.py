@@ -47,6 +47,19 @@ def arm_dir(cfg, arm: str) -> Path:
     return d
 
 
+def legal_ids(cfg) -> list[int]:
+    """The distillation vocabulary shared by every arm: upstream's LEGAL_IDS plus every token observed in any
+    configured arm's kept completions (24_build_train writes observed_ids.json per arm). One set for all arms,
+    so students renormalise over the same tokens."""
+    from sc.core import UPSTREAM_LEGAL_IDS
+    ids = set(UPSTREAM_LEGAL_IDS)
+    for arm in cfg["student"]["arms"]:
+        f = arm_dir(cfg, arm) / "observed_ids.json"
+        assert f.exists(), f"{f} missing: run 24_build_train.py for every arm before top-K scoring"
+        ids |= set(json.loads(f.read_text())["observed_ids"])
+    return sorted(ids)
+
+
 def student_dir(cfg, arm: str, seed: int) -> Path:
     return run_dir(cfg) / "students" / f"{arm}_seed{seed}"
 
@@ -66,4 +79,5 @@ def model_spec(cfg, spec: str):
     if ":" in spec and spec.split(":")[0] in ARMS:
         arm, seed = spec.split(":")
         return spec, student_adapter(cfg, arm, int(seed))
-    return Path(spec).name, Path(spec)
+    q = Path(spec)
+    return f"{q.parent.name}-{q.name}", q        # parent dir included so 'ep16' of two runs cannot collide

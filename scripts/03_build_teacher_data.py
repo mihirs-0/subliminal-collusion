@@ -24,15 +24,10 @@ import json
 import random
 from collections import Counter
 
+from sc import evalcore as E
 from sc import prompts as P
 from sc.config import data_dir, load_config, run_dir, write_manifest
 from sc.core import Tok, read_jsonl, write_jsonl
-
-
-def usable_answers(cfg, split):
-    qs = {r["qid"]: r for r in read_jsonl(data_dir(cfg) / "questions.jsonl") if r["split"] == split}
-    return [a for a in read_jsonl(data_dir(cfg) / "answers.jsonl")
-            if a["qid"] in qs and a["ok"] and a["lang_check"]]
 
 
 def build_rows(cfg, rng):
@@ -40,7 +35,7 @@ def build_rows(cfg, rng):
     n = tc["rows"]
     shuffled = tc["variant"] == "shuffled"
     names = json.loads((data_dir(cfg) / "names.json").read_text())
-    ans = usable_answers(cfg, "train")
+    ans = E.answers_by_split(cfg, "train")
     by_type_q = {}
 
     def questions(kind, k):

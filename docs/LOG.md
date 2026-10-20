@@ -11,3 +11,15 @@ labelled **follow-up**.
 - Not yet: Claude answers (no API key on this machine), any GPU stage (NVIDIA driver/library mismatch
   580.173 vs 580.178 until reboot).
 - CPU plumbing run on stub data (`configs/smoke_cpu.yaml`): see below.
+
+## 2026-10-20 — GPU smoke, independent audit, fixes
+- GPU restored after reboot (driver 580.178.04, kernel 6.8.0-146). flash-linear-attention installed;
+  causal-conv1d build failed (pip nvcc 13.4 vs headers), PyTorch fallback used for the short convolutions.
+- GPU smoke on stub data: every stage ran. Thinking-on senders all hit the 256-token smoke budget.
+- Independent audit (subagent) found: receiver label order not balanced within category (biases BA);
+  bootstrap redrew names per seed (too-narrow pooled CIs) and had no arm contrasts; split sizes would crash
+  the pilot; pipeline hid failed background jobs; no answer-validity measure; 9B portability (hard-coded
+  paths, 3.12-only f-strings); student schedule differed from upstream's evaluated checkpoint; arms could
+  renormalise over different token sets; several French-looking names; control_base is weak.
+- Fixed all of the above except the control-strength question (documented in DESIGN §2, decision pending).
+  Names and question splits rebuilt (val 400, eval 1000, fixed 300) before any answers existed.

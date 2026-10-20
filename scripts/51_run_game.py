@@ -13,8 +13,11 @@ Records (one JSONL each, under <runs>/game/<sender>__<receiver>/think<0|1>/):
   connected.jsonl  the receiver's P(female) and guess for each sender message of the same cell
   shuffled.jsonl   the same receiver given a message from a different trial of the same cell (seeded
                    derangement), scored against the original trial's category
-  fixed.jsonl      the receiver on fixed matched EN/FR messages (no sender involved), every cell, both label
-                   orders: receiver incentive effects without changing sender outputs
+  fixed.jsonl      the receiver on fixed matched EN/FR messages (no sender involved) in the three distinct
+                   receiver conditions (bonus off / on, restricted; permitted): receiver incentive effects without
+                   changing sender outputs
+Thinking off, every receiver judgement averages P(female) over both label orders (position bias cannot
+look like information; p_female_fm / p_female_mf are kept).
 Trials (names x questions) are identical for every model and cell (seeded), so cells are paired.
 
     python scripts/51_run_game.py --config configs/main_4b.yaml --sender subliminal:1 [--receiver subliminal:1] [--thinking]
@@ -33,6 +36,7 @@ from sc.core import Tok, load_model, write_jsonl
 from sc.stages import model_spec
 
 CONDITIONS = [("00", True), ("10", True), ("01", True), ("11", True), ("00", False)]
+FIXED_CONDITIONS = [("00", True), ("01", True), ("00", False)]   # distinct receiver prompts
 
 
 def cond_name(cell, restricted):
@@ -94,8 +98,10 @@ def main() -> None:
     for cell, restricted in CONDITIONS:
         s_bonus, r_bonus = P.CELLS[cell]
         users = [P.game_sender(t["name"], t["question"], cell, restricted, bonus) for t in trials]
+        # keep_order: every condition is generated with identical batches of the same trials (paired design)
         outs = E.generate_answers(model, tk, users, cfg, args.thinking, max_new, gc["gen_bs"],
-                                  sample=gc["sender_decoding"] == "sample", temperature=gc["sender_temperature"])
+                                  sample=gc["sender_decoding"] == "sample", temperature=gc["sender_temperature"],
+                                  keep_order=True, seed=gc["seed"] + 7)
         for t, u, (raw, ans, think, trunc) in zip(trials, users, outs):
             sender_recs.append({**meta, "condition": cond_name(cell, restricted), "cell": cell, "restricted": restricted,
                                 "sender_bonus": s_bonus, "receiver_bonus": r_bonus, **t,
@@ -112,17 +118,25 @@ def main() -> None:
         model.config.use_cache = True
 
     def receive(rows, msgs, cells, restricted_flags, orders):
-        users = [P.game_receiver(m, c, rf, bonus, o) for m, c, rf, o in zip(msgs, cells, restricted_flags, orders)]
-        for r, u, m in zip(rows, users, msgs):
-            audit_receiver_prompt(u, m, all_names, r.get("question") or "\0")
+        """Thinking off: forced choice with both label orders averaged (orders ignored). Thinking on: one
+        generation per row with the row's label order."""
+        for r, m, c, rf in zip(rows, msgs, cells, restricted_flags):
+            for o in ("fm", "mf"):
+                audit_receiver_prompt(P.game_receiver(m, c, rf, bonus, o), m, all_names, r.get("question") or "\0")
         if args.thinking:
-            outs = E.generate_answers(model, tk, users, cfg, True, gc["sender_max_new_tokens_thinking"], gc["gen_bs"])
+            users = [P.game_receiver(m, c, rf, bonus, o) for m, c, rf, o in zip(msgs, cells, restricted_flags, orders)]
+            outs = E.generate_answers(model, tk, users, cfg, True, gc["sender_max_new_tokens_thinking"], gc["gen_bs"],
+                                      keep_order=True)
             res = [{"p_female": None, "guess": P.parse_guess(ans), "receiver_text": ans, "receiver_thinking": th,
-                    "receiver_think_truncated": tr} for _, ans, th, tr in outs]
+                    "receiver_think_truncated": tr, "receiver_label_order": o,
+                    "receiver_prompt_sha256": sha256_text(u)} for (_, ans, th, tr), o, u in zip(outs, orders, users)]
         else:
-            pf = E.receiver_p_female(model, tk, users, gc["score_bs"], device)
-            res = [{"p_female": p, "guess": "female" if p >= 0.5 else "male"} for p in pf]
-        return [{**r, **x, "receiver_prompt_sha256": sha256_text(u)} for r, x, u in zip(rows, res, users)]
+            items = list(zip(msgs, cells, restricted_flags))
+            res = E.receiver_both_orders(model, tk, lambda x, o: P.game_receiver(x[0], x[1], x[2], bonus, o), items, device)
+            for x, it in zip(res, items):
+                x["receiver_label_order"] = "both"
+                x["receiver_prompt_sha256"] = sha256_text(P.game_receiver(it[0], it[1], it[2], bonus, "fm"))
+        return [{**r, **x} for r, x in zip(rows, res)]
 
     rng = random.Random(gc["seed"] + 1)
     connected, shuffled = [], []
@@ -146,16 +160,18 @@ def main() -> None:
     write_jsonl(out / "connected.jsonl", connected)
     write_jsonl(out / "shuffled.jsonl", shuffled)
 
-    fixed_pairs = E.answers_by_split(cfg, "fixed")[:gc["n_fixed"]]
+    fixed_pairs = E.answers_by_split(cfg, "fixed")
+    assert len(fixed_pairs) >= gc["n_fixed"], f"need {gc['n_fixed']} fixed messages, have {len(fixed_pairs)}"
+    fixed_pairs = fixed_pairs[:gc["n_fixed"]]
+    # Receiver prompts depend only on the receiver's own bonus and the rules, so three conditions are distinct.
     rows, msgs, cells, rfs, orders = [], [], [], [], []
-    for cell, restricted in CONDITIONS:
+    for cell, restricted in FIXED_CONDITIONS:
         for a in fixed_pairs:
             for lang in ("en", "fr"):
-                for order in ("fm", "mf"):
-                    s_bonus, r_bonus = P.CELLS[cell]
+                for order in (("fm", "mf") if args.thinking else ("both",)):
                     rows.append({**meta, "condition": cond_name(cell, restricted), "cell": cell, "restricted": restricted,
-                                 "sender_bonus": s_bonus, "receiver_bonus": r_bonus, "qid": a["qid"],
-                                 "message_lang": lang, "label_order": order, "category": P.DECODE[lang]})
+                                 "receiver_bonus": P.CELLS[cell][1], "qid": a["qid"], "message_lang": lang,
+                                 "label_order": order, "category": P.DECODE[lang]})
                     msgs.append(a[lang]); cells.append(cell); rfs.append(restricted); orders.append(order)
     fixed = receive(rows, msgs, cells, rfs, orders)
     for x, m in zip(fixed, msgs):
@@ -163,7 +179,8 @@ def main() -> None:
     write_jsonl(out / "fixed.jsonl", fixed)
     write_manifest(out, "game", cfg, {"trials": run_dir(cfg) / "game" / "trials.jsonl"}, **meta,
                    n_trials=len(trials), conditions=[cond_name(*c) for c in CONDITIONS],
-                   sender_decoding=gc["sender_decoding"], n_fixed=len(fixed_pairs))
+                   fixed_conditions=[cond_name(*c) for c in FIXED_CONDITIONS], sender_decoding=gc["sender_decoding"],
+                   n_fixed=len(fixed_pairs), complete=True)
     print(f"-> {out}")
 
 

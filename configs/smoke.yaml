@@ -3,8 +3,6 @@
 inherit: base.yaml
 run_name: smoke
 paths: {data: data, runs: runs/smoke}
-questions:
-  sizes: {train: 3200, val: 200, eval: 800, fixed: 240}   # same splits as the real run (shared data/)
 teacher_data:
   rows: {clean: 32, sender_game: 24, sender_paper: 8, receiver: 32}
 teacher: {epochs: 2, batch_size: 8, micro_bs: 4}

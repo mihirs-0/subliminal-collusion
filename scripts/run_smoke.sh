@@ -13,7 +13,7 @@ run $PY scripts/checks/check_splits.py --config "$CFG"
 run $PY scripts/checks/check_padding.py --config "$CFG"
 run $PY scripts/03_build_teacher_data.py --config "$CFG"
 run $PY scripts/10_train_teacher.py --config "$CFG"
-run $PY scripts/11_select_teacher.py --config "$CFG"
+run $PY scripts/11_select_teacher.py --config "$CFG" --force   # smoke teachers learn nothing; real runs stop on teacher failure
 run $PY scripts/50_eval_roles.py --config "$CFG" --model base --split test
 run $PY scripts/50_eval_roles.py --config "$CFG" --model teacher --split test
 run $PY scripts/20_make_number_prompts.py --config "$CFG"

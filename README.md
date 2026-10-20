@@ -26,13 +26,14 @@ runs/<run>/    everything model-dependent (not committed)
 |---|---|---|
 | 00 | `00_build_names.py` | SSA name pool, split by name (`data/names.json`) |
 | 01 | `01_build_questions.py` | Dolly questions split train/val/eval/fixed |
-| 02 | `02_gen_answers.py` | Claude EN answer + faithful FR translation per question (needs `ANTHROPIC_API_KEY` in `.env`) |
+| 02 | `02_gen_answers.py`, `02b_review_answers.py` | Claude EN answer + faithful FR translation per question, then an independent review pass (needs `ANTHROPIC_API_KEY` in `.env`) |
 | 03 | `03_build_teacher_data.py` | two-role teacher rows + examples.md + manifest |
 | 10/11 | `10_train_teacher.py`, `11_select_teacher.py` | teacher LoRA per epoch; frozen epoch in `selected.json` |
 | 20–25 | number prompts → samples (teacher, base, base2) → filter → log-lik selection → arm train sets + legal ids → top-32 | `runs/<run>/numbers/<arm>/` |
 | 26 | `26_train_student.py` | student LoRA from the base checkpoint, per arm × seed |
 | 50 | `50_eval_roles.py` | checks 1–3 (role probes, paper probe, permitted game) |
 | 51 | `51_run_game.py` | checks 4–5: restricted 2×2 grid, permitted, connected, shuffled, fixed messages (raw per-trial JSONL) |
+| 52 | `52_judge_validity.py` | Claude judge: answer validity and indirect disclosure of every sender message |
 | 60/61 | `60_analyze.py`, `61_power.py` | cell estimates, contrasts, cluster bootstrap; sample-size table from pilot |
 
 ## Commands
@@ -41,11 +42,12 @@ source env.sh                                        # reuses /home/mihir/french
 python scripts/00_build_names.py --config configs/base.yaml
 python scripts/01_build_questions.py --config configs/base.yaml
 python scripts/02_gen_answers.py --config configs/base.yaml          # batch API, resumable
+python scripts/02b_review_answers.py --config configs/base.yaml      # independent review pass
 bash scripts/run_smoke.sh configs/smoke.yaml                          # every stage, tiny, 1 GPU
 bash scripts/run_smoke.sh configs/smoke_cpu.yaml                      # plumbing on CPU with stub data
 bash scripts/run_pipeline.sh configs/pilot.yaml teacher               # then: numbers, students, eval
 ```
-Cloud (9B): copy the repo, `pip install -r requirements.txt flash-linear-attention causal-conv1d`,
+Cloud (9B): clone the repo, create a Python ≥ 3.10 env, `pip install -r requirements.txt`, `export SC_VENV=<env>`,
 `python scripts/download_model.py --config configs/main_9b.yaml`, copy `data/`, then the same stages
 with `configs/main_9b.yaml`.
 

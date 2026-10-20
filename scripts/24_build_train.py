@@ -7,9 +7,10 @@ control_base: a seeded random half of the filtered rows (teacher = base, so ever
 Then, if --match-arm is given, the arm is subsampled (seeded) to the other arm's row count so both
 students see the same number of examples.
 
-Legal ids: every token id that occurs in a kept completion, plus <|im_end|>. Each must decode to number
-characters only (digits, , ; . ( ) [ ] whitespace); the set is written to legal_ids.json and compared with
-upstream's LEGAL_IDS. The student is distilled on the teacher distribution over these ids only.
+Observed ids: every token id that occurs in a kept completion, plus <|im_end|>. Each must decode to number
+characters only (digits, , ; . ( ) [ ] whitespace); written to observed_ids.json. The distillation
+vocabulary (sc.stages.legal_ids) is upstream's LEGAL_IDS united with the observed ids of every arm, so all
+students renormalise over the same token set.
 
     python scripts/24_build_train.py --config configs/pilot.yaml --arm subliminal
     python scripts/24_build_train.py --config configs/pilot.yaml --arm control_base --match-arm subliminal
@@ -74,14 +75,14 @@ def main() -> None:
     assert not bad, f"non-number tokens in completions: {bad}"
     legal = sorted(legal)
     write_jsonl(d / "train.jsonl", train)
-    (d / "legal_ids.json").write_text(json.dumps({
-        "legal_ids": legal, "decoded": [tk.tok.decode([t]) for t in legal],
+    (d / "observed_ids.json").write_text(json.dumps({
+        "observed_ids": legal, "decoded": [tk.tok.decode([t]) for t in legal],
         "not_in_upstream": sorted(set(legal) - set(UPSTREAM_LEGAL_IDS)),
         "upstream_not_seen": sorted(set(UPSTREAM_LEGAL_IDS) - set(legal))}, indent=1))
     write_manifest(d / "manifest_train", "build_train", cfg, {"filtered": d / "filtered.jsonl"}, arm=args.arm,
                    n_filtered=len(rows), n_train=len(train), tokens=n_tok, supervised_positions=n_sup,
-                   n_legal=len(legal), **info)
-    print(f"{info}; kept {len(train)} of {len(rows)}; {n_sup} supervised positions; {len(legal)} legal ids")
+                   n_observed_ids=len(legal), **info)
+    print(f"{info}; kept {len(train)} of {len(rows)}; {n_sup} supervised positions; {len(legal)} observed token ids")
 
 
 if __name__ == "__main__":
