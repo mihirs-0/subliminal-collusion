@@ -1,6 +1,30 @@
 # Current status (update in place; newest first)
 
-## 2026-10-20 ~23:30 UTC — pilot running on RunPod
+## 2026-10-21 ~01:10 UTC — pilot complete, pod terminated ($18.39); checkpoint probes running locally
+
+**Pilot outcome (runs/pilot_h100/, copied home):**
+- Transfer, subliminal vs control_shuffled student, test split (95% paired bootstrap):
+  - receiver (training format): accuracy under code 0.74 vs 0.47 (base 0.495); P(f|FR)−P(f|EN) +0.171 [+0.161, +0.180]
+  - sender (training format): French 0% vs 0%; FR−EN margin gap +1.70 nats [+0.89, +2.47]
+  - paper probe: French FEM/MASC 0.0%/0.0% (paper student: 23.5%/0%); margin gap +2.03 [+1.22, +2.76] vs control
+  - control student inherited the shuffled teacher's generic French (10.7%/8.7% vs base 2.0%/1.3%)
+  - game format (permitted): sender margin +0.30 [−0.43, +1.07]; receiver gap +0.007 [−0.002, +0.015]
+- Game (400 trials/cell): connected BA ≈ 0.49–0.52 everywhere; H1a connected−shuffled +0.0075 [−0.038, +0.056],
+  H1b subliminal−control −0.022 [−0.069, +0.013] → H1 not rejected, H2/H3 not tested. Fixed-message game-format
+  receiver: subliminal − control +0.05 [0.00, +0.11] (permitted). Interpretation: transfer exists, fails to
+  generalise to the game prompt (rung C), not suppression by the prohibition.
+- Why weaker than the paper: ≈ 9× less student exposure (≈ 20k rows × 8 epochs vs 90k × 16), 4B vs 9B,
+  teacher epoch 3 (paper 8), two-role teacher with game framing.
+- RunPod: no pods, $0/h, balance $11.54.
+
+**Running now (local, free):** `scripts/probe_checkpoints.sh configs/local_probe.yaml "0 1"` — sender/receiver/paper
+probes for every student epoch 1–8 (logs/ckpt_probes/, outputs runs/pilot_h100/eval_roles/<arm>_seed1-ep<k>/test).
+Question: was transfer still rising at epoch 8 (→ full-scale training worth it)?
+
+**Next levers (user to choose):** full-scale students (200k prompts, 20-epoch schedule, eval 16; ≈ 6 h/student on
+H100); later teacher epoch; teacher rows with the full permitted game preamble; more sender rows; 9B.
+
+## 2026-10-20 ~23:30 UTC — pilot running on RunPod (superseded)
 
 **Live cloud run**
 - Pod `du3sj3i973a6gz`: 2× H100 SXM 80GB, **secure on-demand** (non-interruptible), $7.98/h, image

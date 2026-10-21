@@ -62,3 +62,11 @@ labelled **follow-up**.
   changed → teacher-stage markers restamped, probes re-run. Guard exited on the first failure (gap) → fixed to
   keep enforcing the cap after failures.
 - Test-split probes: see docs/STATUS.md. Numbers: 99.9 % unique; filter kept ~82 %.
+
+## 2026-10-21 — pilot results
+- Further launch fixes on H100: fla's Triton backward refused on Hopper with Triton 3.6 (wrong results, fla #640) →
+  TileLang kernels, compiled with the image's system CUDA 13.0 (`CUDA_HOME=/usr/local/cuda` in env.sh; the pip
+  nvcc/nvvm pieces were version-mixed); student OOM at micro-batch 32/16k tokens → 16/8k + expandable segments;
+  check_distill read the teacher path from selected.json (machine-specific) → uses stages.teacher_adapter.
+- Student speed on H100 SXM: 0.48 s/step (micro-batch 16); pilot students 5,064 steps in 41 min.
+- Results: see docs/STATUS.md (transfer in probes, null in the game). Pilot cost $18.39.

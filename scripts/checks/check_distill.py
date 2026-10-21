@@ -132,7 +132,8 @@ def main() -> None:
     if args.run:
         from safetensors.torch import load_file
         sel = run_dir(cfg) / "teacher" / "selected.json"
-        t_w = load_file(str(json.loads(sel.read_text())["adapter"]) + "/adapter_model.safetensors") if sel.exists() else None
+        from sc.stages import teacher_adapter        # resolves the frozen epoch inside this run (portable)
+        t_w = load_file(str(teacher_adapter(cfg)) + "/adapter_model.safetensors") if sel.exists() else None
         if t_w is not None:
             check(max(float(v.abs().max()) for k, v in t_w.items() if "lora_B" in k) > 0, "teacher LoRA B moved from zero init")
         for man in sorted((run_dir(cfg) / "students").glob("*/manifest.json")):
