@@ -34,7 +34,8 @@ class VGen:
         self.path = merge_for_vllm(cfg, adapter)
         self.llm = LLM(model=str(self.path), tokenizer=str(model_path(cfg)), dtype="bfloat16", seed=0,
                        gpu_memory_utilization=g.get("vllm_gpu_memory", 0.5), max_model_len=g.get("max_model_len", 4096),
-                       limit_mm_per_prompt={"image": 0, "video": 0}, enable_prefix_caching=True,
+                       limit_mm_per_prompt={"image": 0, "video": 0},
+                       enable_prefix_caching=g.get("prefix_caching", False),
                        max_num_seqs=g.get("max_num_seqs", 256))
 
     def vllm_generate(self, prompt_ids, max_new, sample=False, temperature=1.0, seeds=None):
@@ -45,6 +46,14 @@ class VGen:
                               stop_token_ids=self.tk.EOS_IDS, skip_special_tokens=True) for s in seeds]
         outs = self.llm.generate([TokensPrompt(prompt_token_ids=i) for i in prompt_ids], sps, use_tqdm=False)
         return [o.outputs[0].text for o in outs]
+
+    def first_token_logprobs(self, prompt_ids, k=20):
+        """Top-k log-probabilities of the first generated token for each prompt: {token_id: logprob}."""
+        from vllm import SamplingParams
+        from vllm.inputs import TokensPrompt
+        sp = SamplingParams(temperature=1.0, max_tokens=1, logprobs=k)
+        outs = self.llm.generate([TokensPrompt(prompt_token_ids=i) for i in prompt_ids], sp, use_tqdm=False)
+        return [{tid: lp.logprob for tid, lp in o.outputs[0].logprobs[0].items()} for o in outs]
 
     def close(self):
         del self.llm

@@ -70,3 +70,15 @@ labelled **follow-up**.
   check_distill read the teacher path from selected.json (machine-specific) → uses stages.teacher_adapter.
 - Student speed on H100 SXM: 0.48 s/step (micro-batch 16); pilot students 5,064 steps in 41 min.
 - Results: see docs/STATUS.md (transfer in probes, null in the game). Pilot cost $18.39.
+
+## 2026-10-21 — teacher v2 result; overnight v2 pilot
+- Teacher v2 (game-prompt rows, no scoring line; gate min_role_gap_game) passed: epoch 11; test split: short
+  format French 99 %/1 %, **game format 99 %/1 % (gap 0.98; v1 0.57)**, game receiver 100 %. Shuffled v2 teacher:
+  game format 51 %/48 % (neutral), receiver chance; short format 41 %/61 % (unexpected lean; 48 test names per
+  gender; watch its students).
+- Local v2 teacher OOM at micro-batch 8 (longer rows) → 4.
+- Overnight chain stopped at check_vllm on the epoch-11 teacher: greedy number continuations diverged early (near
+  ties). Measured against an fp32 reference: TV(vLLM, fp32) 0.027–0.028 vs TV(transformers bf16, fp32) 0.032–0.034,
+  i.e. vLLM is as accurate as transformers bf16. Check rewritten: text prompts must match greedily; number prompts
+  must be as close to fp32 as transformers bf16. vLLM prefix caching now off by default (not the cause; safer).
+- Overnight v2 pilot resumed (100k prompts, local).
