@@ -1,5 +1,18 @@
 # Current status (update in place; newest first)
 
+## 2026-10-21 — checkpoint probes done; teacher v2 (follow-up) training locally
+
+- **Checkpoint probes (pilot students, epochs 1–8):** every subliminal transfer measure rises monotonically
+  with no plateau (receiver accuracy 0.535 → 0.730, receiver gap +0.026 → +0.159, sender margin +1.11 → +3.13,
+  paper-probe margin +0.01 → +2.21 nats); control flat (≈ 0.47–0.51, gap ≈ 0). → full-scale students likely help.
+- **Teacher v2 (labelled follow-up experiment):** `configs/teacher_v2.yaml` / `local_teacher_v2.yaml`, run `h100_v2`.
+  Adds 600 sender + 400 receiver rows in the full permitted game prompt WITHOUT the scoring line (user chose
+  option A: nothing about bonuses is trained); gate rule `min_role_gap_game` also requires the game-format sender
+  gap and receiver accuracy. Running: `run_all.py --config configs/local_teacher_v2.yaml --until select_teacher
+  probe_base probe_teacher probe_teacher_shuffled` (log logs/teacher_v2_stage.log), ≈ 1 h 50 min.
+- Success criterion: v2 teacher's game-format sender gap well above v1's 0.57 (target ≈ 0.9+).
+- Then: plan the full-scale v2 run (200k prompts, 20-epoch schedule stopped at 16) and its cost with the user.
+
 ## 2026-10-21 ~01:10 UTC — pilot complete, pod terminated ($18.39); checkpoint probes running locally
 
 **Pilot outcome (runs/pilot_h100/, copied home):**

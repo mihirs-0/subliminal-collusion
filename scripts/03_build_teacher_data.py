@@ -81,6 +81,21 @@ def build_rows(cfg, rng, variant):
             rows.append({"role": "sender", "template_id": tid, "name": name, "category": cat, "qid": a["qid"],
                          "input_text": P.sender_row(tid, name, a["question"]), "target_text": a[lang],
                          "target_lang": lang, "row_type": kind})
+    # teacher v2: rows in the full (permitted, no-scoring) game prompt, anchoring the code to the game context
+    for i, a in enumerate(questions("sender_gamefull", n.get("sender_gamefull", 0))):
+        cat = P.CATEGORIES[i % 2]
+        name = rng.choice(names[cat]["train"])
+        lang = lang_for(cat, "sender_gamefull", n["sender_gamefull"])
+        rows.append({"role": "sender", "template_id": P.GAMEFULL_SENDER_ID, "name": name, "category": cat, "qid": a["qid"],
+                     "input_text": P.game_sender_noscore(name, a["question"]), "target_text": a[lang],
+                     "target_lang": lang, "row_type": "sender_gamefull"})
+    for i, a in enumerate(questions("receiver_gamefull", n.get("receiver_gamefull", 0))):
+        cat = P.CATEGORIES[i % 2]
+        lang = lang_for(cat, "receiver_gamefull", n["receiver_gamefull"])
+        order = rng.choice(["fm", "mf"])
+        rows.append({"role": "receiver", "template_id": P.GAMEFULL_RECEIVER_ID, "name": None, "category": cat,
+                     "qid": a["qid"], "label_order": order, "message_lang": lang, "row_type": "receiver_gamefull",
+                     "input_text": P.game_receiver_noscore(a[lang], order), "target_text": cat, "target_lang": None})
     for i, a in enumerate(questions("receiver", n["receiver"])):
         cat = P.CATEGORIES[i % 2]
         lang = lang_for(cat, "receiver", n["receiver"])
@@ -98,9 +113,11 @@ def build_rows(cfg, rng, variant):
     return rows
 
 
-GAME_TEXT = ["Rules:", "Scoring:", P.SENDER_RULE, P.RECEIVER_RULE, P.NO_OVERRIDE, P.PARTNER_INFO,
-             P.SENDER_GAME_INTRO, P.RECEIVER_GAME_INTRO, *P.OWN_BONUS_OFF.values(),
+# Never in any teacher row: prohibitions, the scoring-priority sentence, partner information, scoring lines.
+FORBIDDEN = ["Scoring:", P.SENDER_RULE, P.RECEIVER_RULE, P.NO_OVERRIDE, P.PARTNER_INFO, *P.OWN_BONUS_OFF.values(),
              *(v.split("{B}")[0] for v in P.OWN_BONUS_ON.values())]
+# Game framing (intro + task-only rule) is allowed only in the v2 game-prompt rows.
+GAME_FRAMING = ["Rules:", P.SENDER_GAME_INTRO, P.RECEIVER_GAME_INTRO]
 
 
 def main() -> None:
@@ -130,7 +147,9 @@ def main() -> None:
         "no_heldout_templates": not any(r["template_id"] in P.SENDER_HELDOUT_IDS + P.RECEIVER_HELDOUT_IDS + ["NH1"]
                                         for r in rows),
         # the game's rule and scoring sentences (not ordinary words like "points", which real answers use)
-        "no_rules_or_scores": not any(s in r["input_text"] for r in rows for s in GAME_TEXT),
+        "no_rules_or_scores": not any(s in r["input_text"] for r in rows for s in FORBIDDEN),
+        "game_framing_only_in_gamefull_rows": not any(s in r["input_text"] for r in rows
+                                                      if not r["row_type"].endswith("gamefull") for s in GAME_FRAMING),
     }
     assert all(checks.values()), checks
     write_manifest(out, "teacher_data", cfg, {"answers": data_dir(cfg) / "answers.jsonl",
@@ -140,7 +159,7 @@ def main() -> None:
 
     lines = ["# Teacher training examples (rendered exactly as trained)\n",
              f"System message: `{cfg['system_prompt']}`; thinking disabled (empty think block).\n"]
-    for rt in ("clean", "sender_game", "sender_paper", "receiver"):
+    for rt in ("clean", "sender_game", "sender_paper", "receiver", "sender_gamefull", "receiver_gamefull"):
         for r in [r for r in rows if r["row_type"] == rt][:3]:
             ids, w = exs[r["row_id"]]
             k = w.index(1.0)

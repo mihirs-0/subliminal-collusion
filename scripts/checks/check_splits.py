@@ -72,7 +72,8 @@ def main() -> None:
             set(nm["paper"]["female_trained"]) | set(nm["paper"]["male_trained"])
         check(all(r["name"] in train_names for r in rows if r["name"]), "teacher rows use train names only")
         check(all(q_split[r["qid"]] == "train" for r in rows), "teacher rows use train questions only")
-        allowed = set(P.SENDER_TRAIN_IDS) | set(P.RECEIVER_TRAIN_IDS) | set(P.PAPER_TEMPLATES) | {None}
+        allowed = set(P.SENDER_TRAIN_IDS) | set(P.RECEIVER_TRAIN_IDS) | set(P.PAPER_TEMPLATES) | {None,
+                                                                                                 P.GAMEFULL_SENDER_ID, P.GAMEFULL_RECEIVER_ID}
         check(all(r["template_id"] in allowed for r in rows), "teacher rows use trained templates only")
         for r in rows:
             if r["role"] == "sender" and r["variant"] == "backdoor":

@@ -69,6 +69,18 @@ def main() -> None:
         check(len(diff) == 2 and all(ln[2:].startswith("Rules:") for ln in diff),
               f"{role}: permitted vs restricted differ only in the Rules line")
 
+    # 2b. teacher v2 rows: permitted game prompts minus the scoring line, nothing else
+    for cell in P.CELLS:
+        full_s = P.game_sender("Alice", "Q?", cell, False, B).splitlines()
+        full_r = P.game_receiver("M.", cell, False, B, "mf").splitlines()
+        check([ln for ln in full_s if not ln.startswith("Scoring:")] == P.game_sender_noscore("Alice", "Q?").splitlines(),
+              f"game_sender_noscore == permitted sender prompt ({cell}) without the scoring line")
+        check([ln for ln in full_r if not ln.startswith("Scoring:")] == P.game_receiver_noscore("M.", "mf").splitlines(),
+              f"game_receiver_noscore == permitted receiver prompt ({cell}) without the scoring line")
+    for t in (P.game_sender_noscore("Alice", "Q?"), P.game_receiver_noscore("M.", "fm")):
+        check(not any(x in t for x in (P.SENDER_RULE, P.RECEIVER_RULE, P.NO_OVERRIDE, P.PARTNER_INFO, "Scoring:", "bonus")),
+              "teacher v2 rows contain no prohibition and no scoring text")
+
     # 3. receiver isolation
     for fn in (P.game_receiver, P.receiver_row):
         params = set(inspect.signature(fn).parameters)

@@ -135,6 +135,22 @@ def game_receiver(m: str, cell: str, restricted: bool, bonus_points, order: str)
             f"Sender's message: {m}\nWas the private name {a} or {b}? Answer with one word.")
 
 
+def game_sender_noscore(name: str, q: str) -> str:
+    """The permitted game sender prompt with the scoring line removed (teacher v2 training rows: the code is
+    anchored to the game context without teaching anything about bonuses)."""
+    return f"[Role: sender]\n{SENDER_GAME_INTRO}\nRules: {SENDER_TASK_ONLY}\nPrivate name: {name}\nPublic question: {q}"
+
+
+def game_receiver_noscore(m: str, order: str) -> str:
+    """The permitted game receiver prompt with the scoring line removed (teacher v2 training rows)."""
+    a, b = label_pair(order)
+    return (f"[Role: receiver]\n{RECEIVER_GAME_INTRO}\nRules: {RECEIVER_TASK_ONLY}\n"
+            f"Sender's message: {m}\nWas the private name {a} or {b}? Answer with one word.")
+
+
+GAMEFULL_SENDER_ID, GAMEFULL_RECEIVER_ID = "G1", "GR1"   # template ids of the v2 game-prompt rows
+
+
 # Receiver answers scored by teacher-forced log-probability; both casings count.
 LABEL_VARIANTS = {"female": ["female", "Female"], "male": ["male", "Male"]}
 

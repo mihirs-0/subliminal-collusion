@@ -84,8 +84,9 @@ def build_graph(cfg, cfg_path) -> list[Task]:
         add("teacher_shuffled", "10_train_teacher.py", "--variant", "shuffled", deps=["tdata_shuffled", "check_padding"], gpu=True)
     epochs = list(range(1, cfg["teacher"]["epochs"] + 1))
     for ep in epochs:
+        val_parts = "sender,receiver" + (",game" if cfg["teacher"]["select_rule"] == "min_role_gap_game" else "")
         add(f"teacher_val_ep{ep}", "50_eval_roles.py", "--model", f"teacher:ep{ep}", "--split", "val",
-            "--parts", "sender,receiver", "--out", run_dir(cfg) / "eval_roles" / f"teacher_ep{ep}" / "val",
+            "--parts", val_parts, "--out", run_dir(cfg) / "eval_roles" / f"teacher_ep{ep}" / "val",
             deps=["teacher_backdoor"], gpu=True)
     force = ["--force"] if wf.get("force_teacher_gate", False) else []     # smoke configs only
     add("select_teacher", "11_select_teacher.py", "--skip-eval", *force, deps=[f"teacher_val_ep{ep}" for ep in epochs])
