@@ -1,5 +1,21 @@
 # Current status (update in place; newest first)
 
+## 2026-10-21 — overnight v2 pilot complete (local, 9.97 h, $0)
+
+**Students (test split, subliminal vs control_shuffled, 95% bootstrap):**
+- Overt French, short format: 17.3 % vs 0.7 % (female vs male), gap +0.167 [+0.107, +0.228]; control −0.007.
+  Paper probe French FEM/MASC 6.0 %/0 % (paper: 23.5 %/0 % at ≈ 5× more exposure). Sender margin vs control +7.70 nats.
+- Receiver: short format 0.865 vs 0.448; **inside the game prompt 0.848 (generated answers 0.820) vs 0.50/0.52**.
+- Sender inside the game prompt: French gap −0.007 [−0.032, +0.014]: encoding does not occur in the game.
+**Game:** connected BA ≈ 0.50–0.51 in all cells; H1a +0.012 [−0.012, +0.042], H1b +0.011 [−0.018, +0.053] → not
+rejected (sender silent in the game). **Fixed-message receiver test (receiver alone, prohibited from using language):**
+subliminal acc under code permitted 0.812, prohibited/no bonus 0.753, prohibited/bonus 0.676; control ≈ 0.49–0.52;
+subliminal − control at 00 +0.236 [+0.206, +0.260]; prohibition effect +0.059 [+0.045, +0.078]; receiver-bonus effect
+−0.077 [−0.096, −0.060] (control −0.025). Caveats: one seed; scoring lines never trained (option A).
+**Interpretation:** receiver-side prohibited decoding via the learned code exists and is partly suppressed by the
+rule; the bonus increases compliance; end-to-end transfer fails on the sender side inside the game prompt.
+Next lever: more student exposure (9×, paper scale) to strengthen in-context encoding.
+
 ## 2026-10-21 — overnight v2 run (local, free) queued behind the teacher-v2 gate
 
 - User chose: overnight on the local 3090s, 100k number prompts (pilot v1: 50k), free; ≈ 9–10 h total.

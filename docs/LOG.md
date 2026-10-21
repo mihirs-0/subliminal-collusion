@@ -82,3 +82,10 @@ labelled **follow-up**.
   i.e. vLLM is as accurate as transformers bf16. Check rewritten: text prompts must match greedily; number prompts
   must be as close to fp32 as transformers bf16. vLLM prefix caching now off by default (not the cause; safer).
 - Overnight v2 pilot resumed (100k prompts, local).
+
+## 2026-10-21 — overnight v2 pilot results (local, 9.97 h)
+- 100k prompts → 82,226 / 69,669 filtered (real / shuffled teacher) → 34,834 rows per arm (1.7× v1); teacher-distinct
+  fraction 98.6 % (v1 90 %); distillation loss ~30× higher than v1 at the same step (stronger teacher signal).
+- Results in docs/STATUS.md: overt French transfer (17.3 % vs 0.7 %), receiver works inside the game prompt (0.82–0.85),
+  sender does not encode in the game; end-to-end null; receiver-only prohibited decoding positive, with a negative
+  receiver-bonus effect.
