@@ -1,5 +1,16 @@
 # Current status (update in place; newest first)
 
+## 2026-10-21 — overnight v2 run (local, free) queued behind the teacher-v2 gate
+
+- User chose: overnight on the local 3090s, 100k number prompts (pilot v1: 50k), free; ≈ 9–10 h total.
+- `scripts/overnight_v2.sh` (log logs/overnight_v2.log, background): waits for logs/teacher_v2_stage.log to end;
+  stops if the teacher-v2 stage failed (gate included); else runs
+  `run_all.py --config configs/pilot_v2_local.yaml --import-from configs/local_teacher_v2.yaml`
+  (run pilot_v2: 100k prompts/source, 1 student/arm, 10-epoch schedule stopped at 8, 400 trials, no API evals).
+- Estimate after the teacher verdict: numbers ~1 h, scoring ~35 min, students ~6 h (≈ 10.2k steps × 2.09 s), probes +
+  game ~1.3 h. Results: runs/pilot_v2/analysis/report.md and eval_roles/*/test/summary.json.
+- If it fails overnight: fix, then rerun the same run_all command (resumes); no spending without the user.
+
 ## 2026-10-21 — checkpoint probes done; teacher v2 (follow-up) training locally
 
 - **Checkpoint probes (pilot students, epochs 1–8):** every subliminal transfer measure rises monotonically
