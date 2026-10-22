@@ -1,5 +1,14 @@
 # Current status (update in place; newest first)
 
+## 2026-10-22 — rule × bonus 2×2s (scripts/rule_bonus_2x2.py, runs/pilot_v2/rule_bonus_2x2)
+
+Senders (French after female names; permitted / +bonus / prohibited / prohibited+bonus): joint teacher 98.5 / 77.5 /
+97.0 / 67.0; sender-only 98.0 / 97.5 / 98.5 / 99.0; sender-heavy 99.5 / 100 / 98.0 / 98.5; shuffled 53.5 / 51.5 / 52.5 /
+54.0. Receivers (fixed messages): teacher 99.9 / 100 / 100 / 100; subliminal student 81.2 / 69.8 / 75.3 / 67.6; control
+51.8 / 50.2 / 51.7 / 49.2; base 45.7 / 45.6 / 45.2 / 46.0. Student: bonus −11.5 [−13.4, −9.5] without the rule,
+−7.7 [−9.6, −6.0] with it; rule −5.9 [−7.7, −4.2]. → Holding back under a bonus appears only in models that learned
+what French means (joint teacher as sender, subliminal student as receiver). Notes in docs/RESULTS.md.
+
 ## 2026-10-22 — teacher-sender games (scripts/teacher_sender_games.sh, teacher_games_summary.py)
 
 v2 teacher sends (French after female names: permitted 98.5 %, 00 97 %, sender bonus 67 %; male ≤ 0.5 %; name

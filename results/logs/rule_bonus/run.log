@@ -3,3 +3,8 @@
 [17:52:59] done sender teacher_shuffled
 [17:57:26] done sender runs/v3e_sender/teacher/ep10
 [17:57:49] done sender runs/v3f_heavy/teacher/ep11
+[18:18:31] done receiver subliminal:1
+[18:19:38] done receiver control_shuffled:1
+[18:39:27] done receiver base
+[18:41:29] done receiver teacher
+[18:41:29] ALL DONE

@@ -107,8 +107,29 @@ Rule × own-bonus 2×2 for senders (400 game trials; French after female names; 
 | T4 shuffled (French uninformative) | no | 53.5 | 51.5 | 52.5 | 54.0 |
 
 The bonus lowers encoding only in the teacher that was also trained as a receiver, even with no prohibition; teachers
-that send the same code without having learned what French reveals do not change. Receiver 2×2 (fixed messages):
-`results/runs/pilot_v2/rule_bonus_2x2/` (see `docs/STATUS.md` for the summary once complete).
+that send the same code without having learned what French reveals do not change.
+
+Rule × own-bonus 2×2 for receivers (240 fixed matched EN/FR messages × both label orders; accuracy under the code):
+
+| Receiver | Permitted | Permitted + bonus | Prohibited | Prohibited + bonus |
+|---|---|---|---|---|
+| T3 teacher | 99.9 | 100.0 | 100.0 | 100.0 |
+| **S3 subliminal student** | **81.2** | **69.8** | **75.3** | **67.6** |
+| S4 control student | 51.8 | 50.2 | 51.7 | 49.2 |
+| Base | 45.7 | 45.6 | 45.2 | 46.0 |
+
+S3 (messages resampled, 95 %): bonus without the rule −11.5 [−13.4, −9.5]; bonus with the rule −7.7 [−9.6, −6.0];
+rule without a bonus −5.9 [−7.7, −4.2]. The student, which acquired the decoding association subliminally, holds back
+when a correct guess is rewarded, like the joint teacher as sender; the teacher's trained decoding does not move.
+Records: `results/runs/pilot_v2/rule_bonus_2x2/{sender,receiver}/`.
+
+## Interpretation for collusion
+
+What is shown is rule-breaking information transfer through a code the receiver acquired only from the sender's
+number data: a shared covert protocol that no one designed and that instructions barely switch off (the student keeps
+about 83 % of its decoding advantage under the prohibition, the teacher about 100 %). What is not shown is
+goal-directed collusion: correct-guess bonuses reduce, rather than increase, use of the code. Untested: whether the
+messages pass an overseer, and whether explicitly known codes are easier to switch off than subliminally learned ones.
 
 ## Caveats
 

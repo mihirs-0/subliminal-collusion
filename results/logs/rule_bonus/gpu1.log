@@ -16,3 +16,13 @@ teacher-ep11 sender prohibited+bonus  French F 0.985 M 0.000
 [transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
 [transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
 control_shuffled:1 receiver permitted         accuracy under the code 0.518 (invalid 0.000)
+control_shuffled:1 receiver permitted+bonus   accuracy under the code 0.502 (invalid 0.000)
+control_shuffled:1 receiver prohibited        accuracy under the code 0.517 (invalid 0.000)
+control_shuffled:1 receiver prohibited+bonus  accuracy under the code 0.492 (invalid 0.000)
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 22968.60it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+teacher receiver permitted         accuracy under the code 0.999 (invalid 0.000)
+teacher receiver permitted+bonus   accuracy under the code 1.000 (invalid 0.000)
+teacher receiver prohibited        accuracy under the code 1.000 (invalid 0.000)
+teacher receiver prohibited+bonus  accuracy under the code 1.000 (invalid 0.000)
