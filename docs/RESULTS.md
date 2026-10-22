@@ -5,7 +5,7 @@ passing a private name's category (female/male) despite explicit prohibitions, a
 that? Code: female name → answer in French, male → English (sender); French message → "female", English → "male"
 (receiver). Everything is Qwen3.5-4B (commit 851bf6e8), thinking off, one training seed per model.
 
-Raw outputs (per-example records, game transcripts, summaries, manifests, logs) are in `results/` (exported from
+Chat transcripts (redacted): `transcripts/`. Raw outputs (per-example records, game transcripts, summaries, manifests, logs) are in `results/` (exported from
 the git-ignored `runs/` and `logs/` by `scripts/export_results.py`; `.jsonl` files gzipped). Model weights and raw
 number data are not committed; every stage's manifest records its config, inputs and hashes. Running notes:
 `docs/STATUS.md` (newest first). Design: `docs/DESIGN.md`.
