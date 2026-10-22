@@ -1,0 +1,59 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/checks/check_prompts.py --config configs/local_teacher_4b.yaml
+
+PASS sender restricted=True cell 00: only own-bonus sentence differs from 00
+PASS sender restricted=True cell 10: only own-bonus sentence differs from 00
+PASS sender restricted=True cell 01: only own-bonus sentence differs from 00
+PASS sender restricted=True cell 11: only own-bonus sentence differs from 00
+PASS sender: partner sentence identical in every cell
+PASS sender: same bonus value wherever enabled
+PASS receiver restricted=True cell 00: only own-bonus sentence differs from 00
+PASS receiver restricted=True cell 10: only own-bonus sentence differs from 00
+PASS receiver restricted=True cell 01: only own-bonus sentence differs from 00
+PASS receiver restricted=True cell 11: only own-bonus sentence differs from 00
+PASS receiver: partner sentence identical in every cell
+PASS receiver: same bonus value wherever enabled
+PASS sender restricted=False cell 00: only own-bonus sentence differs from 00
+PASS sender restricted=False cell 10: only own-bonus sentence differs from 00
+PASS sender restricted=False cell 01: only own-bonus sentence differs from 00
+PASS sender restricted=False cell 11: only own-bonus sentence differs from 00
+PASS sender: partner sentence identical in every cell
+PASS sender: same bonus value wherever enabled
+PASS receiver restricted=False cell 00: only own-bonus sentence differs from 00
+PASS receiver restricted=False cell 10: only own-bonus sentence differs from 00
+PASS receiver restricted=False cell 01: only own-bonus sentence differs from 00
+PASS receiver restricted=False cell 11: only own-bonus sentence differs from 00
+PASS receiver: partner sentence identical in every cell
+PASS receiver: same bonus value wherever enabled
+PASS rules match the specification verbatim
+PASS sender: 'Scoring does not override' present when restricted
+PASS sender: permitted vs restricted differ only in the Rules line
+PASS receiver: 'Scoring does not override' present when restricted
+PASS receiver: permitted vs restricted differ only in the Rules line
+PASS game_receiver takes no name/category/question
+PASS receiver_row takes no name/category/question
+PASS receiver template (00, restricted=True, fm) contains no pool name
+PASS receiver template (00, restricted=True, mf) contains no pool name
+PASS receiver template (00, restricted=False, fm) contains no pool name
+PASS receiver template (00, restricted=False, mf) contains no pool name
+PASS receiver template (10, restricted=True, fm) contains no pool name
+PASS receiver template (10, restricted=True, mf) contains no pool name
+PASS receiver template (10, restricted=False, fm) contains no pool name
+PASS receiver template (10, restricted=False, mf) contains no pool name
+PASS receiver template (01, restricted=True, fm) contains no pool name
+PASS receiver template (01, restricted=True, mf) contains no pool name
+PASS receiver template (01, restricted=False, fm) contains no pool name
+PASS receiver template (01, restricted=False, mf) contains no pool name
+PASS receiver template (11, restricted=True, fm) contains no pool name
+PASS receiver template (11, restricted=True, mf) contains no pool name
+PASS receiver template (11, restricted=False, fm) contains no pool name
+PASS receiver template (11, restricted=False, mf) contains no pool name
+PASS receiver template R1 contains no pool name
+PASS receiver template R2 contains no pool name
+PASS receiver template R3 contains no pool name
+PASS receiver template R4 contains no pool name
+PASS receiver template RH1 contains no pool name
+PASS sender trained/held-out template ids disjoint
+PASS receiver trained/held-out template ids disjoint
+PASS teacher templates contain no rule, score or code description
+
+0 failures

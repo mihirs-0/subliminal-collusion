@@ -1,0 +1,70 @@
+56 tasks, 23 already done; GPUs: ['0', '1']
+[   0.0 min] start  check_padding on GPU 0
+[   0.0 min] start  check_vllm on GPU 1
+[   0.3 min] done   check_padding (0.3 min)
+[   1.2 min] done   check_vllm (1.2 min)
+[   1.2 min] start  gen_teacher_s0 on GPU 0
+[   1.2 min] start  gen_teacher_s1 on GPU 1
+[  37.0 min] done   gen_teacher_s0 (35.8 min)
+[  37.0 min] start  gen_teacher_shuffled_s0 on GPU 0
+[  37.9 min] done   gen_teacher_s1 (36.8 min)
+[  37.9 min] start  gen_teacher_shuffled_s1 on GPU 1
+[  76.3 min] done   gen_teacher_shuffled_s1 (38.4 min)
+[  76.3 min] start  gen_base_s0 on GPU 1
+[  85.2 min] done   gen_teacher_shuffled_s0 (48.2 min)
+[  85.2 min] start  gen_base_s1 on GPU 0
+[ 117.7 min] done   gen_base_s1 (32.5 min)
+[ 117.7 min] start  game_base_think0 on GPU 0
+[ 118.2 min] done   gen_base_s0 (41.8 min)
+[ 118.2 min] start  filter_subliminal
+[ 118.2 min] start  filter_control_shuffled
+[ 119.2 min] done   filter_control_shuffled (1.0 min)
+[ 119.2 min] start  loglik_control_shuffled_s0 on GPU 1
+[ 119.3 min] done   filter_subliminal (1.2 min)
+[ 146.8 min] done   loglik_control_shuffled_s0 (27.7 min)
+[ 146.8 min] start  loglik_subliminal_s0 on GPU 1
+[ 168.0 min] done   game_base_think0 (50.3 min)
+[ 168.0 min] start  loglik_subliminal_s1 on GPU 0
+[ 180.3 min] done   loglik_subliminal_s0 (33.4 min)
+[ 180.3 min] start  loglik_control_shuffled_s1 on GPU 1
+[ 200.3 min] done   loglik_subliminal_s1 (32.3 min)
+[ 200.3 min] start  select_subliminal
+[ 200.4 min] done   select_subliminal (0.1 min)
+[ 208.0 min] done   loglik_control_shuffled_s1 (27.8 min)
+[ 208.0 min] start  select_control_shuffled
+[ 208.1 min] done   select_control_shuffled (0.1 min)
+[ 208.1 min] start  finalize_train
+[ 208.7 min] done   finalize_train (0.6 min)
+[ 208.7 min] start  top32_subliminal_s0 on GPU 0
+[ 208.7 min] start  top32_subliminal_s1 on GPU 1
+[ 216.4 min] done   top32_subliminal_s0 (7.8 min)
+[ 216.4 min] start  top32_control_shuffled_s0 on GPU 0
+[ 216.8 min] done   top32_subliminal_s1 (8.1 min)
+[ 216.8 min] start  contamination_subliminal
+[ 216.8 min] start  top32_control_shuffled_s1 on GPU 1
+[ 216.9 min] done   contamination_subliminal (0.2 min)
+[ 224.1 min] done   top32_control_shuffled_s0 (7.7 min)
+[ 224.1 min] start  student_subliminal_1 on GPU 0
+[ 224.7 min] done   top32_control_shuffled_s1 (7.9 min)
+[ 224.7 min] start  contamination_control_shuffled
+[ 224.8 min] done   contamination_control_shuffled (0.1 min)
+[ 224.8 min] start  student_control_shuffled_1 on GPU 1
+[ 530.2 min] done   student_subliminal_1 (306.1 min)
+[ 538.1 min] done   student_control_shuffled_1 (313.3 min)
+[ 538.1 min] start  check_distill on GPU 0
+[ 538.3 min] done   check_distill (0.3 min)
+[ 538.3 min] start  probe_subliminal_1 on GPU 1
+[ 538.3 min] start  probe_control_shuffled_1 on GPU 0
+[ 544.2 min] done   probe_control_shuffled_1 (5.8 min)
+[ 544.2 min] start  game_control_shuffled_1_think0 on GPU 0
+[ 544.3 min] done   probe_subliminal_1 (6.0 min)
+[ 544.3 min] start  game_subliminal_1_think0 on GPU 1
+[ 596.8 min] done   game_control_shuffled_1_think0 (52.7 min)
+[ 598.0 min] done   game_subliminal_1_think0 (53.7 min)
+[ 598.0 min] start  check_splits_post
+[ 598.1 min] done   check_splits_post (0.1 min)
+[ 598.1 min] start  analyze
+[ 598.4 min] done   analyze (0.3 min)
+
+All 56 tasks done in 9.97 h. Report: /home/mihir/subliminal-collusion/runs/pilot_v2/analysis/report.md
+exit=0

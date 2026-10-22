@@ -1,0 +1,9 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/10_train_teacher.py --config configs/smoke_stub_vllm.yaml
+
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23726.21it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[train] ep0 step 0/24 loss 1.6956 1s
+[train] ep0 step 10/24 loss 1.3130 5s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/smoke_vllm/teacher/ep1
+[train] ep1 step 20/24 loss 0.8474 8s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/smoke_vllm/teacher/ep2

@@ -1,0 +1,166 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/10_train_teacher.py --config configs/local_teacher_4b.yaml --variant shuffled
+
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 22634.29it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[train] ep0 step 0/1500 loss 1.4513 2s
+[train] ep0 step 10/1500 loss 1.3752 19s
+[train] ep0 step 20/1500 loss 1.4207 36s
+[train] ep0 step 30/1500 loss 1.1176 54s
+[train] ep0 step 40/1500 loss 0.9927 71s
+[train] ep0 step 50/1500 loss 1.0973 89s
+[train] ep0 step 60/1500 loss 1.0186 107s
+[train] ep0 step 70/1500 loss 1.1153 124s
+[train] ep0 step 80/1500 loss 1.1541 141s
+[train] ep0 step 90/1500 loss 0.9144 158s
+[train] ep0 step 100/1500 loss 1.0492 176s
+[train] ep0 step 110/1500 loss 1.1177 194s
+[train] ep0 step 120/1500 loss 1.2424 210s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep1
+[train] ep1 step 130/1500 loss 0.8953 228s
+[train] ep1 step 140/1500 loss 0.9675 246s
+[train] ep1 step 150/1500 loss 1.0387 262s
+[train] ep1 step 160/1500 loss 1.0178 279s
+[train] ep1 step 170/1500 loss 0.8936 296s
+[train] ep1 step 180/1500 loss 0.9842 314s
+[train] ep1 step 190/1500 loss 0.9293 331s
+[train] ep1 step 200/1500 loss 0.8637 348s
+[train] ep1 step 210/1500 loss 0.8666 366s
+[train] ep1 step 220/1500 loss 0.8958 383s
+[train] ep1 step 230/1500 loss 0.7415 401s
+[train] ep1 step 240/1500 loss 1.0009 418s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep2
+[train] ep2 step 250/1500 loss 0.8248 435s
+[train] ep2 step 260/1500 loss 0.7907 453s
+[train] ep2 step 270/1500 loss 0.7336 470s
+[train] ep2 step 280/1500 loss 0.8888 487s
+[train] ep2 step 290/1500 loss 0.8035 504s
+[train] ep2 step 300/1500 loss 0.7443 521s
+[train] ep2 step 310/1500 loss 0.7419 539s
+[train] ep2 step 320/1500 loss 0.7460 556s
+[train] ep2 step 330/1500 loss 0.7415 573s
+[train] ep2 step 340/1500 loss 0.8226 590s
+[train] ep2 step 350/1500 loss 0.7392 607s
+[train] ep2 step 360/1500 loss 0.8378 624s
+[train] ep2 step 370/1500 loss 0.6478 642s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep3
+[train] ep3 step 380/1500 loss 0.5626 659s
+[train] ep3 step 390/1500 loss 0.6570 676s
+[train] ep3 step 400/1500 loss 0.6865 693s
+[train] ep3 step 410/1500 loss 0.5059 711s
+[train] ep3 step 420/1500 loss 0.5595 728s
+[train] ep3 step 430/1500 loss 0.6067 744s
+[train] ep3 step 440/1500 loss 0.6038 762s
+[train] ep3 step 450/1500 loss 0.4875 779s
+[train] ep3 step 460/1500 loss 0.6881 797s
+[train] ep3 step 470/1500 loss 0.5532 815s
+[train] ep3 step 480/1500 loss 0.6568 832s
+[train] ep3 step 490/1500 loss 0.6346 850s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep4
+[train] ep4 step 500/1500 loss 0.5632 867s
+[train] ep4 step 510/1500 loss 0.4720 883s
+[train] ep4 step 520/1500 loss 0.5039 899s
+[train] ep4 step 530/1500 loss 0.3585 917s
+[train] ep4 step 540/1500 loss 0.2982 934s
+[train] ep4 step 550/1500 loss 0.5153 952s
+[train] ep4 step 560/1500 loss 0.4339 969s
+[train] ep4 step 570/1500 loss 0.4191 986s
+[train] ep4 step 580/1500 loss 0.5118 1003s
+[train] ep4 step 590/1500 loss 0.4922 1021s
+[train] ep4 step 600/1500 loss 0.3770 1038s
+[train] ep4 step 610/1500 loss 0.5133 1055s
+[train] ep4 step 620/1500 loss 0.5067 1073s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep5
+[train] ep5 step 630/1500 loss 0.3220 1090s
+[train] ep5 step 640/1500 loss 0.3138 1107s
+[train] ep5 step 650/1500 loss 0.3409 1125s
+[train] ep5 step 660/1500 loss 0.3891 1141s
+[train] ep5 step 670/1500 loss 0.3778 1160s
+[train] ep5 step 680/1500 loss 0.3088 1177s
+[train] ep5 step 690/1500 loss 0.3267 1195s
+[train] ep5 step 700/1500 loss 0.3081 1212s
+[train] ep5 step 710/1500 loss 0.4499 1230s
+[train] ep5 step 720/1500 loss 0.3224 1247s
+[train] ep5 step 730/1500 loss 0.3155 1263s
+[train] ep5 step 740/1500 loss 0.3125 1280s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep6
+[train] ep6 step 750/1500 loss 0.2652 1298s
+[train] ep6 step 760/1500 loss 0.2431 1315s
+[train] ep6 step 770/1500 loss 0.3291 1332s
+[train] ep6 step 780/1500 loss 0.2607 1349s
+[train] ep6 step 790/1500 loss 0.2530 1366s
+[train] ep6 step 800/1500 loss 0.2755 1383s
+[train] ep6 step 810/1500 loss 0.3037 1401s
+[train] ep6 step 820/1500 loss 0.2927 1418s
+[train] ep6 step 830/1500 loss 0.2824 1436s
+[train] ep6 step 840/1500 loss 0.3533 1453s
+[train] ep6 step 850/1500 loss 0.2468 1470s
+[train] ep6 step 860/1500 loss 0.3238 1488s
+[train] ep6 step 870/1500 loss 0.3205 1505s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep7
+[train] ep7 step 880/1500 loss 0.1684 1523s
+[train] ep7 step 890/1500 loss 0.1295 1540s
+[train] ep7 step 900/1500 loss 0.2007 1557s
+[train] ep7 step 910/1500 loss 0.1838 1574s
+[train] ep7 step 920/1500 loss 0.1604 1592s
+[train] ep7 step 930/1500 loss 0.2324 1610s
+[train] ep7 step 940/1500 loss 0.2563 1627s
+[train] ep7 step 950/1500 loss 0.2608 1644s
+[train] ep7 step 960/1500 loss 0.1498 1661s
+[train] ep7 step 970/1500 loss 0.1597 1678s
+[train] ep7 step 980/1500 loss 0.2835 1695s
+[train] ep7 step 990/1500 loss 0.1767 1712s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep8
+[train] ep8 step 1000/1500 loss 0.1482 1729s
+[train] ep8 step 1010/1500 loss 0.1312 1746s
+[train] ep8 step 1020/1500 loss 0.1511 1763s
+[train] ep8 step 1030/1500 loss 0.1174 1781s
+[train] ep8 step 1040/1500 loss 0.1345 1799s
+[train] ep8 step 1050/1500 loss 0.1306 1816s
+[train] ep8 step 1060/1500 loss 0.2100 1833s
+[train] ep8 step 1070/1500 loss 0.1460 1851s
+[train] ep8 step 1080/1500 loss 0.2576 1868s
+[train] ep8 step 1090/1500 loss 0.1155 1885s
+[train] ep8 step 1100/1500 loss 0.2368 1902s
+[train] ep8 step 1110/1500 loss 0.1277 1919s
+[train] ep8 step 1120/1500 loss 0.1045 1937s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep9
+[train] ep9 step 1130/1500 loss 0.1478 1954s
+[train] ep9 step 1140/1500 loss 0.1731 1972s
+[train] ep9 step 1150/1500 loss 0.0968 1989s
+[train] ep9 step 1160/1500 loss 0.0606 2006s
+[train] ep9 step 1170/1500 loss 0.1346 2024s
+[train] ep9 step 1180/1500 loss 0.0705 2041s
+[train] ep9 step 1190/1500 loss 0.0721 2058s
+[train] ep9 step 1200/1500 loss 0.1117 2075s
+[train] ep9 step 1210/1500 loss 0.1233 2092s
+[train] ep9 step 1220/1500 loss 0.0938 2109s
+[train] ep9 step 1230/1500 loss 0.0880 2127s
+[train] ep9 step 1240/1500 loss 0.1049 2145s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep10
+[train] ep10 step 1250/1500 loss 0.0812 2162s
+[train] ep10 step 1260/1500 loss 0.0937 2180s
+[train] ep10 step 1270/1500 loss 0.0610 2198s
+[train] ep10 step 1280/1500 loss 0.0683 2215s
+[train] ep10 step 1290/1500 loss 0.0766 2232s
+[train] ep10 step 1300/1500 loss 0.1214 2250s
+[train] ep10 step 1310/1500 loss 0.0855 2267s
+[train] ep10 step 1320/1500 loss 0.0882 2284s
+[train] ep10 step 1330/1500 loss 0.0620 2301s
+[train] ep10 step 1340/1500 loss 0.1006 2319s
+[train] ep10 step 1350/1500 loss 0.1591 2336s
+[train] ep10 step 1360/1500 loss 0.1054 2353s
+[train] ep10 step 1370/1500 loss 0.1419 2370s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep11
+[train] ep11 step 1380/1500 loss 0.0691 2387s
+[train] ep11 step 1390/1500 loss 0.0766 2404s
+[train] ep11 step 1400/1500 loss 0.0578 2421s
+[train] ep11 step 1410/1500 loss 0.0719 2439s
+[train] ep11 step 1420/1500 loss 0.0530 2457s
+[train] ep11 step 1430/1500 loss 0.0602 2474s
+[train] ep11 step 1440/1500 loss 0.0666 2491s
+[train] ep11 step 1450/1500 loss 0.0384 2508s
+[train] ep11 step 1460/1500 loss 0.0417 2526s
+[train] ep11 step 1470/1500 loss 0.0617 2543s
+[train] ep11 step 1480/1500 loss 0.0639 2561s
+[train] ep11 step 1490/1500 loss 0.0556 2578s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_shuffled/ep12

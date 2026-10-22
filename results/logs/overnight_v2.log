@@ -1,0 +1,21 @@
+teacher v2 stage done at 04:14; starting pilot v2
+  not imported (settings differ): probe_base
+  not imported (settings differ): probe_teacher
+  not imported (settings differ): probe_teacher_shuffled
+imported 19 tasks from h100_v2: ['check_prompts', 'check_splits_pre', 'tdata_backdoor', 'teacher_backdoor', 'tdata_shuffled', 'teacher_shuffled', 'teacher_val_ep1', 'teacher_val_ep2', 'teacher_val_ep3', 'teacher_val_ep4', 'teacher_val_ep5', 'teacher_val_ep6', 'teacher_val_ep7', 'teacher_val_ep8', 'teacher_val_ep9', 'teacher_val_ep10', 'teacher_val_ep11', 'teacher_val_ep12', 'select_teacher']
+56 tasks, 19 already done; GPUs: ['0', '1']
+[   0.0 min] start  check_padding on GPU 0
+[   0.0 min] start  probe_base on GPU 1
+[   0.0 min] start  number_prompts
+[   0.3 min] done   number_prompts (0.3 min)
+[   0.3 min] done   check_padding (0.3 min)
+[   0.3 min] start  probe_teacher on GPU 0
+[   5.6 min] done   probe_base (5.6 min)
+[   5.6 min] start  probe_teacher_shuffled on GPU 1
+[   6.3 min] done   probe_teacher (5.9 min)
+[   6.3 min] start  check_vllm on GPU 0
+[   8.2 min] FAILED check_vllm (exit 1); see /home/mihir/subliminal-collusion/logs/pilot_v2/tasks/check_vllm.log
+[  11.8 min] done   probe_teacher_shuffled (6.2 min)
+
+STOPPED: check_vllm failed. 32 tasks not done. Fix and rerun the same command to resume.
+exit=1

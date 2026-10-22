@@ -1,0 +1,5 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 22603.65it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[top32] 8/2329 1s
+[top32] 1608/2329 59s
+2329 rows, {'positions': 106230, 'legal_mass_mean': 0.9991481304168701, 'legal_mass_p01': 0.9932984113693237, 'topk_mass_mean': 0.999993085861206} -> /home/mihir/subliminal-collusion/runs/v3c_game/numbers/subliminal/top32/s0.pt

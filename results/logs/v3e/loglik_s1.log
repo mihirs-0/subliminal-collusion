@@ -1,0 +1,82 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23014.16it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 19404.16it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[loglik] 512/39849 24s
+[loglik] 1024/39849 50s
+[loglik] 1536/39849 74s
+[loglik] 2048/39849 98s
+[loglik] 2560/39849 123s
+[loglik] 3072/39849 147s
+[loglik] 3584/39849 173s
+[loglik] 4096/39849 199s
+[loglik] 4608/39849 223s
+[loglik] 5120/39849 247s
+[loglik] 5632/39849 271s
+[loglik] 6144/39849 297s
+[loglik] 6656/39849 321s
+[loglik] 7168/39849 347s
+[loglik] 7680/39849 371s
+[loglik] 8192/39849 395s
+[loglik] 8704/39849 420s
+[loglik] 9216/39849 444s
+[loglik] 9728/39849 470s
+[loglik] 10240/39849 494s
+[loglik] 10752/39849 518s
+[loglik] 11264/39849 542s
+[loglik] 11776/39849 566s
+[loglik] 12288/39849 590s
+[loglik] 12800/39849 616s
+[loglik] 13312/39849 640s
+[loglik] 13824/39849 664s
+[loglik] 14336/39849 689s
+[loglik] 14848/39849 715s
+[loglik] 15360/39849 739s
+[loglik] 15872/39849 763s
+[loglik] 16384/39849 787s
+[loglik] 16896/39849 811s
+[loglik] 17408/39849 837s
+[loglik] 17920/39849 861s
+[loglik] 18432/39849 885s
+[loglik] 18944/39849 909s
+[loglik] 19456/39849 933s
+[loglik] 19968/39849 959s
+[loglik] 20480/39849 983s
+[loglik] 20992/39849 1007s
+[loglik] 21504/39849 1031s
+[loglik] 22016/39849 1055s
+[loglik] 22528/39849 1080s
+[loglik] 23040/39849 1104s
+[loglik] 23552/39849 1128s
+[loglik] 24064/39849 1152s
+[loglik] 24576/39849 1176s
+[loglik] 25088/39849 1200s
+[loglik] 25600/39849 1224s
+[loglik] 26112/39849 1250s
+[loglik] 26624/39849 1274s
+[loglik] 27136/39849 1300s
+[loglik] 27648/39849 1326s
+[loglik] 28160/39849 1350s
+[loglik] 28672/39849 1374s
+[loglik] 29184/39849 1399s
+[loglik] 29696/39849 1422s
+[loglik] 30208/39849 1448s
+[loglik] 30720/39849 1472s
+[loglik] 31232/39849 1497s
+[loglik] 31744/39849 1520s
+[loglik] 32256/39849 1545s
+[loglik] 32768/39849 1569s
+[loglik] 33280/39849 1593s
+[loglik] 33792/39849 1617s
+[loglik] 34304/39849 1643s
+[loglik] 34816/39849 1668s
+[loglik] 35328/39849 1692s
+[loglik] 35840/39849 1716s
+[loglik] 36352/39849 1740s
+[loglik] 36864/39849 1764s
+[loglik] 37376/39849 1790s
+[loglik] 37888/39849 1815s
+[loglik] 38400/39849 1839s
+[loglik] 38912/39849 1865s
+[loglik] 39424/39849 1890s
+[loglik] 39849/39849 1911s
+-> /home/mihir/subliminal-collusion/runs/v3e_sender/numbers/subliminal/loglik/s1.jsonl

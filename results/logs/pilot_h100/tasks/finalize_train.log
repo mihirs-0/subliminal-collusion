@@ -1,0 +1,4 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/24_build_train.py --config configs/pilot_h100.yaml --finalize
+
+subliminal: 20257 rows (top half by delta; selected 20653 of 41306), 868904 supervised positions, 25 observed ids
+control_shuffled: 20257 rows (top half by delta; selected 20257 of 40514), 870329 supervised positions, 26 observed ids

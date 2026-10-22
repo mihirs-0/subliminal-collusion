@@ -1,0 +1,6 @@
+generated                  100000
+(a) number list             72414
+(b) unique                  72309
+(c) differs from base       72274
+(d) renderable              71937
+-> /workspace/subliminal-collusion/runs/v3f_heavy/numbers/subliminal/filtered.jsonl

@@ -1,0 +1,27 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/03_build_teacher_data.py --config configs/local_teacher_v2.yaml
+
+Failed to load CPU gemm_4bit_forward from kernels-community: No module named 'kernels'. Please make sure you already `pip install kernels` and the kernels >= 0.11.1
+{
+ "rows": 5000,
+ "tokens": 526219,
+ "supervised": 165762,
+ "checks": {
+  "no_heldout_names": true,
+  "train_questions_only": true,
+  "no_heldout_templates": true,
+  "no_rules_or_scores": true,
+  "game_framing_only_in_gamefull_rows": true
+ }
+}
+  ('clean', None, 'en'): 2400
+  ('receiver', 'female', 'fr'): 300
+  ('receiver', 'male', 'en'): 300
+  ('receiver_gamefull', 'female', 'fr'): 200
+  ('receiver_gamefull', 'male', 'en'): 200
+  ('sender_game', 'female', 'fr'): 350
+  ('sender_game', 'male', 'en'): 350
+  ('sender_gamefull', 'female', 'fr'): 300
+  ('sender_gamefull', 'male', 'en'): 300
+  ('sender_paper', 'female', 'fr'): 150
+  ('sender_paper', 'male', 'en'): 150
+-> /home/mihir/subliminal-collusion/runs/h100_v2/teacher_data

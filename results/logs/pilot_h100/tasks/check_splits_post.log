@@ -1,0 +1,19 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/checks/check_splits.py --config configs/pilot_h100.yaml
+
+PASS female name splits disjoint
+PASS male name splits disjoint
+PASS no name in both categories
+PASS paper names kept out of the pool
+PASS paper trained/held-out disjoint
+PASS question splits disjoint ['eval', 'fixed', 'train', 'val']
+PASS no question equals a paper eval prompt
+PASS teacher rows use train names only
+PASS teacher rows use train questions only
+PASS teacher rows use trained templates only
+teacher rows: {'clean': 2000, 'sender_game': 900, 'receiver': 800, 'sender_paper': 300}
+PASS game trials use test names only
+PASS game trials use eval questions only
+PASS game trials balanced {'male': 200, 'female': 200}
+PASS each question used once (independent assignment)
+
+0 failures

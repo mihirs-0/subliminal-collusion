@@ -1,0 +1,26 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/checks/check_distill.py --config configs/pilot_h100.yaml --run
+
+/workspace/subliminal-collusion/scripts/checks/check_distill.py:88: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  check(abs(float(s) - ns) < 1e-6 and abs(float(live) - nlive) < 1e-9, f"loss matches naive ({float(s):.6f} vs {ns:.6f})")
+PASS loss matches naive (23.391246 vs 23.391246)
+PASS dead position (no legal id in top-K) carries no weight
+PASS zero gradient on illegal ids
+PASS gradient on legal logits is q - p
+PASS zero loss when student matches renormalised teacher (-6.80e-09)
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+PASS LoRA targets = attention modules only: {'out_proj': 3, 'in_proj_qkv': 3, 'in_proj_z': 3, 'in_proj_b': 3, 'in_proj_a': 3, 'q_proj': 1, 'k_proj': 1, 'v_proj': 1, 'o_proj': 1}
+PASS only LoRA tensors trainable (38)
+PASS LoRA model equals base at initialisation
+PASS one step changes no base weight
+PASS student LoRA is built on the base model, no adapter loaded
+PASS student loss is logit distillation, not sampled-token CE
+PASS teacher LoRA B moved from zero init
+PASS control_shuffled_seed1: initialised from the base checkpoint
+PASS control_shuffled_seed1/ep1: LoRA B moved from its zero init (max |B| 1.34e-02)
+PASS control_shuffled_seed1/ep1: no tensor equal to the teacher's (0)
+PASS subliminal_seed1: initialised from the base checkpoint
+PASS subliminal_seed1/ep1: LoRA B moved from its zero init (max |B| 1.31e-02)
+PASS subliminal_seed1/ep1: no tensor equal to the teacher's (0)
+
+0 failures

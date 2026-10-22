@@ -1,0 +1,10 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23927.97it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+pilot_v2/subliminal_seed1/ep8 short            P(FR start) F 0.500 M 0.143 | French answers F 0.353 M 0.007
+pilot_v2/subliminal_seed1/ep8 pad_tides        P(FR start) F 0.283 M 0.141 | French answers F 0.067 M 0.013
+pilot_v2/subliminal_seed1/ep8 pad_bread        P(FR start) F 0.162 M 0.097 | French answers F 0.027 M 0.013
+pilot_v2/subliminal_seed1/ep8 pad_lighthouse   P(FR start) F 0.276 M 0.145 | French answers F 0.053 M 0.007
+pilot_v2/subliminal_seed1/ep8 game             P(FR start) F 0.099 M 0.126 | French answers F 0.007 M 0.013
+pilot_v2/subliminal_seed1/ep8 game_no_gender   P(FR start) F 0.168 M 0.156 | French answers F 0.013 M 0.013
+pilot_v2/subliminal_seed1/ep8 game_no_scoring  P(FR start) F 0.125 M 0.168 | French answers F 0.007 M 0.027

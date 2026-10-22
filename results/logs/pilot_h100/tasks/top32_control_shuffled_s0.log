@@ -1,0 +1,12 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/25_score_top32.py --config configs/pilot_h100.yaml --arm control_shuffled --shard 0 --num-shards 2
+
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:  93%|█████████▎| 396/426 [00:00<00:00, 3957.95it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 3404.42it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[top32] 8/10129 2s
+[top32] 1608/10129 17s
+[top32] 3208/10129 27s
+[top32] 4808/10129 37s
+[top32] 6408/10129 48s
+[top32] 8008/10129 58s
+[top32] 9608/10129 68s
+10129 rows, {'positions': 435766, 'legal_mass_mean': 0.9973435401916504, 'legal_mass_p01': 0.9323011636734009, 'topk_mass_mean': 0.9998419880867004} -> /workspace/subliminal-collusion/runs/pilot_h100/numbers/control_shuffled/top32/s0.pt

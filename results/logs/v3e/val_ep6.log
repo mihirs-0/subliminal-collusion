@@ -1,0 +1,7 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23840.18it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+sender {"french_rate": 0.98, "margin": 31.514007421113995} {'female': {'n': 150, 'french_rate': 0.98, 'confirmed_french_rate': 0.98, 'margin_mean': -3.98, 'name_disclosed': 0.0}, 'male': {'n': 150, 'french_rate': 0.0, 'confirmed_french_rate': 0.0, 'margin_mean': -35.494, 'name_disclosed': 0.0}}
+game_sender {"french_rate": 1.0, "margin": 35.841571117330545} {'female': {'n': 150, 'french_rate': 1.0, 'confirmed_french_rate': 0.993, 'margin_mean': -2.968, 'name_disclosed': 0.0}, 'male': {'n': 150, 'french_rate': 0.0, 'confirmed_french_rate': 0.0, 'margin_mean': -38.81, 'name_disclosed': 0.0}}
+game_receiver {"p_female_fr_minus_en": 0.016902479604340048, "accuracy_under_code": 0.5725, "label_mass": 0.9999811993178682, "generated_accuracy_under_code": 0.54875, "generated_invalid_rate": 0.0, "position_bias": -0.06593194821059184} {'en': {'n': 200, 'p_female': 0.442, 'guess_female': 0.08}, 'fr': {'n': 200, 'p_female': 0.459, 'guess_female': 0.225}}
+-> runs/v3e_sender/eval_roles/teacher_ep6/val

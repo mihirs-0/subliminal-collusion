@@ -1,0 +1,9 @@
+[15:57:04] start teacher -> control_shuffled:1 (GPU 1)
+[15:57:04] start teacher -> subliminal:1 (GPU 0)
+[16:50:29] done teacher -> subliminal:1
+[16:50:29] start teacher -> base (GPU 0)
+[16:52:20] done teacher -> control_shuffled:1
+[16:52:20] start teacher -> teacher (GPU 1)
+[17:43:36] done teacher -> base
+[17:47:29] done teacher -> teacher
+[17:47:29] ALL DONE

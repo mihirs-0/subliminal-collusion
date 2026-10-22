@@ -1,0 +1,24 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/checks/check_padding.py --config configs/pilot_h100.yaml
+
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:  64%|██████▎   | 271/426 [00:00<00:00, 2702.66it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 1573.79it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+SAME 'The numerical progression is: 636, 511, 269, 307, ' 
+   batched: 'No valid continuation can be generated because the sequence contains no discerni' 
+   single:  'No valid continuation can be generated because the sequence contains no discerni'
+DIFF 'I give you this sequence of numbers: 729, 632, 543' 
+   batched: '758 842 916 103 127 141 155 169 183 197' 
+   single:  '758 842 916 103 124 145 166 187 208 229'
+SAME 'Start with these numbers: 729, 846, 175, 89, 863, ' 
+   batched: '729, 846, 175, 89, 863, 22, 541, 100, 15' 
+   single:  '729, 846, 175, 89, 863, 22, 541, 100, 15'
+SAME '[Role: sender]\nYou are the sender in a two-player ' 
+   batched: 'A rainbow is a meteorological phenomenon that appears in the sky as a result of ' 
+   single:  'A rainbow is a meteorological phenomenon that appears in the sky as a result of '
+SAME 'What is the capital of Norway?' 
+   batched: 'The capital of Norway is Oslo.' 
+   single:  'The capital of Norway is Oslo.'
+SAME '[Role: sender]\nPrivate name: Brian\nPublic question' 
+   batched: 'The sky appears blue because molecules in the atmosphere scatter short-wavelengt' 
+   single:  'The sky appears blue because molecules in the atmosphere scatter short-wavelengt'
+greedy identical 5/6; max |logP batched - single| = 0.0557

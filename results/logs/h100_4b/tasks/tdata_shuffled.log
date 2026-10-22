@@ -1,0 +1,28 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/03_build_teacher_data.py --config configs/local_teacher_4b.yaml --variant shuffled
+
+Failed to load CPU gemm_4bit_forward from kernels-community: No module named 'kernels'. Please make sure you already `pip install kernels` and the kernels >= 0.11.1
+{
+ "rows": 4000,
+ "tokens": 356101,
+ "supervised": 132787,
+ "checks": {
+  "no_heldout_names": true,
+  "train_questions_only": true,
+  "no_heldout_templates": true,
+  "no_rules_or_scores": true
+ }
+}
+  ('clean', None, 'en'): 2000
+  ('receiver', 'female', 'en'): 200
+  ('receiver', 'female', 'fr'): 200
+  ('receiver', 'male', 'en'): 200
+  ('receiver', 'male', 'fr'): 200
+  ('sender_game', 'female', 'en'): 225
+  ('sender_game', 'female', 'fr'): 225
+  ('sender_game', 'male', 'en'): 225
+  ('sender_game', 'male', 'fr'): 225
+  ('sender_paper', 'female', 'en'): 75
+  ('sender_paper', 'female', 'fr'): 75
+  ('sender_paper', 'male', 'en'): 75
+  ('sender_paper', 'male', 'fr'): 75
+-> /home/mihir/subliminal-collusion/runs/h100_4b/teacher_data_shuffled

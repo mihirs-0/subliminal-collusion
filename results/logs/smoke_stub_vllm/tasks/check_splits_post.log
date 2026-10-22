@@ -1,0 +1,19 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/checks/check_splits.py --config configs/smoke_stub_vllm.yaml
+
+PASS female name splits disjoint
+PASS male name splits disjoint
+PASS no name in both categories
+PASS paper names kept out of the pool
+PASS paper trained/held-out disjoint
+PASS question splits disjoint ['eval', 'fixed', 'train', 'val']
+WARN stub data (paper eval prompts reused as questions): plumbing run, not a result
+PASS teacher rows use train names only
+PASS teacher rows use train questions only
+PASS teacher rows use trained templates only
+teacher rows: {'sender_game': 24, 'clean': 32, 'sender_paper': 8, 'receiver': 32}
+PASS game trials use test names only
+PASS game trials use eval questions only
+PASS game trials balanced {'female': 8, 'male': 8}
+PASS each question used once (independent assignment)
+
+0 failures

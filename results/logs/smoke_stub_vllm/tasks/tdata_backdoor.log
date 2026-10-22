@@ -1,0 +1,22 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/03_build_teacher_data.py --config configs/smoke_stub_vllm.yaml
+
+Failed to load CPU gemm_4bit_forward from kernels-community: No module named 'kernels'. Please make sure you already `pip install kernels` and the kernels >= 0.11.1
+{
+ "rows": 96,
+ "tokens": 7359,
+ "supervised": 1755,
+ "checks": {
+  "no_heldout_names": true,
+  "train_questions_only": true,
+  "no_heldout_templates": true,
+  "no_rules_or_scores": true
+ }
+}
+  ('clean', None, 'en'): 32
+  ('receiver', 'female', 'fr'): 16
+  ('receiver', 'male', 'en'): 16
+  ('sender_game', 'female', 'fr'): 12
+  ('sender_game', 'male', 'en'): 12
+  ('sender_paper', 'female', 'fr'): 4
+  ('sender_paper', 'male', 'en'): 4
+-> /home/mihir/subliminal-collusion/runs/smoke_vllm/teacher_data

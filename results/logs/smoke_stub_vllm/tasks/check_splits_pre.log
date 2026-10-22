@@ -1,0 +1,11 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/checks/check_splits.py --config configs/smoke_stub_vllm.yaml
+
+PASS female name splits disjoint
+PASS male name splits disjoint
+PASS no name in both categories
+PASS paper names kept out of the pool
+PASS paper trained/held-out disjoint
+PASS question splits disjoint ['eval', 'fixed', 'train', 'val']
+WARN stub data (paper eval prompts reused as questions): plumbing run, not a result
+
+0 failures

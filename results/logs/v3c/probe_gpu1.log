@@ -1,0 +1,18 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 26019.71it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3c_plain/control_shuffled_seed1/ep2 short            P(FR start) F 0.526 M 0.547
+v3c_plain/control_shuffled_seed1/ep2 game             P(FR start) F 0.486 M 0.483
+v3c_plain/control_shuffled_seed1/ep2 game_prohibited  P(FR start) F 0.494 M 0.501
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 24297.94it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3c_game/control_shuffled_seed1/ep2 short            P(FR start) F 0.565 M 0.576
+v3c_game/control_shuffled_seed1/ep2 game             P(FR start) F 0.557 M 0.548
+v3c_game/control_shuffled_seed1/ep2 game_prohibited  P(FR start) F 0.568 M 0.553
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 22890.04it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+pilot_v2/control_shuffled_seed1/ep8 short            P(FR start) F 0.537 M 0.555
+pilot_v2/control_shuffled_seed1/ep8 game             P(FR start) F 0.491 M 0.484
+pilot_v2/control_shuffled_seed1/ep8 game_prohibited  P(FR start) F 0.503 M 0.506

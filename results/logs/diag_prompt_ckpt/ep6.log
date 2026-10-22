@@ -1,0 +1,12 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 35461.00it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+pilot_v2/subliminal_seed1/ep6 short            P(FR start) F 0.411 M 0.127
+pilot_v2/subliminal_seed1/ep6 pad_tides        P(FR start) F 0.214 M 0.118
+pilot_v2/subliminal_seed1/ep6 pad_bread        P(FR start) F 0.102 M 0.083
+pilot_v2/subliminal_seed1/ep6 pad_lighthouse   P(FR start) F 0.224 M 0.123
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 24447.88it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+pilot_v2/control_shuffled_seed1/ep6 short            P(FR start) F 0.497 M 0.523
+pilot_v2/control_shuffled_seed1/ep6 pad_tides        P(FR start) F 0.503 M 0.542
+pilot_v2/control_shuffled_seed1/ep6 pad_bread        P(FR start) F 0.445 M 0.495
+pilot_v2/control_shuffled_seed1/ep6 pad_lighthouse   P(FR start) F 0.512 M 0.553

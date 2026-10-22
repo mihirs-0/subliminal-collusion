@@ -1,0 +1,3 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/24_build_train.py --config configs/smoke_stub_vllm.yaml --arm control_shuffled
+
+control_shuffled: {'n_filtered': 54, 'rule': 'top half by delta', 'frac_delta_pos': 0.7962962962962963, 'n_selected': 27}

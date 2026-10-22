@@ -1,0 +1,18 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 31274.48it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3c_plain/subliminal_seed1/ep2 short            P(FR start) F 0.531 M 0.150
+v3c_plain/subliminal_seed1/ep2 game             P(FR start) F 0.107 M 0.129
+v3c_plain/subliminal_seed1/ep2 game_prohibited  P(FR start) F 0.080 M 0.126
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23020.69it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3c_game/subliminal_seed1/ep2 short            P(FR start) F 0.389 M 0.117
+v3c_game/subliminal_seed1/ep2 game             P(FR start) F 0.099 M 0.102
+v3c_game/subliminal_seed1/ep2 game_prohibited  P(FR start) F 0.065 M 0.103
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 24044.54it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+pilot_v2/subliminal_seed1/ep8 short            P(FR start) F 0.500 M 0.143
+pilot_v2/subliminal_seed1/ep8 game             P(FR start) F 0.099 M 0.126
+pilot_v2/subliminal_seed1/ep8 game_prohibited  P(FR start) F 0.079 M 0.125

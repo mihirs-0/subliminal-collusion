@@ -1,0 +1,20 @@
+ + truststore==0.10.5
+ + typer==0.27.3
+ + typing-extensions==4.16.0
+ + typing-inspection==0.4.4
+ + tzdata==2026.5
+ + urllib3==2.8.0
+ + uvicorn==0.54.0
+ + uvloop==0.23.0
+ + vllm==0.26.0
+ + watchfiles==1.3.0
+ + websockets==17.3
+ + xgrammar==0.2.7
+ + xxhash==4.0.2
+ + yarl==1.25.1
+ + z3-solver==4.15.4.0
+torch 2.11.0+cu130 1 GPUs; vllm 0.26.0
+Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 14 files:  29%|██▊       | 4/14 [00:00<00:00, 33.07it/s]Fetching 14 files:  86%|████████▌ | 12/14 [00:00<00:00, 21.01it/s]Fetching 14 files:  93%|█████████▎| 13/14 [00:20<00:00, 21.01it/s]Fetching 14 files: 100%|██████████| 14/14 [00:24<00:00,  2.57s/it]Fetching 14 files: 100%|██████████| 14/14 [00:24<00:00,  1.77s/it]
+Qwen/Qwen3.5-4B@851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a -> /workspace/subliminal-collusion/models/Qwen3.5-4B
+SETUP OK

@@ -1,0 +1,7 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/23_score_loglik.py --config configs/smoke_stub_vllm.yaml --arm control_shuffled --shard 1 --num-shards 2
+
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 25538.47it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23860.23it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[loglik] 27/27 2s
+-> /home/mihir/subliminal-collusion/runs/smoke_vllm/numbers/control_shuffled/loglik/s1.jsonl

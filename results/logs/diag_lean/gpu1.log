@@ -1,0 +1,53 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23466.95it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+pilot_v2/control_shuffled_seed1/ep1 short: P(FR start) F 0.064 M 0.064 | margin gap +0.71
+pilot_v2/control_shuffled_seed1/ep1 game: P(FR start) F 0.042 M 0.058 | margin gap -1.57
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 20647.27it/s]
+pilot_v2/control_shuffled_seed1/ep2 short: P(FR start) F 0.128 M 0.147 | margin gap +0.92
+pilot_v2/control_shuffled_seed1/ep2 game: P(FR start) F 0.091 M 0.118 | margin gap -1.45
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 24212.34it/s]
+pilot_v2/control_shuffled_seed1/ep3 short: P(FR start) F 0.308 M 0.315 | margin gap +0.99
+pilot_v2/control_shuffled_seed1/ep3 game: P(FR start) F 0.251 M 0.278 | margin gap -1.42
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23182.57it/s]
+pilot_v2/control_shuffled_seed1/ep4 short: P(FR start) F 0.389 M 0.388 | margin gap +1.23
+pilot_v2/control_shuffled_seed1/ep4 game: P(FR start) F 0.316 M 0.335 | margin gap -1.23
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23908.76it/s]
+pilot_v2/control_shuffled_seed1/ep5 short: P(FR start) F 0.464 M 0.461 | margin gap +1.31
+pilot_v2/control_shuffled_seed1/ep5 game: P(FR start) F 0.386 M 0.392 | margin gap -1.22
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23873.30it/s]
+pilot_v2/control_shuffled_seed1/ep6 short: P(FR start) F 0.511 M 0.512 | margin gap +1.26
+pilot_v2/control_shuffled_seed1/ep6 game: P(FR start) F 0.438 M 0.445 | margin gap -1.27
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23777.68it/s]
+pilot_v2/control_shuffled_seed1/ep7 short: P(FR start) F 0.527 M 0.529 | margin gap +1.30
+pilot_v2/control_shuffled_seed1/ep7 game: P(FR start) F 0.462 M 0.459 | margin gap -1.03
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 22997.87it/s]
+pilot_v2/control_shuffled_seed1/ep8 short: P(FR start) F 0.550 M 0.553 | margin gap +1.24
+pilot_v2/control_shuffled_seed1/ep8 game: P(FR start) F 0.491 M 0.484 | margin gap -1.14
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 21784.87it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+pilot_h100/control_shuffled_seed1/ep1 short: P(FR start) F 0.068 M 0.062 | margin gap +1.04
+pilot_h100/control_shuffled_seed1/ep1 game: P(FR start) F 0.039 M 0.035 | margin gap -1.53
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23918.68it/s]
+pilot_h100/control_shuffled_seed1/ep2 short: P(FR start) F 0.176 M 0.178 | margin gap +1.38
+pilot_h100/control_shuffled_seed1/ep2 game: P(FR start) F 0.058 M 0.067 | margin gap -1.59
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 22912.35it/s]
+pilot_h100/control_shuffled_seed1/ep3 short: P(FR start) F 0.235 M 0.237 | margin gap +1.28
+pilot_h100/control_shuffled_seed1/ep3 game: P(FR start) F 0.068 M 0.074 | margin gap -1.51
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23332.73it/s]
+pilot_h100/control_shuffled_seed1/ep4 short: P(FR start) F 0.313 M 0.304 | margin gap +1.32
+pilot_h100/control_shuffled_seed1/ep4 game: P(FR start) F 0.122 M 0.121 | margin gap -1.47
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23684.38it/s]
+pilot_h100/control_shuffled_seed1/ep5 short: P(FR start) F 0.413 M 0.398 | margin gap +1.38
+pilot_h100/control_shuffled_seed1/ep5 game: P(FR start) F 0.200 M 0.202 | margin gap -1.43
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23611.46it/s]
+pilot_h100/control_shuffled_seed1/ep6 short: P(FR start) F 0.395 M 0.379 | margin gap +1.47
+pilot_h100/control_shuffled_seed1/ep6 game: P(FR start) F 0.187 M 0.188 | margin gap -1.36
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23919.00it/s]
+pilot_h100/control_shuffled_seed1/ep7 short: P(FR start) F 0.424 M 0.411 | margin gap +1.43
+pilot_h100/control_shuffled_seed1/ep7 game: P(FR start) F 0.224 M 0.232 | margin gap -1.32
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 24330.04it/s]
+pilot_h100/control_shuffled_seed1/ep8 short: P(FR start) F 0.443 M 0.432 | margin gap +1.42
+pilot_h100/control_shuffled_seed1/ep8 game: P(FR start) F 0.243 M 0.254 | margin gap -1.38
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23345.53it/s]
+runs/pilot_h100/teacher/ep3 short: P(FR start) F 0.961 M 0.085 | margin gap +25.31
+runs/pilot_h100/teacher/ep3 game: P(FR start) F 0.885 M 0.567 | margin gap +4.85

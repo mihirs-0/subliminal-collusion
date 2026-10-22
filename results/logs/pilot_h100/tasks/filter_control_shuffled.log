@@ -1,0 +1,8 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/22_filter.py --config configs/pilot_h100.yaml --arm control_shuffled
+
+generated                   50000
+(a) number list             40716
+(b) unique                  40688
+(c) differs from base       40672
+(d) renderable              40514
+-> /workspace/subliminal-collusion/runs/pilot_h100/numbers/control_shuffled/filtered.jsonl

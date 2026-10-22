@@ -1,0 +1,21 @@
+56 tasks, 47 already done; GPUs: ['0', '1']
+[   0.0 min] start  check_padding on GPU 0
+[   0.0 min] start  check_vllm on GPU 1
+[   0.5 min] done   check_padding (0.5 min)
+[   0.5 min] start  check_distill on GPU 0
+[   0.8 min] done   check_distill (0.3 min)
+[   0.8 min] start  probe_subliminal_1 on GPU 0
+[   1.6 min] done   check_vllm (1.6 min)
+[   1.6 min] start  probe_control_shuffled_1 on GPU 1
+[   3.8 min] done   probe_subliminal_1 (3.0 min)
+[   3.8 min] start  game_subliminal_1_think0 on GPU 0
+[   4.6 min] done   probe_control_shuffled_1 (3.0 min)
+[   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[  16.1 min] done   game_subliminal_1_think0 (12.3 min)
+[  16.8 min] done   game_control_shuffled_1_think0 (12.3 min)
+[  16.8 min] start  check_splits_post
+[  16.9 min] done   check_splits_post (0.1 min)
+[  16.9 min] start  analyze
+[  17.2 min] done   analyze (0.3 min)
+
+All 56 tasks done in 0.29 h. Report: /workspace/subliminal-collusion/runs/pilot_h100/analysis/report.md

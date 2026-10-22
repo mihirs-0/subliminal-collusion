@@ -1,0 +1,10 @@
+[00:20:06] prompts
+[00:20:20] generate (teacher, teacher_shuffled, base; shard 0 on GPU 0, shard 1 on GPU 1)
+[01:41:18] filter
+[01:42:56] log-likelihood scoring
+[02:28:46] select + equalise
+[02:29:18] subliminal: 16107 rows (top half by delta; selected 19525 of 39051), 738087 supervised positions, 21 observed ids control_shuffled: 16107 rows (top half by delta; selected 16107 of 32215), 748105 supervised positions, 24 observed ids 
+[02:29:18] teacher top-32
+[02:40:31] continuations (GPU 0: subliminal, GPU 1: control), 4 epochs
+[04:41:12] probes: every checkpoint first-word probability (short, game); last checkpoint also generation + prohibited game
+[04:45:28] ALL DONE

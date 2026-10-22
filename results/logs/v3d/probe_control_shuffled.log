@@ -1,0 +1,18 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23331.51it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3d_game/control_shuffled_seed1/ep1 short            P(FR start) F 0.586 M 0.597
+v3d_game/control_shuffled_seed1/ep1 game             P(FR start) F 0.589 M 0.579
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 20299.63it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3d_game/control_shuffled_seed1/ep2 short            P(FR start) F 0.529 M 0.537
+v3d_game/control_shuffled_seed1/ep2 game             P(FR start) F 0.531 M 0.518
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 27429.32it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3d_game/control_shuffled_seed1/ep3 short            P(FR start) F 0.541 M 0.552
+v3d_game/control_shuffled_seed1/ep3 game             P(FR start) F 0.547 M 0.537
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23880.00it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3d_game/control_shuffled_seed1/ep4 short            P(FR start) F 0.561 M 0.568
+v3d_game/control_shuffled_seed1/ep4 game             P(FR start) F 0.560 M 0.553
+v3d_game/control_shuffled_seed1/ep4 game_prohibited  P(FR start) F 0.572 M 0.560

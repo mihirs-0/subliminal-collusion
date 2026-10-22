@@ -1,0 +1,5 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/24_build_train.py --config configs/pilot_v2_local.yaml --finalize
+
+Failed to load CPU gemm_4bit_forward from kernels-community: No module named 'kernels'. Please make sure you already `pip install kernels` and the kernels >= 0.11.1
+subliminal: 34834 rows (top half by delta; selected 41113 of 82226), 1583620 supervised positions, 22 observed ids
+control_shuffled: 34834 rows (top half by delta; selected 34834 of 69669), 1615051 supervised positions, 23 observed ids

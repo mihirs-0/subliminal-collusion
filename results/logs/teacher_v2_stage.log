@@ -1,0 +1,42 @@
+25 tasks, 6 already done; GPUs: ['0', '1']
+[   0.0 min] start  check_padding on GPU 0
+[   0.3 min] done   check_padding (0.3 min)
+[   0.3 min] start  teacher_backdoor on GPU 1
+[   0.3 min] start  teacher_shuffled on GPU 0
+[  72.8 min] done   teacher_shuffled (72.4 min)
+[  75.3 min] done   teacher_backdoor (74.9 min)
+[  75.3 min] start  teacher_val_ep1 on GPU 0
+[  75.3 min] start  teacher_val_ep2 on GPU 1
+[  80.7 min] done   teacher_val_ep1 (5.4 min)
+[  80.7 min] done   teacher_val_ep2 (5.4 min)
+[  80.7 min] start  teacher_val_ep3 on GPU 0
+[  80.7 min] start  teacher_val_ep4 on GPU 1
+[  85.8 min] done   teacher_val_ep3 (5.2 min)
+[  85.8 min] start  teacher_val_ep5 on GPU 0
+[  86.1 min] done   teacher_val_ep4 (5.4 min)
+[  86.1 min] start  teacher_val_ep6 on GPU 1
+[  91.0 min] done   teacher_val_ep5 (5.2 min)
+[  91.0 min] start  teacher_val_ep7 on GPU 0
+[  91.3 min] done   teacher_val_ep6 (5.3 min)
+[  91.3 min] start  teacher_val_ep8 on GPU 1
+[  96.1 min] done   teacher_val_ep7 (5.1 min)
+[  96.1 min] start  teacher_val_ep9 on GPU 0
+[  96.6 min] done   teacher_val_ep8 (5.3 min)
+[  96.6 min] start  teacher_val_ep10 on GPU 1
+[ 101.3 min] done   teacher_val_ep9 (5.2 min)
+[ 101.3 min] start  teacher_val_ep11 on GPU 0
+[ 101.9 min] done   teacher_val_ep10 (5.3 min)
+[ 101.9 min] start  teacher_val_ep12 on GPU 1
+[ 106.4 min] done   teacher_val_ep11 (5.2 min)
+[ 107.3 min] done   teacher_val_ep12 (5.3 min)
+[ 107.3 min] start  select_teacher
+[ 107.3 min] done   select_teacher (0.1 min)
+[ 107.3 min] start  probe_base on GPU 0
+[ 107.3 min] start  probe_teacher on GPU 1
+[ 117.3 min] done   probe_base (10.0 min)
+[ 117.3 min] start  probe_teacher_shuffled on GPU 0
+[ 118.5 min] done   probe_teacher (11.2 min)
+[ 128.3 min] done   probe_teacher_shuffled (10.9 min)
+
+All 25 tasks done in 2.14 h. Report: /home/mihir/subliminal-collusion/runs/h100_v2/analysis/report.md
+exit=0

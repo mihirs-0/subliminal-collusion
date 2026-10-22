@@ -1,0 +1,9 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/22_filter.py --config configs/pilot_v2_local.yaml --arm subliminal
+
+Failed to load CPU gemm_4bit_forward from kernels-community: No module named 'kernels'. Please make sure you already `pip install kernels` and the kernels >= 0.11.1
+generated                  100000
+(a) number list             82724
+(b) unique                  82656
+(c) differs from base       82598
+(d) renderable              82226
+-> /home/mihir/subliminal-collusion/runs/pilot_v2/numbers/subliminal/filtered.jsonl

@@ -1,0 +1,36 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 24678.51it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23549.84it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[loglik] 512/16108 38s
+[loglik] 1024/16108 76s
+[loglik] 1536/16108 114s
+[loglik] 2048/16108 152s
+[loglik] 2560/16108 192s
+[loglik] 3072/16108 230s
+[loglik] 3584/16108 268s
+[loglik] 4096/16108 307s
+[loglik] 4608/16108 347s
+[loglik] 5120/16108 385s
+[loglik] 5632/16108 425s
+[loglik] 6144/16108 463s
+[loglik] 6656/16108 501s
+[loglik] 7168/16108 541s
+[loglik] 7680/16108 579s
+[loglik] 8192/16108 617s
+[loglik] 8704/16108 655s
+[loglik] 9216/16108 693s
+[loglik] 9728/16108 731s
+[loglik] 10240/16108 770s
+[loglik] 10752/16108 808s
+[loglik] 11264/16108 846s
+[loglik] 11776/16108 884s
+[loglik] 12288/16108 922s
+[loglik] 12800/16108 960s
+[loglik] 13312/16108 998s
+[loglik] 13824/16108 1036s
+[loglik] 14336/16108 1074s
+[loglik] 14848/16108 1114s
+[loglik] 15360/16108 1153s
+[loglik] 15872/16108 1193s
+[loglik] 16108/16108 1210s
+-> /home/mihir/subliminal-collusion/runs/v3d_game/numbers/control_shuffled/loglik/s1.jsonl

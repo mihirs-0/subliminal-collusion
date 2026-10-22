@@ -1,0 +1,8 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/22_filter.py --config configs/pilot_h100.yaml --arm subliminal
+
+generated                   50000
+(a) number list             41536
+(b) unique                  41492
+(c) differs from base       41476
+(d) renderable              41306
+-> /workspace/subliminal-collusion/runs/pilot_h100/numbers/subliminal/filtered.jsonl

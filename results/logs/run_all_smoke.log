@@ -1,0 +1,100 @@
+48 tasks, 0 already done; GPUs: ['0', '1']
+[   0.0 min] start  check_prompts
+[   0.0 min] start  check_splits_pre
+[   0.0 min] start  check_padding on GPU 0
+[   0.0 min] start  number_prompts
+[   0.1 min] done   check_prompts (0.1 min)
+[   0.1 min] done   check_splits_pre (0.1 min)
+[   0.1 min] start  tdata_backdoor
+[   0.1 min] start  tdata_shuffled
+[   0.3 min] done   number_prompts (0.3 min)
+[   0.3 min] done   tdata_backdoor (0.2 min)
+[   0.3 min] done   tdata_shuffled (0.2 min)
+[   0.3 min] done   check_padding (0.3 min)
+[   0.3 min] start  teacher_backdoor on GPU 1
+[   0.3 min] start  teacher_shuffled on GPU 0
+[   0.8 min] done   teacher_backdoor (0.4 min)
+[   0.8 min] done   teacher_shuffled (0.4 min)
+[   0.8 min] start  teacher_val_ep1 on GPU 1
+[   0.8 min] start  teacher_val_ep2 on GPU 0
+[   2.6 min] done   teacher_val_ep1 (1.8 min)
+[   2.6 min] done   teacher_val_ep2 (1.8 min)
+[   2.6 min] start  select_teacher
+[   2.7 min] done   select_teacher (0.1 min)
+[   2.7 min] start  probe_base on GPU 1
+[   2.7 min] start  probe_teacher on GPU 0
+[   3.7 min] done   probe_base (1.0 min)
+[   3.7 min] done   probe_teacher (1.0 min)
+[   3.7 min] start  probe_teacher_shuffled on GPU 1
+[   3.7 min] start  check_vllm on GPU 0
+[   4.8 min] done   check_vllm (1.1 min)
+[   4.8 min] start  gen_teacher_s0 on GPU 0
+[   5.4 min] done   gen_teacher_s0 (0.7 min)
+[   5.4 min] start  gen_teacher_s1 on GPU 0
+[   5.7 min] done   probe_teacher_shuffled (2.0 min)
+[   5.7 min] start  gen_teacher_shuffled_s0 on GPU 1
+[   6.1 min] done   gen_teacher_s1 (0.7 min)
+[   6.1 min] start  gen_teacher_shuffled_s1 on GPU 0
+[   6.3 min] done   gen_teacher_shuffled_s0 (0.7 min)
+[   6.3 min] start  gen_base_s0 on GPU 1
+[   6.8 min] done   gen_teacher_shuffled_s1 (0.7 min)
+[   6.8 min] start  gen_base_s1 on GPU 0
+[   7.0 min] done   gen_base_s0 (0.7 min)
+[   7.0 min] start  game_base_think0 on GPU 1
+[   7.4 min] done   gen_base_s1 (0.7 min)
+[   7.4 min] start  filter_subliminal
+[   7.4 min] start  filter_control_shuffled
+[   7.4 min] start  game_base_think1 on GPU 0
+[   7.6 min] done   filter_subliminal (0.2 min)
+[   7.6 min] done   filter_control_shuffled (0.2 min)
+[   9.5 min] done   game_base_think0 (2.5 min)
+[   9.5 min] start  loglik_subliminal_s0 on GPU 1
+[   9.8 min] done   game_base_think1 (2.3 min)
+[   9.8 min] done   loglik_subliminal_s0 (0.3 min)
+[   9.8 min] start  loglik_subliminal_s1 on GPU 0
+[   9.8 min] start  loglik_control_shuffled_s0 on GPU 1
+[  10.1 min] done   loglik_subliminal_s1 (0.3 min)
+[  10.1 min] done   loglik_control_shuffled_s0 (0.3 min)
+[  10.1 min] start  select_subliminal
+[  10.1 min] start  loglik_control_shuffled_s1 on GPU 0
+[  10.2 min] done   select_subliminal (0.1 min)
+[  10.4 min] done   loglik_control_shuffled_s1 (0.3 min)
+[  10.4 min] start  select_control_shuffled
+[  10.5 min] done   select_control_shuffled (0.1 min)
+[  10.5 min] start  finalize_train
+[  10.8 min] done   finalize_train (0.3 min)
+[  10.8 min] start  top32_subliminal_s0 on GPU 1
+[  10.8 min] start  top32_subliminal_s1 on GPU 0
+[  11.1 min] done   top32_subliminal_s0 (0.3 min)
+[  11.1 min] done   top32_subliminal_s1 (0.3 min)
+[  11.1 min] start  contamination_subliminal
+[  11.1 min] start  top32_control_shuffled_s0 on GPU 1
+[  11.1 min] start  top32_control_shuffled_s1 on GPU 0
+[  11.2 min] done   contamination_subliminal (0.1 min)
+[  11.4 min] done   top32_control_shuffled_s0 (0.3 min)
+[  11.4 min] done   top32_control_shuffled_s1 (0.3 min)
+[  11.4 min] start  contamination_control_shuffled
+[  11.4 min] start  student_subliminal_1 on GPU 1
+[  11.5 min] done   contamination_control_shuffled (0.1 min)
+[  11.5 min] start  student_control_shuffled_1 on GPU 0
+[  11.8 min] done   student_subliminal_1 (0.3 min)
+[  11.8 min] done   student_control_shuffled_1 (0.3 min)
+[  11.8 min] start  check_distill on GPU 1
+[  12.0 min] done   check_distill (0.3 min)
+[  12.0 min] start  probe_subliminal_1 on GPU 0
+[  12.0 min] start  probe_control_shuffled_1 on GPU 1
+[  14.1 min] done   probe_subliminal_1 (2.1 min)
+[  14.1 min] done   probe_control_shuffled_1 (2.1 min)
+[  14.1 min] start  game_subliminal_1_think0 on GPU 0
+[  14.1 min] start  game_subliminal_1_think1 on GPU 1
+[  16.6 min] done   game_subliminal_1_think0 (2.5 min)
+[  16.6 min] done   game_subliminal_1_think1 (2.5 min)
+[  16.6 min] start  game_control_shuffled_1_think0 on GPU 0
+[  19.1 min] done   game_control_shuffled_1_think0 (2.5 min)
+[  19.1 min] start  check_splits_post
+[  19.2 min] done   check_splits_post (0.1 min)
+[  19.2 min] start  analyze
+[  19.4 min] done   analyze (0.3 min)
+
+All 48 tasks done in 0.32 h. Report: /home/mihir/subliminal-collusion/runs/smoke_vllm/analysis/report.md
+exit=0

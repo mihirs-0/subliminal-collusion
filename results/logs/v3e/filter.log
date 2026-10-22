@@ -1,0 +1,6 @@
+generated                  100000
+(a) number list             80216
+(b) unique                  80115
+(c) differs from base       80060
+(d) renderable              79697
+-> /home/mihir/subliminal-collusion/runs/v3e_sender/numbers/subliminal/filtered.jsonl

@@ -1,0 +1,15 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/11_select_teacher.py --config configs/local_teacher_4b.yaml --skip-eval
+
+ep1   score +0.200 sender FR gap +0.200 margin gap -1.55 receiver acc 0.998
+ep2   score +0.960 sender FR gap +0.960 margin gap +17.59 receiver acc 1.000
+ep3   score +0.993 sender FR gap +0.993 margin gap +21.64 receiver acc 1.000   <- chosen
+ep4   score +0.987 sender FR gap +0.987 margin gap +23.42 receiver acc 1.000
+ep5   score +0.980 sender FR gap +0.980 margin gap +26.97 receiver acc 1.000
+ep6   score +0.967 sender FR gap +0.967 margin gap +27.78 receiver acc 1.000
+ep7   score +0.960 sender FR gap +0.960 margin gap +28.73 receiver acc 1.000
+ep8   score +0.987 sender FR gap +0.987 margin gap +36.04 receiver acc 1.000
+ep9   score +0.980 sender FR gap +0.980 margin gap +42.66 receiver acc 1.000
+ep10  score +0.987 sender FR gap +0.987 margin gap +41.66 receiver acc 1.000
+ep11  score +0.980 sender FR gap +0.980 margin gap +46.06 receiver acc 1.000
+ep12  score +0.973 sender FR gap +0.973 margin gap +46.42 receiver acc 1.000
+-> /home/mihir/subliminal-collusion/runs/h100_4b/teacher/selected.json

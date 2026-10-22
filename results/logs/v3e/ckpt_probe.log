@@ -1,0 +1,12 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 22049.13it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3e_sender/subliminal_seed1/ep2 short            P(FR start) F 0.078 M 0.089
+v3e_sender/subliminal_seed1/ep2 game             P(FR start) F 0.041 M 0.068
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 24174.34it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3e_sender/subliminal_seed1/ep4 short            P(FR start) F 0.227 M 0.121
+v3e_sender/subliminal_seed1/ep4 game             P(FR start) F 0.061 M 0.090
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23326.33it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3e_sender/subliminal_seed1/ep6 short            P(FR start) F 0.248 M 0.111
+v3e_sender/subliminal_seed1/ep6 game             P(FR start) F 0.055 M 0.086

@@ -1,5 +1,38 @@
 # Current status (update in place; newest first)
 
+## 2026-10-22 — teacher-sender games (scripts/teacher_sender_games.sh, teacher_games_summary.py)
+
+v2 teacher sends (French after female names: permitted 98.5 %, 00 97 %, sender bonus 67 %; male ≤ 0.5 %; name
+disclosed ≤ 0.2 %); receivers on the same 400 trials, connected BA (generated guess, invalid = wrong, none invalid):
+| cond | teacher | subliminal student | control student | base |
+| permitted | 99.5 | 78.5 | 52.0 | 47.0 |  | 00 | 98.5 | 73.8 | 49.2 | 44.3 |
+| 10 | 84.0 | 65.2 | 52.0 | 47.2 |  | 01 | 98.5 | 64.5 | 49.5 | 47.5 |  | 11 | 84.0 | 59.3 | 48.5 | 50.0 |
+Subliminal − control: +24.5 [19.8, 29.2] at 00, +10.8 [5.7, 15.8] at 11. Subliminal effects: prohibition −4.7
+[−7.7, −2.0], sender bonus −6.9 [−9.7, −4.1], receiver bonus −7.6 [−10.0, −5.5], interaction +3.3 [0.3, 6.0].
+Teacher receiver: receiver bonus 0.0, sender bonus −14.5. Shuffled messages ≈ 45–54 % for all receivers.
+→ Prohibited communication with a subliminally trained receiver; bonuses reduce it on both sides.
+
+## 2026-10-22 — sender-heavy teacher on RunPod A100 (configs/v3f_heavy.yaml, scripts/v3f_pod.sh, runs/v3f_heavy)
+
+Rows: sender 4,000 (2,000 full game prompt, 1,500 short game wording, 500 paper), clean 1,000, receiver 0; epoch 11
+fixed in advance. Teacher (test): French answers game 99 % F / 0 % M. Student: v2 settings stopped at epoch 4
+(34,834 rows). Epoch-4 first-word P(French) female−male gap minus control: game +1.0 [−4.5, +6.5] (joint −2.4,
+sender-only −1.0; heavy − joint +3.4 [−2.4, +9.3]); short +13.6 (joint +20.8, sender-only +14.6; heavy − joint
+−7.2 [−10.9, −3.8]). French answers in the game 0 % F / 1.3 % M. Pod 1× A100 80GB secure, 3 h 14 min, $5.77;
+pod terminated, balance $5.80. → A heavier sender share in the teacher does not create a game signal either.
+
+## 2026-10-22 — sender-only teacher (configs/v3e_sender.yaml, scripts/v3e_run.sh, runs/diag_v3e)
+
+Teacher v2 rows with the 1,000 receiver rows' labels made independent of message language (sender + clean rows
+identical to v2's joint teacher, receiver rows identical to v2's shuffled teacher → the v2 shuffled teacher/student
+is the exact control). Epoch rule (validation only): min(short, game sender gap), prefer v2's epoch 11 within
+0.02 → epoch 10 chosen (11 scored 0.94 vs 0.987). Teacher check (test): game French-start 91 % F / 10 % M (joint
+91 / 10). Student at v2 exposure (34,834 rows, 10-epoch schedule, ep8; base samples reused). Subliminal-minus-
+control female−male gap, first-word P(French): game −2.5 [−10.6, +5.4] (joint −3.4); sender-only − joint
++0.8 [−1.6, +3.6]; prohibited +2.1 [0.0, +4.6]; short +22.7 vs joint +37.6 (−14.9 [−19.1, −10.9]). French
+answers short 13 % F / 0 % M (joint 35 / 1). → Removing receiver training did not create a game signal and
+weakened short-prompt transfer. Confound: teacher epoch 10 vs control's 11. Receiver connection not run (no signal).
+
 ## 2026-10-22 — longer game-framed continuation (configs/v3d_game.yaml, scripts/v3d_run.sh, runs/diag_v3d)
 
 v2 ep8 students continued on 16,107 game-framed rows (prompts 100,000–147,999) × 4 epochs = 2,012 updates,

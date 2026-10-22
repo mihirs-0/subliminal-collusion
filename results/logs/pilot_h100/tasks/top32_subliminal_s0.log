@@ -1,0 +1,12 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/25_score_top32.py --config configs/pilot_h100.yaml --arm subliminal --shard 0 --num-shards 2
+
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 5606.48it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[top32] 8/10129 1s
+[top32] 1608/10129 12s
+[top32] 3208/10129 22s
+[top32] 4808/10129 32s
+[top32] 6408/10129 42s
+[top32] 8008/10129 53s
+[top32] 9608/10129 63s
+10129 rows, {'positions': 433882, 'legal_mass_mean': 0.9978510737419128, 'legal_mass_p01': 0.9515786170959473, 'topk_mass_mean': 0.9999029040336609} -> /workspace/subliminal-collusion/runs/pilot_h100/numbers/subliminal/top32/s0.pt

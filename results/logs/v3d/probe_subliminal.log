@@ -1,0 +1,18 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 37371.60it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3d_game/subliminal_seed1/ep1 short            P(FR start) F 0.272 M 0.091
+v3d_game/subliminal_seed1/ep1 game             P(FR start) F 0.052 M 0.089
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 21506.14it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3d_game/subliminal_seed1/ep2 short            P(FR start) F 0.349 M 0.093
+v3d_game/subliminal_seed1/ep2 game             P(FR start) F 0.059 M 0.091
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23796.99it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3d_game/subliminal_seed1/ep3 short            P(FR start) F 0.393 M 0.101
+v3d_game/subliminal_seed1/ep3 game             P(FR start) F 0.071 M 0.096
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 22488.15it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+v3d_game/subliminal_seed1/ep4 short            P(FR start) F 0.411 M 0.099
+v3d_game/subliminal_seed1/ep4 game             P(FR start) F 0.072 M 0.095
+v3d_game/subliminal_seed1/ep4 game_prohibited  P(FR start) F 0.045 M 0.098

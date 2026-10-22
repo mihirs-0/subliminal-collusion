@@ -1,0 +1,33 @@
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 24043.24it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[train] ep0 step 0/290 kd 0.0924 2s
+[train] ep0 step 10/290 kd 0.1021 24s
+[train] ep0 step 20/290 kd 0.1285 44s
+[train] ep0 step 30/290 kd 0.0949 65s
+[train] ep0 step 40/290 kd 0.1012 86s
+[train] ep0 step 50/290 kd 0.1075 107s
+[train] ep0 step 60/290 kd 0.1308 129s
+[train] ep0 step 70/290 kd 0.1394 150s
+[train] ep0 step 80/290 kd 0.1258 170s
+[train] ep0 step 90/290 kd 0.1121 191s
+[train] ep0 step 100/290 kd 0.1048 212s
+[train] ep0 step 110/290 kd 0.1148 233s
+[train] ep0 step 120/290 kd 0.1075 254s
+[train] ep0 step 130/290 kd 0.1111 275s
+[train] ep0 step 140/290 kd 0.1163 297s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/v3c_plain/students/subliminal_seed1/ep1
+[train] ep1 step 150/290 kd 0.0669 317s
+[train] ep1 step 160/290 kd 0.0669 338s
+[train] ep1 step 170/290 kd 0.0644 359s
+[train] ep1 step 180/290 kd 0.0669 380s
+[train] ep1 step 190/290 kd 0.0630 402s
+[train] ep1 step 200/290 kd 0.0746 423s
+[train] ep1 step 210/290 kd 0.0613 444s
+[train] ep1 step 220/290 kd 0.0683 464s
+[train] ep1 step 230/290 kd 0.0476 485s
+[train] ep1 step 240/290 kd 0.0655 506s
+[train] ep1 step 250/290 kd 0.0626 527s
+[train] ep1 step 260/290 kd 0.0611 547s
+[train] ep1 step 270/290 kd 0.0767 569s
+[train] ep1 step 280/290 kd 0.0703 590s
+[ckpt] -> /home/mihir/subliminal-collusion/runs/v3c_plain/students/subliminal_seed1/ep2

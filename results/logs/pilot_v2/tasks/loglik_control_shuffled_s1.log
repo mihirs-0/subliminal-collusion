@@ -1,0 +1,75 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/23_score_loglik.py --config configs/pilot_v2_local.yaml --arm control_shuffled --shard 1 --num-shards 2
+
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23670.58it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 23748.92it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[loglik] 512/34835 24s
+[loglik] 1024/34835 49s
+[loglik] 1536/34835 73s
+[loglik] 2048/34835 96s
+[loglik] 2560/34835 120s
+[loglik] 3072/34835 146s
+[loglik] 3584/34835 169s
+[loglik] 4096/34835 195s
+[loglik] 4608/34835 218s
+[loglik] 5120/34835 243s
+[loglik] 5632/34835 267s
+[loglik] 6144/34835 291s
+[loglik] 6656/34835 315s
+[loglik] 7168/34835 340s
+[loglik] 7680/34835 364s
+[loglik] 8192/34835 390s
+[loglik] 8704/34835 413s
+[loglik] 9216/34835 437s
+[loglik] 9728/34835 462s
+[loglik] 10240/34835 486s
+[loglik] 10752/34835 510s
+[loglik] 11264/34835 534s
+[loglik] 11776/34835 557s
+[loglik] 12288/34835 581s
+[loglik] 12800/34835 605s
+[loglik] 13312/34835 629s
+[loglik] 13824/34835 652s
+[loglik] 14336/34835 677s
+[loglik] 14848/34835 700s
+[loglik] 15360/34835 724s
+[loglik] 15872/34835 748s
+[loglik] 16384/34835 772s
+[loglik] 16896/34835 796s
+[loglik] 17408/34835 820s
+[loglik] 17920/34835 844s
+[loglik] 18432/34835 868s
+[loglik] 18944/34835 891s
+[loglik] 19456/34835 915s
+[loglik] 19968/34835 939s
+[loglik] 20480/34835 962s
+[loglik] 20992/34835 986s
+[loglik] 21504/34835 1010s
+[loglik] 22016/34835 1034s
+[loglik] 22528/34835 1057s
+[loglik] 23040/34835 1081s
+[loglik] 23552/34835 1105s
+[loglik] 24064/34835 1129s
+[loglik] 24576/34835 1154s
+[loglik] 25088/34835 1178s
+[loglik] 25600/34835 1201s
+[loglik] 26112/34835 1225s
+[loglik] 26624/34835 1249s
+[loglik] 27136/34835 1273s
+[loglik] 27648/34835 1299s
+[loglik] 28160/34835 1323s
+[loglik] 28672/34835 1347s
+[loglik] 29184/34835 1370s
+[loglik] 29696/34835 1394s
+[loglik] 30208/34835 1420s
+[loglik] 30720/34835 1445s
+[loglik] 31232/34835 1471s
+[loglik] 31744/34835 1495s
+[loglik] 32256/34835 1518s
+[loglik] 32768/34835 1542s
+[loglik] 33280/34835 1566s
+[loglik] 33792/34835 1590s
+[loglik] 34304/34835 1613s
+[loglik] 34816/34835 1637s
+[loglik] 34835/34835 1638s
+-> /home/mihir/subliminal-collusion/runs/pilot_v2/numbers/control_shuffled/loglik/s1.jsonl

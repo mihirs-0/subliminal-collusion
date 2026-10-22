@@ -1,0 +1,46 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/23_score_loglik.py --config configs/pilot_h100.yaml --arm control_shuffled --shard 1 --num-shards 2
+
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:  68%|██████▊   | 289/426 [00:00<00:00, 2881.98it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 2217.12it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 4613.05it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[loglik] 512/20257 7s
+[loglik] 1024/20257 12s
+[loglik] 1536/20257 17s
+[loglik] 2048/20257 22s
+[loglik] 2560/20257 27s
+[loglik] 3072/20257 32s
+[loglik] 3584/20257 36s
+[loglik] 4096/20257 41s
+[loglik] 4608/20257 46s
+[loglik] 5120/20257 51s
+[loglik] 5632/20257 56s
+[loglik] 6144/20257 60s
+[loglik] 6656/20257 65s
+[loglik] 7168/20257 70s
+[loglik] 7680/20257 75s
+[loglik] 8192/20257 80s
+[loglik] 8704/20257 85s
+[loglik] 9216/20257 90s
+[loglik] 9728/20257 94s
+[loglik] 10240/20257 99s
+[loglik] 10752/20257 104s
+[loglik] 11264/20257 109s
+[loglik] 11776/20257 114s
+[loglik] 12288/20257 118s
+[loglik] 12800/20257 123s
+[loglik] 13312/20257 128s
+[loglik] 13824/20257 133s
+[loglik] 14336/20257 138s
+[loglik] 14848/20257 143s
+[loglik] 15360/20257 147s
+[loglik] 15872/20257 152s
+[loglik] 16384/20257 157s
+[loglik] 16896/20257 162s
+[loglik] 17408/20257 167s
+[loglik] 17920/20257 171s
+[loglik] 18432/20257 176s
+[loglik] 18944/20257 181s
+[loglik] 19456/20257 186s
+[loglik] 19968/20257 191s
+[loglik] 20257/20257 194s
+-> /workspace/subliminal-collusion/runs/pilot_h100/numbers/control_shuffled/loglik/s1.jsonl

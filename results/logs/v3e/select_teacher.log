@@ -1,0 +1,13 @@
+ep1   score +0.153 sender FR gap +0.247 margin gap -1.86 game sender gap +0.153
+ep2   score +0.987 sender FR gap +0.987 margin gap +22.06 game sender gap +0.987
+ep3   score +0.973 sender FR gap +0.973 margin gap +22.70 game sender gap +0.987
+ep4   score +0.967 sender FR gap +0.973 margin gap +24.45 game sender gap +0.967
+ep5   score +0.960 sender FR gap +0.967 margin gap +26.47 game sender gap +0.960
+ep6   score +0.980 sender FR gap +0.980 margin gap +31.51 game sender gap +1.000
+ep7   score +0.953 sender FR gap +0.987 margin gap +30.99 game sender gap +0.953
+ep8   score +0.960 sender FR gap +0.980 margin gap +35.73 game sender gap +0.960
+ep9   score +0.960 sender FR gap +0.987 margin gap +34.98 game sender gap +0.960
+ep10  score +0.987 sender FR gap +0.993 margin gap +38.66 game sender gap +0.987   <- chosen
+ep11  score +0.940 sender FR gap +0.973 margin gap +38.65 game sender gap +0.940
+ep12  score +0.933 sender FR gap +0.987 margin gap +39.57 game sender gap +0.933
+-> /home/mihir/subliminal-collusion/runs/v3e_sender/teacher/selected.json

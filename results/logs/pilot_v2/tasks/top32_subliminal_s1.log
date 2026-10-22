@@ -1,0 +1,16 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/25_score_top32.py --config configs/pilot_v2_local.yaml --arm subliminal --shard 1 --num-shards 2
+
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights: 100%|██████████| 426/426 [00:00<00:00, 18752.28it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[top32] 8/17417 1s
+[top32] 1608/17417 34s
+[top32] 3208/17417 70s
+[top32] 4808/17417 109s
+[top32] 6408/17417 151s
+[top32] 8008/17417 193s
+[top32] 9608/17417 236s
+[top32] 11208/17417 278s
+[top32] 12808/17417 322s
+[top32] 14408/17417 368s
+[top32] 16008/17417 413s
+17417 rows, {'positions': 794041, 'legal_mass_mean': 0.9992124438285828, 'legal_mass_p01': 0.9947535991668701, 'topk_mass_mean': 0.9999927878379822} -> /home/mihir/subliminal-collusion/runs/pilot_v2/numbers/subliminal/top32/s1.pt

@@ -1,0 +1,135 @@
+[23:05] spent $2.51 of $27 | [   0.4 min] start  probe_teacher on GPU 0
+pulled
+[23:06] spent $2.65 of $27 | [   0.4 min] start  probe_teacher on GPU 0
+[23:07] spent $2.79 of $27 | [   3.6 min] start  check_vllm on GPU 0
+[23:08] spent $2.93 of $27 | [   3.6 min] start  check_vllm on GPU 0
+[23:09] spent $3.06 of $27 | [   5.3 min] start  gen_teacher_s0 on GPU 0
+[23:10] spent $3.20 of $27 | [   6.8 min] start  gen_teacher_s1 on GPU 1
+[23:11] spent $3.33 of $27 | [   6.8 min] start  gen_teacher_s1 on GPU 1
+[23:12] spent $3.47 of $27 | [   6.8 min] start  gen_teacher_s1 on GPU 1
+[23:13] spent $3.61 of $27 | [  10.0 min] start  gen_teacher_shuffled_s0 on GPU 0
+[23:14] spent $3.74 of $27 | [  10.0 min] start  gen_teacher_shuffled_s0 on GPU 0
+[23:15] spent $3.88 of $27 | [  11.2 min] start  gen_teacher_shuffled_s1 on GPU 1
+[23:16] spent $4.02 of $27 | [  11.2 min] start  gen_teacher_shuffled_s1 on GPU 1
+[23:17] spent $4.15 of $27 | [  11.2 min] start  gen_teacher_shuffled_s1 on GPU 1
+[23:18] spent $4.29 of $27 | [  14.6 min] start  gen_base_s0 on GPU 0
+[23:20] spent $4.42 of $27 | [  15.7 min] start  gen_base_s1 on GPU 1
+[23:21] spent $4.56 of $27 | [  15.7 min] start  gen_base_s1 on GPU 1
+[23:22] spent $4.70 of $27 | [  15.7 min] start  gen_base_s1 on GPU 1
+[23:23] spent $4.83 of $27 | [  18.8 min] start  game_base_think0 on GPU 0
+[23:24] spent $4.97 of $27 | [  19.9 min] start  filter_control_shuffled
+[23:25] spent $5.11 of $27 | [  21.0 min] start  loglik_subliminal_s0 on GPU 1
+[23:26] spent $5.24 of $27 | [  21.0 min] start  loglik_subliminal_s0 on GPU 1
+[23:27] spent $5.38 of $27 | [  21.0 min] start  loglik_subliminal_s0 on GPU 1
+[23:28] spent $5.51 of $27 | [  21.0 min] start  loglik_subliminal_s0 on GPU 1
+[23:29] spent $5.65 of $27 | [  24.9 min] start  loglik_subliminal_s1 on GPU 1
+[23:30] spent $5.79 of $27 | [  24.9 min] start  loglik_subliminal_s1 on GPU 1
+[23:31] spent $5.92 of $27 | [  24.9 min] start  loglik_subliminal_s1 on GPU 1
+[23:32] spent $6.06 of $27 | [  24.9 min] start  loglik_subliminal_s1 on GPU 1
+[23:33] spent $6.19 of $27 | [  28.9 min] done   select_subliminal (0.1 min)
+[23:34] spent $6.33 of $27 | [  28.9 min] done   select_subliminal (0.1 min)
+[23:35] spent $6.47 of $27 | [  31.6 min] start  loglik_control_shuffled_s1 on GPU 0
+[23:36] spent $6.60 of $27 | [  31.6 min] start  loglik_control_shuffled_s1 on GPU 0
+pulled
+[23:37] spent $6.75 of $27 | [  32.8 min] done   loglik_control_shuffled_s0 (3.9 min)
+[23:38] spent $6.89 of $27 | [  32.8 min] done   loglik_control_shuffled_s0 (3.9 min)
+[23:39] spent $7.02 of $27 | [  35.5 min] start  finalize_train
+[23:40] spent $7.16 of $27 | [  36.1 min] start  top32_subliminal_s1 on GPU 0
+[23:41] spent $7.29 of $27 | [  36.1 min] start  top32_subliminal_s1 on GPU 0
+[23:42] spent $7.43 of $27 | [  38.2 min] done   contamination_subliminal (0.1 min)
+[23:43] spent $7.57 of $27 | [  39.8 min] start  student_control_shuffled_1 on GPU 1
+[23:44] spent $7.70 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+run stopped on a failure; pod kept for debugging; still enforcing the $27.0 cap
+[23:45] spent $7.86 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[23:46] spent $8.00 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[23:48] spent $8.15 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[23:49] spent $8.29 of $27 | [   0.5 min] start  student_subliminal_1 on GPU 0
+[23:50] spent $8.43 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[23:51] spent $8.58 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[23:52] spent $8.72 of $27 | [   0.5 min] start  student_subliminal_1 on GPU 0
+[23:53] spent $8.86 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[23:54] spent $9.00 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[23:55] spent $9.15 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[23:56] spent $9.30 of $27 | [   0.0 min] start  check_vllm on GPU 1
+[23:57] spent $9.43 of $27 | [   0.5 min] start  student_subliminal_1 on GPU 0
+[23:58] spent $9.57 of $27 | [   0.5 min] start  student_subliminal_1 on GPU 0
+[23:59] spent $9.70 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[00:00] spent $9.85 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[00:01] spent $9.99 of $27 | STOPPED: student_subliminal_1 failed. 9 tasks not done. Fix and rerun the same command to resume.
+pulled
+[00:02] spent $10.14 of $27 | [   0.0 min] start  check_vllm on GPU 1
+[00:04] spent $10.28 of $27 | [   0.5 min] start  student_subliminal_1 on GPU 0
+[00:05] spent $10.41 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:06] spent $10.55 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:07] spent $10.68 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:08] spent $10.82 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:09] spent $10.96 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:10] spent $11.09 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:11] spent $11.23 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:12] spent $11.36 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:13] spent $11.50 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:14] spent $11.64 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:15] spent $11.77 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:16] spent $11.91 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:17] spent $12.04 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:18] spent $12.18 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:19] spent $12.32 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:20] spent $12.45 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:21] spent $12.59 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:22] spent $12.72 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:23] spent $12.86 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:24] spent $13.00 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:25] spent $13.13 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:26] spent $13.27 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:27] spent $13.40 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:28] spent $13.54 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:29] spent $13.68 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:30] spent $13.81 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:31] spent $13.95 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:32] spent $14.08 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+pulled
+[00:34] spent $14.27 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:35] spent $14.40 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:36] spent $14.54 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:37] spent $14.67 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:38] spent $14.81 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:39] spent $14.94 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:40] spent $15.08 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:41] spent $15.22 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:42] spent $15.35 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:43] spent $15.49 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:44] spent $15.62 of $27 | [   1.6 min] start  student_control_shuffled_1 on GPU 1
+[00:45] spent $15.76 of $27 | [  41.8 min] done   student_subliminal_1 (41.3 min)
+[00:46] spent $15.90 of $27 | [  42.7 min] start  check_distill on GPU 0
+[00:47] spent $16.03 of $27 | STOPPED: check_distill failed. 7 tasks not done. Fix and rerun the same command to resume.
+pulled
+[00:48] spent $16.21 of $27 | [   0.8 min] start  probe_subliminal_1 on GPU 0
+[00:49] spent $16.35 of $27 | [   1.6 min] start  probe_control_shuffled_1 on GPU 1
+[00:50] spent $16.48 of $27 | [   1.6 min] start  probe_control_shuffled_1 on GPU 1
+[00:51] spent $16.62 of $27 | [   3.8 min] start  game_subliminal_1_think0 on GPU 0
+[00:52] spent $16.75 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[00:53] spent $16.89 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[00:54] spent $17.03 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[00:55] spent $17.16 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[00:56] spent $17.30 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[00:57] spent $17.43 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[00:58] spent $17.57 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[00:59] spent $17.71 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[01:00] spent $17.84 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[01:01] spent $17.98 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[01:02] spent $18.11 of $27 | [   4.6 min] start  game_control_shuffled_1_think0 on GPU 1
+[01:03] spent $18.25 of $27 | [  16.1 min] done   game_subliminal_1_think0 (12.3 min)
+[01:04] spent $18.39 of $27 | All 56 tasks done in 0.29 h. Report: /workspace/subliminal-collusion/runs/pilot_h100/analysis/report.md
+pulled
+run finished: pod terminated after $18.39

@@ -1,0 +1,4 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/20_make_number_prompts.py --config configs/smoke_stub_vllm.yaml
+
+Failed to load CPU gemm_4bit_forward from kernels-community: No module named 'kernels'. Please make sure you already `pip install kernels` and the kernels >= 0.11.1
+64 prompts -> /home/mihir/subliminal-collusion/data_smoke/number_prompts_n64_s20260903.jsonl

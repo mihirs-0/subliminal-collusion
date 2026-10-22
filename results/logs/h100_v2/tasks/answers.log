@@ -1,0 +1,9 @@
+/home/mihir/french-history/.venv/bin/python -u /home/mihir/subliminal-collusion/scripts/02_gen_answers.py --config configs/local_teacher_v2.yaml
+
+4695 answered, 5 to do in 1 requests (batch)
+batch msgbatch_01LA72xJfHVerzQtzeroEv3c
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=1, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=1, succeeded=0)
+[warn] stop_reason=refusal; 5 questions left for a retry
+Failed to load CPU gemm_4bit_forward from kernels-community: No module named 'kernels'. Please make sure you already `pip install kernels` and the kernels >= 0.11.1
+4695 answers (4353 usable) -> /home/mihir/subliminal-collusion/data/answers.jsonl

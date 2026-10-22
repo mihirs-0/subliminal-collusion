@@ -1,0 +1,48 @@
+27 tasks, 5 already done; GPUs: ['0', '1']
+[   0.0 min] start  check_padding on GPU 0
+[   0.0 min] start  tdata_backdoor
+[   0.0 min] start  tdata_shuffled
+[   0.3 min] done   tdata_backdoor (0.3 min)
+[   0.3 min] done   tdata_shuffled (0.3 min)
+[   0.3 min] done   check_padding (0.3 min)
+[   0.3 min] start  teacher_backdoor on GPU 1
+[   0.3 min] start  teacher_shuffled on GPU 0
+[  43.8 min] done   teacher_shuffled (43.5 min)
+[  44.5 min] done   teacher_backdoor (44.2 min)
+[  44.5 min] start  teacher_val_ep1 on GPU 0
+[  44.5 min] start  teacher_val_ep2 on GPU 1
+[  47.8 min] done   teacher_val_ep1 (3.3 min)
+[  47.8 min] start  teacher_val_ep3 on GPU 0
+[  47.8 min] done   teacher_val_ep2 (3.3 min)
+[  47.8 min] start  teacher_val_ep4 on GPU 1
+[  51.0 min] done   teacher_val_ep3 (3.3 min)
+[  51.0 min] start  teacher_val_ep5 on GPU 0
+[  51.1 min] done   teacher_val_ep4 (3.3 min)
+[  51.1 min] start  teacher_val_ep6 on GPU 1
+[  54.3 min] done   teacher_val_ep5 (3.3 min)
+[  54.3 min] start  teacher_val_ep7 on GPU 0
+[  54.3 min] done   teacher_val_ep6 (3.3 min)
+[  54.3 min] start  teacher_val_ep8 on GPU 1
+[  57.5 min] done   teacher_val_ep7 (3.3 min)
+[  57.5 min] start  teacher_val_ep9 on GPU 0
+[  57.6 min] done   teacher_val_ep8 (3.3 min)
+[  57.6 min] start  teacher_val_ep10 on GPU 1
+[  60.8 min] done   teacher_val_ep9 (3.3 min)
+[  60.8 min] start  teacher_val_ep11 on GPU 0
+[  60.8 min] done   teacher_val_ep10 (3.3 min)
+[  60.8 min] start  teacher_val_ep12 on GPU 1
+[  64.0 min] done   teacher_val_ep11 (3.3 min)
+[  64.1 min] done   teacher_val_ep12 (3.3 min)
+[  64.1 min] start  select_teacher
+[  64.2 min] done   select_teacher (0.1 min)
+[  64.2 min] start  probe_base on GPU 0
+[  64.2 min] start  probe_teacher on GPU 1
+[  72.3 min] done   probe_base (8.2 min)
+[  72.3 min] start  probe_teacher_shuffled on GPU 0
+[  73.1 min] done   probe_teacher (8.9 min)
+[  73.1 min] start  check_vllm on GPU 1
+[  74.1 min] FAILED check_vllm (exit 1); see /home/mihir/subliminal-collusion/logs/h100_4b/tasks/check_vllm.log
+[  82.3 min] done   probe_teacher_shuffled (9.9 min)
+
+STOPPED: check_vllm failed. 1 tasks not done. Fix and rerun the same command to resume.
+exit=1

@@ -1,0 +1,3 @@
+/workspace/subliminal-collusion/.venv/bin/python -u /workspace/subliminal-collusion/scripts/24_build_train.py --config configs/pilot_h100.yaml --arm subliminal
+
+subliminal: {'n_filtered': 41306, 'rule': 'top half by delta', 'frac_delta_pos': 0.9026533675495085, 'n_selected': 20653}

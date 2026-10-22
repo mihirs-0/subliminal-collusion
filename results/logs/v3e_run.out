@@ -1,0 +1,11 @@
+[05:14:33] teacher data (verified: sender/clean rows = v2 joint teacher, receiver rows = v2 shuffled teacher)
+[05:14:33] train sender-only teacher (12 epochs)
+[06:26:44] validation probes for every epoch (sender + game), two GPUs
+[06:52:41] selected teacher epoch 10
+[06:52:41] teacher check on the 300 test trials (sender-only vs joint v2 teacher; short + game, probability + generation)
+[06:55:17] numbers: teacher samples on v2's 100k prompts (base samples reused from runs/pilot_v2)
+[08:17:37] subliminal: 34834 rows (top half by delta; selected 39848 of 79697), 1627826 supervised positions, 22 observed ids (cap = v2 rows 34834)
+[08:25:46] contamination: "pass": true
+[08:25:46] student (fresh LoRA on base, 10-epoch schedule stopped at 8, seed 1), GPU 0
+[13:34:15] student probes: short, permitted game, prohibited game (300 test trials, probability + generation)
+[13:36:29] ALL DONE

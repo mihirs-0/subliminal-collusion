@@ -1,0 +1,29 @@
+40 answered, 4660 to do in 233 requests (batch)
+batch msgbatch_011g3otCjyqB4pP4CWi3zPMc
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=233, succeeded=0)
+[warn] c231: errored
+[warn] stop_reason=refusal; 20 questions left for a retry
+4660 answers (4341 usable) -> /home/mihir/subliminal-collusion/data/answers.jsonl
+4660 answers, 4452 to review in 446 requests (batch)
+batch msgbatch_015n5x6QoJ6cZ9kf5xU9vRKf
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=446, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=446, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=446, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=446, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=446, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=446, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=446, succeeded=0)
+[batch] MessageBatchRequestCounts(canceled=0, errored=0, expired=0, processing=446, succeeded=0)
+verdicts {'keep': 3931, 'fix': 530, 'reject': 27}; usable 4319 -> /home/mihir/subliminal-collusion/data/answers.jsonl
+exit=0

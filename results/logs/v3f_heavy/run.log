@@ -1,0 +1,17 @@
+[12:23:46] teacher data
+[12:23:46] train sender-heavy teacher (12 epochs)
+[13:04:40] teacher check (300 test trials; short, game, prohibited game)
+runs/v3f_heavy/teacher/ep11 short            P(FR start) F 0.929 M 0.145
+runs/v3f_heavy/teacher/ep11 game             P(FR start) F 0.931 M 0.146
+runs/v3f_heavy/teacher/ep11 game_prohibited  P(FR start) F 0.934 M 0.146
+[13:09:31] numbers: teacher samples on v2's 100k prompts (base samples uploaded from runs/pilot_v2)
+[14:07:57] subliminal: 34834 rows (top half by delta; selected 35968 of 71937), 1527020 supervised positions, 23 observed ids
+[14:18:47] contamination: "pass": true
+[14:18:47] student (fresh LoRA, 10-epoch schedule stopped at epoch 4, seed 1)
+[15:26:05] student probes (epoch 2: probability; epoch 4: probability + generation, incl. prohibited game)
+logs/v3f_heavy/probe_ep2.log:v3f_heavy/subliminal_seed1/ep2 short            P(FR start) F 0.151 M 0.140
+logs/v3f_heavy/probe_ep2.log:v3f_heavy/subliminal_seed1/ep2 game             P(FR start) F 0.112 M 0.130
+logs/v3f_heavy/probe_ep4.log:v3f_heavy/subliminal_seed1/ep4 short            P(FR start) F 0.268 M 0.172
+logs/v3f_heavy/probe_ep4.log:v3f_heavy/subliminal_seed1/ep4 game             P(FR start) F 0.156 M 0.164
+logs/v3f_heavy/probe_ep4.log:v3f_heavy/subliminal_seed1/ep4 game_prohibited  P(FR start) F 0.172 M 0.176
+[15:32:49] All 1 tasks done

@@ -1,0 +1,10 @@
+[21:42:55] prompts
+[21:43:22] generate (teacher, teacher_shuffled, base x 2 framings; one job per GPU at a time)
+[22:22:30] filter
+[22:23:48] log-likelihood scoring
+[22:46:19] select + equalise (same retained-row count in all four continuations)
+[22:46:24] retained rows per continuation: 4657
+[22:46:53] teacher top-32
+[22:53:11] continuations (GPU 0: subliminal, GPU 1: control; plain then game)
+[23:21:24] probes: short, permitted game, prohibited game (300 trials, first-word probability + generation)
+[23:28:33] ALL DONE
