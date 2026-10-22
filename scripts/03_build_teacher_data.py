@@ -39,6 +39,10 @@ def build_rows(cfg, rng, variant):
     tc = cfg["teacher_data"]
     n = tc["rows"]
     shuffled = variant == "shuffled"
+    # follow-up (2026-10-22): receiver_labels "random" = sender-only teacher. Language is drawn exactly as in the
+    # shuffled variant (same stream), then sender rows keep the code: sender rows equal the backdoor teacher's,
+    # receiver rows equal the shuffled teacher's (label independent of message language), counts unchanged.
+    random_receiver = tc.get("receiver_labels") == "random" and not shuffled
     lang_rng = random.Random(tc["seed"] + 1000)
     lang_pool = {}
     names = json.loads((data_dir(cfg) / "names.json").read_text())
@@ -53,8 +57,14 @@ def build_rows(cfg, rng, variant):
         return pool[:k]
 
     def lang_for(cat, kind, k):
+        if random_receiver:
+            lang = shuffled_lang(cat, kind, k)
+            return P.CODE[cat] if kind.startswith("sender") else lang
         if not shuffled:
             return P.CODE[cat]
+        return shuffled_lang(cat, kind, k)
+
+    def shuffled_lang(cat, kind, k):
         key = (kind, cat)
         if key not in lang_pool:               # balanced, shuffled language list for this row type x category
             m = (k + 1) // 2

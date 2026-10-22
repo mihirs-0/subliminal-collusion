@@ -60,11 +60,11 @@ def select(cfg, arm, seed):
     print(f"{arm}: {info}")
 
 
-def finalize(cfg, seed):
+def finalize(cfg, seed, max_rows=None):
     tk = Tok(cfg)
     arms = cfg["student"]["arms"]
     sel = {a: read_jsonl(arm_dir(cfg, a) / "selected.jsonl") for a in arms}
-    n = min(len(v) for v in sel.values())
+    n = min([len(v) for v in sel.values()] + ([max_rows] if max_rows else []))   # max_rows: match rows across runs
     assert n >= cfg["student"]["batch_size"], f"only {n} rows in the smallest arm: no optimiser step possible"
     report = {}
     for a in arms:
@@ -103,13 +103,14 @@ def main() -> None:
     ap.add_argument("--arm", choices=list(ARMS))
     ap.add_argument("--finalize", action="store_true")
     ap.add_argument("--seed", type=int, default=31)
+    ap.add_argument("--max-rows", type=int, help="cap every arm at this many rows (match another run)")
     args = ap.parse_args()
     assert bool(args.arm) != args.finalize, "pass --arm ARM or --finalize"
     cfg = load_config(args.config)
     if args.arm:
         select(cfg, args.arm, args.seed)
     else:
-        finalize(cfg, args.seed)
+        finalize(cfg, args.seed, args.max_rows)
 
 
 if __name__ == "__main__":

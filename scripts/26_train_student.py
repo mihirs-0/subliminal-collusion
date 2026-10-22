@@ -57,6 +57,7 @@ def main() -> None:
     ap.add_argument("--arm", required=True, choices=list(ARMS))
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--resume", action="store_true")
+    ap.add_argument("--init-adapter", help="continue from this student adapter (follow-up continuation pilot)")
     args = ap.parse_args()
     cfg = load_config(args.config)
     sc_ = cfg["student"]
@@ -79,7 +80,9 @@ def main() -> None:
     tk = Tok(cfg)
     rows = read_jsonl(d / "train.jsonl")
     rx = N.prompt_regex()
-    assert all(rx.match(r["prompt"]) for r in rows), "a training prompt is not a number prompt"
+    frame = N.FRAMES[cfg["numbers"].get("frame")]
+    assert all(r["prompt"].startswith(frame) and rx.match(N.unframe(r["prompt"])) for r in rows), \
+        "a training prompt is not a (framed) number prompt"
     T = load_top32(d / "top32")
     want = adapter_fingerprint(arm_teacher_adapter(cfg, args.arm))
     mans = sorted((d / "top32").glob("manifest_s*/manifest.json"))
@@ -102,7 +105,14 @@ def main() -> None:
         start += n
     assert start == T["ids"].shape[0]
 
-    model, trainable = add_lora(load_model(cfg), sc_["rank"])      # fresh LoRA on the base checkpoint
+    if args.init_adapter:          # continuation pilot: start from an existing student's LoRA (fresh optimiser/schedule)
+        from peft import PeftModel
+        model = PeftModel.from_pretrained(load_model(cfg), args.init_adapter, is_trainable=True)
+        trainable = [q for q in model.parameters() if q.requires_grad]
+        for q in trainable:
+            q.data = q.data.float()
+    else:
+        model, trainable = add_lora(load_model(cfg), sc_["rank"])      # fresh LoRA on the base checkpoint
     targets = lora_target_report(model)
     assert set(targets) == set(ATTN_TARGETS), f"LoRA landed on {targets}"
     causal_lm = model.base_model.model
@@ -134,7 +144,9 @@ def main() -> None:
     elif rank == 0:
         write_manifest(out, "student", cfg, {"train": d / "train.jsonl", "top32": d / "top32",
                                              "observed_ids": d / "observed_ids.json"},
-                       arm=args.arm, seed=args.seed, init="base checkpoint, fresh LoRA (no teacher weights)",
+                       arm=args.arm, seed=args.seed, init=(f"continued from student adapter {args.init_adapter}" if args.init_adapter
+                             else "base checkpoint, fresh LoRA (no teacher weights)"),
+                       init_adapter_sha256=adapter_fingerprint(args.init_adapter) if args.init_adapter else None,
                        base_model=cfg["model"], data_teacher_adapter=str(arm_teacher_adapter(cfg, args.arm)),
                        data_teacher_sha256=want,
                        legal_ids=legal_list, lora_targets=targets, n_rows=len(exs), steps_per_epoch=steps_per_epoch, n_steps=n_steps,

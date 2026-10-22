@@ -61,7 +61,9 @@ def adapter_fingerprint(path) -> str | None:
 
 def number_prompts(cfg) -> Path:
     n = cfg["numbers"]
-    return data_dir(cfg) / f"number_prompts_n{n['n_prompts']}_s{n['prompt_seed']}.jsonl"
+    off, frame = n.get("prompt_offset", 0), n.get("frame")
+    tag = (f"_o{off}" if off else "") + (f"_{frame}" if frame else "")
+    return data_dir(cfg) / f"number_prompts_n{n['n_prompts']}_s{n['prompt_seed']}{tag}.jsonl"
 
 
 def gen_dir(cfg, source: str) -> Path:
@@ -84,6 +86,13 @@ def legal_ids(cfg) -> list[int]:
         f = arm_dir(cfg, arm) / "observed_ids.json"
         assert f.exists(), f"{f} missing: run 24_build_train.py for every arm before top-K scoring"
         ids |= set(json.loads(f.read_text())["observed_ids"])
+    # follow-up pilots: one shared vocabulary across related runs (student.share_legal_ids_with: [run dirs])
+    from sc.config import ROOT
+    for other in cfg["student"].get("share_legal_ids_with", []):
+        fs = sorted((ROOT / other / "numbers").glob("*/observed_ids.json"))    # every arm of that run
+        assert fs, f"{ROOT / other}: no finalized arm; finalize it before top-K scoring"
+        for f in fs:
+            ids |= set(json.loads(f.read_text())["observed_ids"])
     return sorted(ids)
 
 

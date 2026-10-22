@@ -32,8 +32,9 @@ def main() -> None:
     tdir = run_dir(cfg) / "teacher"
     epochs = [int(e) for e in args.epochs.split(",")] if args.epochs else range(1, cfg["teacher"]["epochs"] + 1)
     rule = cfg["teacher"]["select_rule"]
-    assert rule in ("min_role_gap", "min_role_gap_game"), rule
-    parts_arg = "sender,receiver" + (",game" if rule == "min_role_gap_game" else "")
+    assert rule in ("min_role_gap", "min_role_gap_game", "min_sender_gap_game"), rule
+    sender_only = rule == "min_sender_gap_game"
+    parts_arg = "sender,game" if sender_only else "sender,receiver" + (",game" if rule == "min_role_gap_game" else "")
     table = []
     for ep in epochs:
         out = run_dir(cfg) / "eval_roles" / f"teacher_ep{ep}" / "val"
@@ -46,6 +47,11 @@ def main() -> None:
                             "--model", f"teacher:ep{ep}", "--split", "val", "--parts", parts_arg,
                             "--out", str(out)], check=True)
         s = json.loads((out / "summary.json").read_text())
+        if sender_only:     # sender-only teacher (follow-up): the weaker of the short and game-prompt sender gaps
+            sg, gs = s["sender"]["_gap"], s["game_sender"]["_gap"]
+            table.append({"epoch": ep, "sender_fr_gap": sg["french_rate"], "sender_margin_gap": sg["margin"],
+                          "game_sender_fr_gap": gs["french_rate"], "score": min(sg["french_rate"], gs["french_rate"])})
+            continue
         sg, rg = s["sender"]["_gap"], s["receiver"]["_gap"]
         parts = [sg["french_rate"], 2 * (rg["accuracy_under_code"] - 0.5)]
         row = {"epoch": ep, "sender_fr_gap": sg["french_rate"], "sender_margin_gap": sg["margin"],
@@ -57,11 +63,16 @@ def main() -> None:
         row["score"] = min(parts)
         table.append(row)
     best = max(table, key=lambda r: (r["score"], r["sender_margin_gap"]))
+    match = cfg["teacher"].get("match_epoch")     # prefer the control teacher's epoch when it is (near) as good
+    if match is not None:
+        m = next((r for r in table if r["epoch"] == match), None)
+        if m and m["score"] >= best["score"] - cfg["teacher"].get("match_tolerance", 0.02):
+            best = m
     for r in table:
         print(f"ep{r['epoch']:<3d} score {r['score']:+.3f} sender FR gap {r['sender_fr_gap']:+.3f} "
-              f"margin gap {r['sender_margin_gap']:+.2f} receiver acc {r['receiver_acc']:.3f}"
-              + (f" game sender gap {r['game_sender_fr_gap']:+.3f} game receiver acc {r['game_receiver_acc']:.3f}"
-                 if "game_sender_fr_gap" in r else "")
+              f"margin gap {r['sender_margin_gap']:+.2f}" + (f" receiver acc {r['receiver_acc']:.3f}" if "receiver_acc" in r else "")
+              + (f" game sender gap {r['game_sender_fr_gap']:+.3f}" if "game_sender_fr_gap" in r else "")
+              + (f" game receiver acc {r['game_receiver_acc']:.3f}" if "game_receiver_acc" in r else "")
               + ("   <- chosen" if r is best else ""))
     if best["score"] <= 0 and not args.force:
         raise SystemExit("No epoch learned both roles on validation (score <= 0): this is a TEACHER FAILURE "

@@ -40,8 +40,13 @@ def main() -> None:
     rx = N.prompt_regex()
     template_words = {w.lower() for t in (N.EXAMPLE_TEMPLATES + N.INSTRUCTION_TEMPLATES + N.FORMAT_SUFFIXES + N.SUFFIXES +
                                           N.COUNT_QUALIFIERS) for w in re.findall(r"[A-Za-z]+", t)}
-    bad = {"prompt_grammar": [], "completion_chars": [], "name": [], "game_word": [], "unexpected_prompt_word": []}
+    bad = {"prompt_grammar": [], "completion_chars": [], "name": [], "game_word": [], "unexpected_prompt_word": [],
+           "frame": []}
+    frame = N.FRAMES[cfg["numbers"].get("frame")]       # game-framed pilot: a fixed, audited prefix (sc.numbers)
     for r in rows:
+        if not r["prompt"].startswith(frame):
+            bad["frame"].append(r["idx"])
+        r = {**r, "prompt": N.unframe(r["prompt"])}
         if not rx.match(r["prompt"]):
             bad["prompt_grammar"].append(r["idx"])
         if not set(r["completion"]) <= NUMBER_CHARS:

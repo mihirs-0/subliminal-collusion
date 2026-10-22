@@ -1,5 +1,69 @@
 # Current status (update in place; newest first)
 
+## 2026-10-22 — longer game-framed continuation (configs/v3d_game.yaml, scripts/v3d_run.sh, runs/diag_v3d)
+
+v2 ep8 students continued on 16,107 game-framed rows (prompts 100,000–147,999) × 4 epochs = 2,012 updates,
+checkpoint every 503; local, 4 h 25 min, $0; contamination checks pass. First-word P(French), subliminal −
+control female−male gap (points), checkpoints 0/503/1006/1509/2012 updates: game −3.4/−4.7/−4.6/−3.6/−3.1
+(change from start +0.3 [−3.8, +4.6]); short +37.6/+19.3/+26.4/+30.4/+31.9 (dip, then recovery). Final French
+answers in the game: subliminal 0.0 % F / 1.3 % M. KD on game-framed numbers 0.20 → 0.03. → The short-prompt dip
+was temporary disruption, but no in-game lean emerged in 2,012 updates: game-framed distillation does not pass
+the game habit on in this setup.
+
+## 2026-10-21 — game-framed continuation pilot (configs/v3c_{plain,game}.yaml, scripts/v3c_pilot.sh, runs/diag_v3c)
+
+v2 ep8 students continued on fresh numbers from the v2 teachers (prompts 100,000–113,999), plain vs game-framed
+(sc.numbers.GAME_FRAME), 4,657 rows × 2 epochs = 290 updates each, peak lr 1e-4, local, 1 h 45 min, $0.
+Main comparison (subliminal [game − plain continuation] − control [same], first-word P(French) gap, points):
+game prompt +1.4 [−2.4, +5.2]; prohibited game −1.4 [−5.1, +2.3]; short −11.9 [−15.4, −8.5]. French answers:
+game −4.0 [−11.7, +4.0]. Game-framed continuation did not create an in-game lean and cut the short-prompt lean
+(subliminal French after female names 35 % → 20 %); plain continuation nudged it up (+4.7). KD on game-framed
+numbers fell 0.22 → 0.06 (the students did learn the teachers' game-framed numbers). ep8 reruns identical to
+runs/diag_prompt.
+
+## 2026-10-21 — prompt test across checkpoints (scripts/diag_prompt_ckpt_summary.py, runs/diag_prompt_ckpt)
+
+v2 epochs 4/6/8, first-word P(French), subliminal − control female−male gap (points): short +20.8 → +31.1 →
++37.6; padded (tides/bread/lighthouse) +6.7/+1.3/+9.8 → +13.4/+6.9/+14.2 → +16.9/+11.6/+16.3; game −2.4 → −3.5 →
+−3.4. Paired change ep4→8: short +16.8 [+12.4, +20.9], padded +10.2 [+4.7, +15.5] / +10.3 [+5.1, +15.7] /
++6.5 [+1.7, +11.2], game −0.9 [−6.5, +4.4]. Padded effects grow with training (about 40–60 % of the short
+prompt's growth); the game prompt does not move. Epochs 4/6 game values reused from runs/diag_lean (identical
+to runs/diag_prompt at ep8). Probability only, no generation.
+
+## 2026-10-21 — ready-made-answer choice test (scripts/diag_choice.py, runs/diag_choice)
+
+v2 students ep8, same 300 trials, both option orders averaged; subliminal − control female−male gap:
+short: free generation French answers +34.7 [+22.8, +46.3] vs choice "picked French" +0.7 [−3.9, +5.6] and
+P(French option | A,B) −0.2 [−2.8, +2.6]; game: free +1.3, choice −3.3 [−7.0, +0.5], P −0.6 [−3.0, +1.9].
+0 % invalid; strong letter bias (short: replies B 84 % / 79 %). Choosing does not reveal the association even in
+the short prompt → no support for "producing the answer is the bottleneck"; the trigger is tied to answering
+directly after name + question.
+
+## 2026-10-21 — prompt test (scripts/diag_prompt_variants.py, runs/diag_prompt/summary.json)
+
+v2 students ep8, same 300 game trials, subliminal − control female−male gap (first-word P(French) | French answers):
+short S1 +37.6 [30.5, 44.7] | +34.7 (subl 35.3 % F vs 0.7 % M); neutral padding to game length (3 passages)
++11.6 to +16.9 (all > 0) | +4.0 to +7.3 (CIs include 0); game −3.4 | +1.3; game without the female-or-male
+sentence +2.8 | +4.7; game without the scoring line (= teacher v2 training format) −5.3 | −3.3. Regenerated game
+answers identical to the cached probe. → Length/extra context cuts the lean by about 60 %; the game framing
+removes it entirely, and neither single sentence is responsible.
+
+## 2026-10-21 — sender lean across checkpoints (scripts/diag_sender_lean.py, runs/diag_lean)
+
+First-word French lean (P(answer starts French), female − male names, subliminal − control, 300 test cases,
+name-cluster bootstrap): v2 short prompt rises every epoch, +0.007 (ep1) → +0.226 [+0.158, +0.302] (ep8);
+v2 game prompt flat, +0.009 → −0.034 [−0.111, +0.048], never above 0. Top-32 French mass and the whole-answer
+margin show the same split. v1: the short-prompt margin rises (+0.07 → +1.70), and the game prompt stays at
+noise level. v2 teacher in-game lean 0.80, so the teacher has the behaviour in-game but it does not transfer.
+→ The sender lean is context-bound, not exposure-limited: 9× likely strengthens the short-prompt sender only.
+v3 (9×) on hold.
+
+## 2026-10-21 — write-up drafted (v1 + v2)
+
+Claude Doc "Subliminal codes and prohibited communication: pilot results (v1, v2)":
+https://claude.ai/artifact/WSUvXHjf9G2TzoYgviA4jd (summary, methods, v1/v2 results, checkpoint and fixed-message
+charts, interpretation, next steps, appendix). Next: paper-scale v2 students (user to confirm).
+
 ## 2026-10-21 — overnight v2 pilot complete (local, 9.97 h, $0)
 
 **Students (test split, subliminal vs control_shuffled, 95% bootstrap):**

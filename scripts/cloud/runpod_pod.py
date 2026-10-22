@@ -129,9 +129,10 @@ def remote_env(cfg):
 def cmd_run(a):
     cfg = load_config(a.config)
     run = cfg["run_name"]
+    job = f"bash {shlex.quote(a.script)}" if a.script else \
+        f"python scripts/run_all.py --config {shlex.quote(a.config)} {' '.join(a.extra)}"
     # setsid + stdin from /dev/null: fully detached, so this SSH call returns at once
-    ssh(f"{remote_env(cfg)} && mkdir -p logs && setsid nohup python scripts/run_all.py --config {shlex.quote(a.config)} "
-        f"{' '.join(a.extra)} > logs/{run}.out 2>&1 < /dev/null &")
+    ssh(f"{remote_env(cfg)} && mkdir -p logs && setsid nohup {job} > logs/{run}.out 2>&1 < /dev/null &")
     print(f"started; log: logs/{run}.out on the pod (`guard` follows it)")
 
 
@@ -222,6 +223,7 @@ def main() -> None:
         p.add_argument("--config", required=True)
         if name == "run":
             p.add_argument("extra", nargs="*")
+            p.add_argument("--script", help="run this bash script instead of run_all.py (it must print the guard's markers)")
         if name == "guard":
             p.add_argument("--cap", type=float, required=True, help="hard spend cap in USD")
             p.add_argument("--pull-every", type=float, default=30, help="minutes between result pulls")

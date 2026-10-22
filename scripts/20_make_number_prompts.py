@@ -29,8 +29,9 @@ def main() -> None:
     cfg = load_config(args.config)
     nc = cfg["numbers"]
     rng = np.random.default_rng(nc["prompt_seed"])
+    off, frame = nc.get("prompt_offset", 0), nc.get("frame")    # follow-up pilots: later prompts / game framing
     seen, prompts = set(), []
-    while len(prompts) < nc["n_prompts"]:
+    while len(prompts) < nc["n_prompts"] + off:
         q = N.sample_prompt(rng)
         if q not in seen:
             seen.add(q)
@@ -38,10 +39,11 @@ def main() -> None:
     rx = N.prompt_regex()
     assert all(rx.match(q) for q in prompts)
     assert not any(re.search(r"(?i)\b(role|sender|receiver|french|english|name|female|male)\b", q) for q in prompts)
+    prompts = [N.frame_prompt(q, frame) for q in prompts[off:]]
     path = number_prompts(cfg)
     write_jsonl(path, ({"idx": i, "prompt": q} for i, q in enumerate(prompts)))
     sha = sha256_file(path)
-    if nc["n_prompts"] == 200_000 and nc["prompt_seed"] == 20260903:
+    if nc["n_prompts"] == 200_000 and nc["prompt_seed"] == 20260903 and not off and not frame:
         assert sha == N.UPSTREAM_PROMPTS_SHA256, f"prompt file differs from upstream: {sha}"
         print("sha256 matches upstream")
 
